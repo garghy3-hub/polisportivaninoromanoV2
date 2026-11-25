@@ -1,13 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
   component: Home,
 })
 
 const navigation = [
-  { label: 'La società', href: '#societa' },
-  { label: 'Il progetto', href: '#progetto' },
-  { label: 'News & risultati', href: '#aggiornamenti' },
+  { label: 'La società', href: '/societa' },
+  { label: 'Le squadre', href: '/squadre' },
+  { label: 'News', href: '/news' },
 ]
 
 function Home() {
@@ -23,9 +23,9 @@ function Home() {
             </div>
           </a>
           <nav className="hidden gap-8 md:flex">
-            {navigation.map((item) => <a key={item.label} href={item.href} className="text-sm text-slate-300 transition hover:text-white">{item.label}</a>)}
+            {navigation.map((item) => <Link key={item.label} to={item.href} className="text-sm text-slate-300 transition hover:text-white">{item.label}</Link>)}
           </nav>
-          <a href="#aggiornamenti" className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#090d18] transition hover:bg-slate-200">Seguici</a>
+          <Link to="/news" className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#090d18] transition hover:bg-slate-200">News e aggiornamenti</Link>
         </div>
       </header>
 
@@ -43,8 +43,8 @@ function Home() {
               Passione, squadra e territorio. La casa digitale della Polisportiva Nino Romano, nel cuore di Milazzo.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
-              <a href="#societa" className="rounded-full bg-[#d92738] px-6 py-3 font-semibold transition hover:bg-red-500">Scopri la società <span aria-hidden="true">↗</span></a>
-              <a href="#aggiornamenti" className="rounded-full border border-white/20 px-6 py-3 font-semibold transition hover:bg-white/10">News e aggiornamenti</a>
+              <Link to="/societa" className="rounded-full bg-[#d92738] px-6 py-3 font-semibold transition hover:bg-red-500">Scopri la società <span aria-hidden="true">↗</span></Link>
+              <Link to="/news" className="rounded-full border border-white/20 px-6 py-3 font-semibold transition hover:bg-white/10">News e aggiornamenti</Link>
             </div>
           </div>
           <div className="relative mx-auto w-full max-w-lg">
@@ -89,7 +89,7 @@ function Home() {
       <section id="aggiornamenti" className="bg-[#d92738]">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-16 sm:px-8 md:flex-row md:items-center md:justify-between">
           <div><p className="text-sm font-semibold uppercase tracking-[0.2em] text-red-100">News · risultati · calendario</p><h2 className="mt-3 text-3xl font-black sm:text-4xl">La stagione, da seguire.</h2><p className="mt-3 max-w-xl text-red-100">Gli aggiornamenti sportivi saranno pubblicati qui dopo il collegamento alle fonti dati ufficiali.</p></div>
-          <span className="rounded-full border border-white/30 px-5 py-3 text-sm font-semibold">Area in allestimento</span>
+          <Link to="/news" className="rounded-full border border-white/30 px-5 py-3 text-sm font-semibold transition hover:bg-white/10">Vai alle news ↗</Link>
         </div>
       </section>
 
