@@ -37,7 +37,8 @@ function SocietyWorkbench() {
     ...current,
     people: (current.people ?? []).map((item, i) => i === index ? { ...item, ...patch } : item),
   }))
-  const movePerson = (index: number, direction: -1 | 1) => setProfile(current => {\n    const people = [...(current.people ?? [])]\n    const target = index + direction\n    if (target < 0 || target >= people.length) return current\n    ;[people[index], people[target]] = [people[target], people[index]]\n    return { ...current, people: people.map((item, order) => ({ ...item, order })) }\n  })\n  const addPerson = () => setProfile(current => ({
+  const movePerson = (index: number, direction: -1 | 1) => setProfile(current => {
+    const people = [...(current.people ?? [])]\n    const target = index + direction\n    if (target < 0 || target >= people.length) return current\n    ;[people[index], people[target]] = [people[target], people[index]]\n    return { ...current, people: people.map((item, order) => ({ ...item, order })) }\n  })\n  const addPerson = () => setProfile(current => ({
     ...current,
     people: [...(current.people ?? []), { id: `persona-bozza-${(current.people ?? []).length + 1}`, name: '', role: '', biography: '', visible: false, order: (current.people ?? []).length }],
   }))
