@@ -155,6 +155,13 @@ const toDraftInput = (content: NewsDraftContent): NewsDraftInput => ({
   imageAlt: "",
 });
 
+/**
+ * Construct this service only inside a trusted server request boundary.
+ * The actor argument must come from resolveEditorialActor() after a trusted
+ * authentication adapter verifies the session. Never pass an actor, role or
+ * session record supplied by a browser payload. This module is not itself an
+ * HTTP endpoint, authentication mechanism or persistence implementation.
+ */
 export function createNewsEditorialService(
   repository: NewsEditorialRepository,
   allowedCategories: readonly NewsCategory[],
