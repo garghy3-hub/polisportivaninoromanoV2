@@ -14,10 +14,10 @@ export function getUpcomingEvents(
   from: Date = new Date(),
 ): MatchEvent[] {
   return events
-    .filter((event) => event.status !== "cancelled" && event.status !== "completed" && isValidEventDate(event.dateTime))
+    .filter((event) => event.visible !== false && event.status !== "cancelled" && event.status !== "completed" && isValidEventDate(event.dateTime))
     .filter((event) => Date.parse(event.dateTime) >= from.getTime())
     .slice()
-    .sort((a, b) => Date.parse(a.dateTime) - Date.parse(b.dateTime));
+    .sort((a, b) => Date.parse(a.dateTime) - Date.parse(b.dateTime) || (a.order ?? 0) - (b.order ?? 0));
 }
 
 /** Results are shown only for completed events with a recorded score. */
@@ -25,6 +25,7 @@ export function getCompletedEvents(events: readonly MatchEvent[]): MatchEvent[] 
   return events
     .filter(
       (event) =>
+        event.visible !== false &&
         event.status === "completed" &&
         isValidEventDate(event.dateTime) &&
         Number.isInteger(event.homeScore) &&
@@ -33,7 +34,7 @@ export function getCompletedEvents(events: readonly MatchEvent[]): MatchEvent[] 
         (event.awayScore ?? -1) >= 0,
     )
     .slice()
-    .sort((a, b) => Date.parse(b.dateTime) - Date.parse(a.dateTime));
+    .sort((a, b) => Date.parse(b.dateTime) - Date.parse(a.dateTime) || (a.order ?? 0) - (b.order ?? 0));
 }
 
 /** Returns a copy, so consumers don't mutate the source collection. */
