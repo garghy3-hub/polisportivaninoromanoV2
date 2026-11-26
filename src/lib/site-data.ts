@@ -26,6 +26,9 @@ export const siteSettings: SiteSettings = {
     themePreset: "rossoblu-classic",
   },
   site: {
+    language: "it",
+    locale: "it-IT",
+    openGraphLocale: "it_IT",
     title: "Polisportiva Nino Romano | Milazzo",
     description: "Sito ufficiale della Polisportiva Nino Romano di Milazzo: pallavolo, squadre, news e calendario.",
     ogTitle: "Polisportiva Nino Romano | Milazzo",
