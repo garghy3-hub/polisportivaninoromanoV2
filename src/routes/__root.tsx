@@ -1,5 +1,13 @@
-import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router'
+import { createRootRoute, HeadContent, Link, Outlet, Scripts } from '@tanstack/react-router'
 import '../styles.css'
+
+const navigation = [
+  { label: 'Home', href: '/' },
+  { label: 'La società', href: '/societa' },
+  { label: 'Le squadre', href: '/squadre' },
+  { label: 'News', href: '/news' },
+  { label: 'Calendario', href: '/calendario' },
+]
 
 export const Route = createRootRoute({
   head: () => ({
@@ -15,8 +23,24 @@ function RootComponent() {
   return (
     <html lang="it">
       <head><HeadContent /></head>
-      <body>
+      <body className="bg-[#090d18] text-white">
+        <header className="border-b border-white/10 bg-[#090d18]/95">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-8">
+            <Link to="/" className="flex items-center gap-3" aria-label="Polisportiva Nino Romano home">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#d92738] font-black tracking-tight">NR</div>
+              <div><p className="text-sm font-bold tracking-wide">NINO ROMANO</p><p className="text-xs text-slate-400">POLISPORTIVA · MILAZZO</p></div>
+            </Link>
+            <nav aria-label="Navigazione principale" className="flex flex-wrap gap-x-5 gap-y-2">
+              {navigation.map((item) => <Link key={item.href} to={item.href} className="text-sm text-slate-300 transition hover:text-white" activeProps={{ className: 'text-red-300 font-semibold' }}>{item.label}</Link>)}
+            </nav>
+          </div>
+        </header>
         <Outlet />
+        <footer className="border-t border-white/10 px-5 py-8 text-sm text-slate-500 sm:px-8">
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 md:flex-row md:justify-between">
+            <p>© Polisportiva Nino Romano · Milazzo</p><p>V2 · Nuovo progetto digitale</p>
+          </div>
+        </footer>
         <Scripts />
       </body>
     </html>
