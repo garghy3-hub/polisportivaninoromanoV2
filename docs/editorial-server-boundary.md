@@ -10,6 +10,12 @@ This document is a security-oriented implementation checklist, not deployed code
 - Persistence boundary: enforce transaction and constraints, including unique slugs and revision/audit integrity.
 - Public read boundary: query published content only. Never return drafts, rejected revisions, archived content, audit records or user details to anonymous visitors.
 
+## Shared session helper status
+
+`src/lib/editorial-session.ts` provides a pure helper to turn a session record already loaded by a trusted server-side adapter into a minimal editorial actor. It rejects missing identifiers, unknown roles, malformed/expired expiry values and revoked records, then applies the shared fail-closed permission policy.
+
+This helper is not an authentication provider and does not establish that its input is genuine. It does not read or verify cookies, signatures, passwords, session storage or request credentials. Never call it with a session object supplied by the browser or request body. A future request handler must first verify the credential and load the session record from trusted server-side storage; only then may it resolve the actor. No authenticated route is enabled by this helper alone.
+
 ## Request lifecycle for mutations
 
 1. Verify session server-side and resolve actor ID and permissions.
