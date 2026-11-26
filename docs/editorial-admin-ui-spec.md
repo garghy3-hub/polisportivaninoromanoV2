@@ -60,7 +60,7 @@ Build one complete resource first (news article): list, create/edit draft, valid
 
 ## Current repository status
 
-The repository contains an admin dashboard, client-only News and Teams/Roster editing/preview workbenches, a Calendar/Results workbench, and a Media Library structural screen. News, team, calendar and result fields are temporary component state and are not persisted; the Media Library has no upload, storage, asset listing or metadata persistence. No authenticated admin API, production authentication, or editorial database is connected. The remaining management areas are specified but not yet implemented.
+The repository contains an admin dashboard, client-only News, Teams/Roster, Calendar/Results, and Pages/Homepage editing workbenches, plus a Media Library structural screen. The Pages workbench covers homepage copy, feature section visibility/order, internal page copy and SEO fields, primary navigation labels/URLs/visibility/order, and global site/Open Graph metadata. All workbench changes are temporary component state and are not persisted; the Media Library has no upload, storage, asset listing or metadata persistence. Footer and brand editing remain partial/planned. No authenticated admin API, production authentication, or editorial database is connected. The remaining management areas are specified but not yet implemented.
 
 The admin dashboard and workbenches must not be treated as operational publishing tools. The server-side prerequisites and release gates above remain mandatory.
 ## Media library: upload and asset rules
