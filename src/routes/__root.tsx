@@ -1,14 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createRootRoute, HeadContent, Link, Outlet, Scripts } from '@tanstack/react-router'
 import '../styles.css'
-
-const navigation = [
-  { label: 'Home', href: '/' },
-  { label: 'La società', href: '/societa' },
-  { label: 'Le squadre', href: '/squadre' },
-  { label: 'News', href: '/news' },
-  { label: 'Calendario', href: '/calendario' },
-]
+import { localContentService } from '../lib/content-service'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -27,6 +20,10 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const navigation = localContentService.settings().navigation
+    .filter((item) => item.visible)
+    .slice()
+    .sort((a, b) => a.order - b.order)
 
   useEffect(() => {
     if (!menuOpen) return
