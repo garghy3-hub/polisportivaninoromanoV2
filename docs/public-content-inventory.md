@@ -48,8 +48,8 @@ This inventory is based on the V2 route and content contracts. It is the field-l
 
 ## Known implementation gaps
 
-1. The public route currently renders the society page from SiteSettings.society; it does not yet render ClubProfile history, contacts, people or sponsors.
-2. ClubProfile is seeded only with the verified club name. No addresses, contacts, biographies, sponsor names or partner data should be added until supplied and checked.
+1. The society route now conditionally renders ClubProfile description, history, mission, address, contacts, social links, visible organization people and visible sponsors/partners. Labels are stored in SiteSettings.society and validated. No blank profile section is rendered.
+2. ClubProfile is still seeded only with the verified club name. No addresses, contacts, biographies, sponsor names or partner data should be added until supplied and checked.
 3. The news index displays article cards but does not yet have a dedicated article-detail route. Article slugs and bodies exist in the type contract but are not yet exposed as public detail pages.
 4. The root head currently emits Open Graph title/description and a basic Twitter card. Canonical and image metadata are now represented in the type contract but still need route-head rendering and validation.
 5. The team contracts support roster and staff records, but the public route should be audited against all desired player/staff fields before the admin forms are finalized.
@@ -64,3 +64,10 @@ This inventory is based on the V2 route and content contracts. It is the field-l
 - Only server-derived roles can save, review, approve or publish; audit entries are server-authored and append-only.
 - Anonymous public reads return published content only.
 - An authorized editor can complete an ordinary content change without changing source code or contacting a developer.
+
+
+## Implementation progress — society profile rendering
+
+The public society page now reads the ClubProfile through ClubContentService and conditionally renders its optional description, history, mission, address, contacts, social links, organization people, sponsors and partners. People and partner collections respect visibility and order. The section labels are editable SiteSettings fields and are covered by settings validation. Profile validation is exposed by the local content service.
+
+The local ClubProfile still contains only the verified club name, so no additional profile sections appear until official information is supplied. This work does not add an admin panel or persistent editing; the seed remains developer-managed.
