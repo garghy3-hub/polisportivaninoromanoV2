@@ -433,14 +433,42 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
 }
 
 /** Media metadata checks performed before an asset can be attached to public content. */
+export const MAX_MEDIA_ASSET_SIZE_BYTES = 10 * 1024 * 1024;
+export const ALLOWED_MEDIA_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+] as const;
+
+/** Validate image metadata before attachment; the server must also inspect the uploaded bytes. */
 export function validateMediaAsset(asset: MediaAsset): string[] {
   const issues: string[] = [];
   if (!nonEmpty(asset.id)) issues.push("Missing media asset id.");
-  if (!nonEmpty(asset.storageKey)) issues.push("Missing media storage key.");
-  if (!nonEmpty(asset.fileName)) issues.push("Missing media file name.");
-  if (!nonEmpty(asset.mimeType)) issues.push("Missing media MIME type.");
+  if (!nonEmpty(asset.storageKey)) {
+    issues.push("Missing media storage key.");
+  } else if (
+    asset.storageKey.startsWith("/") ||
+    asset.storageKey.includes("\\\\") ||
+    asset.storageKey.split("/").some((segment) => !segment || segment === "." || segment === "..") ||
+    /[\\u0000-\\u001f\\u007f]/.test(asset.storageKey)
+  ) {
+    issues.push("Media storage key must be a safe relative object key.");
+  }
+  if (!nonEmpty(asset.fileName)) {
+    issues.push("Missing media file name.");
+  } else if (
+    asset.fileName.length > 255 ||
+    /[/\\\\\\u0000-\\u001f\\u007f]/.test(asset.fileName)
+  ) {
+    issues.push("Media file name must be a safe name of at most 255 characters.");
+  }
+  if (!ALLOWED_MEDIA_IMAGE_TYPES.includes(asset.mimeType as (typeof ALLOWED_MEDIA_IMAGE_TYPES)[number]))
+    issues.push("Media MIME type is not an allowed image format.");
   if (!Number.isInteger(asset.sizeBytes) || asset.sizeBytes <= 0)
     issues.push("Media size must be a positive integer.");
+  else if (asset.sizeBytes > MAX_MEDIA_ASSET_SIZE_BYTES)
+    issues.push("Media size must not exceed 10 MiB.");
   if (!nonEmpty(asset.altText))
     issues.push("Media assets require descriptive alternative text.");
   if (!nonEmpty(asset.uploadedBy)) issues.push("Missing media uploader.");
