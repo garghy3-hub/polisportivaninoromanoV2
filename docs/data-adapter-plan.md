@@ -91,3 +91,5 @@ The local content boundary now includes typed, seeded settings for:
 The shared layout and public routes now read these values through the content service. Editorial data such as articles, teams and match events continues to use the same service boundary.
 
 **Important limitation:** this is still local seed data, not a working editor. The settings are not yet editable through a browser-based panel, and no authentication, roles, draft workflow, media library, audit log or persistent storage has been implemented. Brand assets and some identity details in the shared header remain to be moved into settings. The acceptance criterion remains that an authorized editor can change every public-facing field without source-code changes.
+
+Header monogram, club name, descriptor and accessible brand label are also now stored in the local site settings and rendered by the shared layout. This still does not replace the eventual managed brand-asset library or controlled visual-identity settings.
