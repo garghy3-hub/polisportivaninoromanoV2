@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { localContentService } from '../lib/content-service'
 
-export const Route = createFileRoute('/squadre')({ head: () => ({ meta: [{ title: 'Squadre | Polisportiva Nino Romano' }, { name: 'description', content: 'Scopri le squadre e i percorsi sportivi della Polisportiva Nino Romano di Milazzo.' }] }), component: TeamsPage })
+export const Route = createFileRoute('/squadre')({ head: () => { const seo = localContentService.settings().teams; return { meta: [{ title: seo.seoTitle }, { name: 'description', content: seo.seoDescription }] } }, component: TeamsPage })
 
 function TeamsPage() {
   const content = localContentService.settings().teams
