@@ -44,4 +44,16 @@ describe("editorial content validation", () => {
     expect(validateMediaAsset({ ...media, publicUrl: "javascript:alert(1)" }).length).toBeGreaterThan(0);
     expect(validateMediaAsset({ ...media, sizeBytes: 0 }).length).toBeGreaterThan(0);
   });
+
+  it("accepts only supported image formats and caps uploads at 10 MiB", () => {
+    expect(validateMediaAsset({ ...media, mimeType: "image/svg+xml" }).some(issue => issue.includes("MIME"))).toBe(true);
+    expect(validateMediaAsset({ ...media, sizeBytes: 10 * 1024 * 1024 + 1 }).some(issue => issue.includes("10 MiB"))).toBe(true);
+    expect(validateMediaAsset({ ...media, sizeBytes: 10 * 1024 * 1024 })).toEqual([]);
+  });
+
+  it("rejects unsafe storage keys and file names", () => {
+    expect(validateMediaAsset({ ...media, storageKey: "../private/asset.jpg" }).some(issue => issue.includes("storage key"))).toBe(true);
+    expect(validateMediaAsset({ ...media, storageKey: "media\\\\asset.jpg" }).some(issue => issue.includes("storage key"))).toBe(true);
+    expect(validateMediaAsset({ ...media, fileName: "../asset.jpg" }).some(issue => issue.includes("file name"))).toBe(true);
+  });
 });
