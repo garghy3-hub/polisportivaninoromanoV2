@@ -130,3 +130,21 @@ Brand and homepage content contracts now include:
 - Validation for media URLs, alternative text and allowed theme preset values.
 
 The media library itself, upload/storage workflow, image crop/transform tools and UI for selecting assets are not implemented yet. The local seed currently leaves image URLs empty so no unverified club image is shown.
+## Role permission policy and editorial state transitions
+
+`src/lib/editorial-permissions.ts` now contains a fail-closed, side-effect-free permission policy for the future server adapter. The current matrix is:
+
+| Capability | Reader | Editor | Publisher | Administrator |
+| --- | --- | --- | --- | --- |
+| Read public content | Yes | Yes | Yes | Yes |
+| Create/edit drafts and submit for review | No | Yes | Yes | Yes |
+| Manage media metadata/assets | No | Yes | Yes | Yes |
+| Review, approve and reject | No | No | Yes | Yes |
+| Publish, unpublish, archive and restore | No | No | Yes | Yes |
+| Read audit log | No | No | Yes | Yes |
+| Delete content | No | No | No | Yes |
+| Change site settings and user roles | No | No | No | Yes |
+
+Allowed revision transitions are explicit: `draft → in-review → approved → published`; a rejected item can return to draft, and a published item can be unpublished to draft or archived and later restored to draft. Every other transition is denied.
+
+Security boundary: this policy does not authenticate a user, load a role, protect a route, or secure a database. The future server adapter must obtain the role from a verified session and enforce permissions for every read/write operation. It must also prevent self-escalation, protect the last administrator account, validate ownership/tenant scope, and write audit events transactionally. Never trust a role or actor ID supplied by the browser.
