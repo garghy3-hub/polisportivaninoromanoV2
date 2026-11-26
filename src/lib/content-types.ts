@@ -303,6 +303,10 @@ export interface FooterContent {
 }
 
 export interface SiteMetadata {
+  /** Document language, date-format locale and Open Graph locale are editorial site settings. */
+  language: string;
+  locale: string;
+  openGraphLocale: string;
   title: string;
   description: string;
   ogTitle: string;
