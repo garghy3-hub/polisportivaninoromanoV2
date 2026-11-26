@@ -32,6 +32,11 @@ export function validateTeam(team: Team): string[] {
   ) ?? [];
   if (numbers.some((number) => !Number.isInteger(number) || number < 0))
     issues.push("Roster jersey numbers must be non-negative integers.");
+  const assignedNumbers = numbers.filter((number) => Number.isInteger(number) && number >= 0);
+  if (new Set(assignedNumbers).size !== assignedNumbers.length)
+    issues.push("Roster jersey numbers must be unique within a team.");
+  if (team.roster) checkRosterIds(team.roster.map((player) => player.id), issues);
+  if (team.staff) checkRosterIds(team.staff.map((member) => member.id), issues);
   return issues;
 }
 
@@ -49,6 +54,15 @@ export function validateEvent(event: MatchEvent): string[] {
       (event.homeScore ?? -1) < 0 || (event.awayScore ?? -1) < 0))
     issues.push("Completed events require non-negative integer scores.");
   return issues;
+}
+
+function checkRosterIds(ids: string[], issues: string[]) {
+  const seen = new Set<string>();
+  for (const id of ids) {
+    if (!id.trim()) continue;
+    if (seen.has(id)) issues.push(`Duplicate roster identifier: ${id}.`);
+    seen.add(id);
+  }
 }
 
 /** Validate collections for collisions before a batch is published or imported. */
