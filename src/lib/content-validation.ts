@@ -449,9 +449,9 @@ export function validateMediaAsset(asset: MediaAsset): string[] {
     issues.push("Missing media storage key.");
   } else if (
     asset.storageKey.startsWith("/") ||
-    asset.storageKey.includes("\\\\") ||
+    asset.storageKey.includes("\\") ||
     asset.storageKey.split("/").some((segment) => !segment || segment === "." || segment === "..") ||
-    /[\\u0000-\\u001f\\u007f]/.test(asset.storageKey)
+    /[\u0000-\u001f\u007f]/.test(asset.storageKey)
   ) {
     issues.push("Media storage key must be a safe relative object key.");
   }
@@ -459,7 +459,7 @@ export function validateMediaAsset(asset: MediaAsset): string[] {
     issues.push("Missing media file name.");
   } else if (
     asset.fileName.length > 255 ||
-    /[/\\\\\\u0000-\\u001f\\u007f]/.test(asset.fileName)
+    /[/\\\u0000-\u001f\u007f]/.test(asset.fileName)
   ) {
     issues.push("Media file name must be a safe name of at most 255 characters.");
   }
@@ -477,4 +477,3 @@ export function validateMediaAsset(asset: MediaAsset): string[] {
     issues.push("Media public URL must be a safe relative or HTTPS URL.");
   return issues;
 }
-
