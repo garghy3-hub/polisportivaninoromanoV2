@@ -32,7 +32,7 @@ The news editor's data model and mutation semantics are provider-neutral. This c
 - New article creates a draft revision and stable article identity.
 - Editing creates or updates an eligible draft revision; submitted revisions remain immutable.
 - Submission to review records server-side identity/time and locks that revision from editor mutation.
-- Reviewer decision records identity/time and reason when rejected.
+- Reviewer decision records identity/time and reason when rejected; the revision creator cannot review their own submission (separation of duties).
 - Changes after approval invalidate approval and require review again.
 - Publish uses an approved revision only and updates public projection atomically.
 - Unpublish/archive follow explicit permission and transition policy.
