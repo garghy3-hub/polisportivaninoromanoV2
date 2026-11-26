@@ -22,7 +22,7 @@ function BrandWorkbench() {
     ...current,
     brand: { ...current.brand, themePreset: value },
   }))
-  const safeLogo = settings.brand.logoUrl && (settings.brand.logoUrl.startsWith('/') || /^https:\/\//i.test(settings.brand.logoUrl))
+  const safeLogo = settings.brand.logoUrl && ((settings.brand.logoUrl.startsWith('/') && !settings.brand.logoUrl.startsWith('//')) || /^https:\/\//i.test(settings.brand.logoUrl))
 
   return (
     <main id="main-content" tabIndex={-1} className="min-h-screen bg-[#090d18] px-5 py-12 text-white sm:px-8">
