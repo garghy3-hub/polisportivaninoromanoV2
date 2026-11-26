@@ -100,3 +100,52 @@ export function isPublished<T extends EditorialMetadata>(
 ): item is T & { status: "published" } {
   return item.status === "published";
 }
+
+export interface NavigationItem {
+  id: string;
+  label: string;
+  href: string;
+  visible: boolean;
+  order: number;
+}
+
+export interface HomeFeature {
+  id: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  visible: boolean;
+  order: number;
+}
+
+export interface HomePageContent {
+  heroEyebrow: string;
+  heroTitle: string;
+  heroAccent: string;
+  heroDescription: string;
+  primaryActionLabel: string;
+  primaryActionHref: string;
+  secondaryActionLabel: string;
+  secondaryActionHref: string;
+  visualEyebrow: string;
+  visualTitle: string;
+  visualDescription: string;
+  features: HomeFeature[];
+  projectEyebrow: string;
+  projectTitle: string;
+  projectDescription: string;
+  projectActionLabel: string;
+  projectActionHref: string;
+  closingEyebrow: string;
+  closingTitle: string;
+  closingDescription: string;
+  closingPrimaryLabel: string;
+  closingPrimaryHref: string;
+  closingSecondaryLabel: string;
+  closingSecondaryHref: string;
+}
+
+export interface SiteSettings {
+  navigation: NavigationItem[];
+  home: HomePageContent;
+}
