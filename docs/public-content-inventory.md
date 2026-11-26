@@ -54,7 +54,7 @@ This inventory is based on the V2 route and content contracts. It is the field-l
 4. Site-wide Open Graph/Twitter metadata now comes from SiteSettings.site. Page-level SEO/social metadata and optional canonical links are rendered through a shared helper; article details use article-specific SEO/social fields. Canonical and social-image values are validated before publication.
 5. The teams route now renders team identity, season, description, logo, visible roster entries, player numbers/roles/photos and visible staff entries with roles/photos. Team, roster and staff entries support order and visibility; display labels are editable in SiteSettings. Validation covers media alternative text and order/visibility fields.
 6. The calendar route now renders event type, date/time, status, season, competition, round, venue and notes; results can additionally show a verified score and optional outcome label. Event visibility and ordering are respected by public queries. Only completed events with valid, non-negative integer scores are listed as results; outcome values, when supplied, must agree with the score.
-6. No protected admin, authentication, server mutation API, persistent content store, upload workflow, revision history or audit log is implemented.
+7. No protected admin, authentication, server mutation API, persistent content store, upload workflow, revision history or audit log is implemented.
 
 ## Acceptance checks for future admin implementation
 
@@ -105,3 +105,14 @@ The events collection remains empty until official fixtures and results are supp
 
 
 The local content service now exposes collection-level validation alongside the existing settings and club-profile checks. This provides one QA entry point for checking articles, teams, roster/staff identifiers and match events before a future import or publication workflow. It remains validation-only: no admin save operation or persistent store is present.
+
+
+## Implementation progress — public interface and locale audit
+
+A route-level review checked the shared shell, homepage, news index/detail, teams, calendar and society pages against the editable settings and entity contracts. Editorial headings, paragraphs, labels, empty states, accessible labels, navigation entries, footer copy, calls to action, category labels and event/result labels are sourced from content data or typed settings rather than authored in the route components.
+
+The audit also found locale behavior embedded in the rendering layer. Document language, date-format locale and Open Graph locale are now explicit `SiteMetadata` settings, seeded for Italian, validated, and consumed by the shared document shell and date rendering on news and calendar pages.
+
+Remaining literals in route components are presentation/structure rather than editorial copy: semantic element names, CSS classes, visual separators, generated sequence numbers and date-format options. Brand colors and layout styling remain controlled design-system choices, not unrestricted editor fields. This is intentional to preserve accessibility and visual consistency.
+
+The local seed remains developer-managed until the protected editorial panel and persistence adapter are implemented. The audit does not imply that editors can currently change these settings through a browser interface.
