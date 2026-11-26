@@ -3,7 +3,7 @@ import type { MatchEvent, NewsArticle, Team } from "./content-types";
 /** Public editorial feed: published articles only, newest publication first. */
 export function getPublishedNews(articles: readonly NewsArticle[]): NewsArticle[] {
   return articles
-    .filter((article) => article.status === "published" && Boolean(article.publishedAt))
+    .filter((article) => article.status === "published" && Boolean(article.publishedAt) && Number.isFinite(Date.parse(article.publishedAt!)))
     .slice()
     .sort((a, b) => Date.parse(b.publishedAt!) - Date.parse(a.publishedAt!));
 }
@@ -14,7 +14,7 @@ export function getUpcomingEvents(
   from: Date = new Date(),
 ): MatchEvent[] {
   return events
-    .filter((event) => event.status !== "cancelled" && event.status !== "completed")
+    .filter((event) => event.status !== "cancelled" && event.status !== "completed" && isValidEventDate(event.dateTime))
     .filter((event) => Date.parse(event.dateTime) >= from.getTime())
     .slice()
     .sort((a, b) => Date.parse(a.dateTime) - Date.parse(b.dateTime));
@@ -26,6 +26,7 @@ export function getCompletedEvents(events: readonly MatchEvent[]): MatchEvent[] 
     .filter(
       (event) =>
         event.status === "completed" &&
+        isValidEventDate(event.dateTime) &&
         Number.isFinite(event.homeScore) &&
         Number.isFinite(event.awayScore),
     )
