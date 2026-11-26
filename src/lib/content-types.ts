@@ -17,6 +17,11 @@ export interface EditorialMetadata {
   publishedAt?: string;
   author?: string;
   coverImageUrl?: string;
+  coverImageAlt?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  socialImageUrl?: string;
+  socialImageAlt?: string;
   tags?: string[];
 }
 
@@ -42,6 +47,7 @@ export interface Team {
   season?: string;
   description?: string;
   logoUrl?: string;
+  logoAlt?: string;
   roster?: Player[];
   staff?: TeamStaff[];
 }
@@ -51,14 +57,18 @@ export interface Player {
   name: string;
   jerseyNumber?: number;
   role?: string;
+  biography?: string;
   photoUrl?: string;
+  photoAlt?: string;
 }
 
 export interface TeamStaff {
   id: string;
   name: string;
   role: string;
+  biography?: string;
   photoUrl?: string;
+  photoAlt?: string;
 }
 
 export type EventStatus = "scheduled" | "postponed" | "cancelled" | "completed";
@@ -85,13 +95,40 @@ export interface ClubContact {
   href?: string;
 }
 
+export interface ClubPerson {
+  id: string;
+  name: string;
+  role: string;
+  biography?: string;
+  photoUrl?: string;
+  photoAlt?: string;
+  visible: boolean;
+  order: number;
+}
+
+export interface ClubPartner {
+  id: string;
+  name: string;
+  relationship: "sponsor" | "partner";
+  description?: string;
+  logoUrl?: string;
+  logoAlt?: string;
+  websiteUrl?: string;
+  visible: boolean;
+  order: number;
+}
+
 export interface ClubProfile {
   name: string;
   shortName?: string;
   description?: string;
+  history?: string;
+  mission?: string;
   address?: string;
   contacts?: ClubContact[];
   socialLinks?: ClubContact[];
+  people?: ClubPerson[];
+  partners?: ClubPartner[];
 }
 
 /** Safe display helper: draft and archived items are never surfaced publicly. */
@@ -164,6 +201,9 @@ export interface StandardPageContent {
   description: string;
   seoTitle: string;
   seoDescription: string;
+  canonicalUrl?: string;
+  socialImageUrl?: string;
+  socialImageAlt?: string;
 }
 
 export interface NewsTopic {
@@ -235,6 +275,11 @@ export interface SiteMetadata {
   description: string;
   ogTitle: string;
   ogDescription: string;
+  canonicalUrl?: string;
+  ogImageUrl?: string;
+  ogImageAlt?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
 }
 
 export type BrandThemePreset = "rossoblu-classic" | "rossoblu-dark";
