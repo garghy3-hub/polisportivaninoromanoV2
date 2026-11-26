@@ -260,6 +260,11 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
   requiredText(settings.brand.logoAlt, "brand logo alternative text");
   if (settings.brand.logoUrl !== undefined && !isSafePublicHref(settings.brand.logoUrl)) issues.push("Brand logo URL must be a safe relative or HTTPS URL.");
   if (!["rossoblu-classic", "rossoblu-dark"].includes(settings.brand.themePreset)) issues.push("Unknown brand theme preset.");
+  requiredText(settings.site.language, "document language");
+  requiredText(settings.site.locale, "date and number locale");
+  requiredText(settings.site.openGraphLocale, "Open Graph locale");
+  if (!/^[a-z]{2,3}(-[A-Z]{2})?$/.test(settings.site.language)) issues.push("Document language must be a valid language tag.");
+  if (!/^[a-z]{2,3}(-[A-Z]{2})?$/.test(settings.site.locale)) issues.push("Site locale must be a valid language-region tag.");
   requiredText(settings.site.title, "site title");
   requiredText(settings.site.description, "site description");
   requiredText(settings.site.ogTitle, "Open Graph title");
