@@ -13,7 +13,11 @@ export const Route = createRootRoute({
       { property: 'og:description', content: site.ogDescription },
       { property: 'og:type', content: 'website' },
       { property: 'og:locale', content: 'it_IT' },
-      { name: 'twitter:card', content: 'summary' },
+      { name: 'twitter:card', content: site.ogImageUrl ? 'summary_large_image' : 'summary' },
+      { name: 'twitter:title', content: site.twitterTitle || site.ogTitle },
+      { name: 'twitter:description', content: site.twitterDescription || site.ogDescription },
+      ...(site.ogImageUrl ? [{ property: 'og:image', content: site.ogImageUrl }] : []),
+      ...(site.ogImageAlt ? [{ property: 'og:image:alt', content: site.ogImageAlt }] : []),
     ] }
   },
   component: RootComponent,
