@@ -8,7 +8,7 @@ const areas = [
   { title: 'Calendario e risultati', description: 'Editor prototipo per appuntamenti, partite, stati e punteggi.', status: 'Prototipo disponibile', icon: '📅', href: '/admin/calendar' },
   { title: 'Pagine e homepage', description: 'Editor prototipo per testi, sezioni, CTA, menu e SEO.', status: 'Prototipo disponibile', icon: '🧩', href: '/admin/pages' },
   { title: 'Media library', description: 'Libreria immagini: struttura e regole upload definite.', status: 'Struttura disponibile', icon: '🖼️', href: '/admin/media' },
-  { title: 'Menu, footer e brand', description: 'Menu e metadati globali modificabili nel workbench Pagine; footer e brand da completare.', status: 'Parziale', icon: '🎨', href: '/admin/pages' },
+  { title: 'Footer e identità visiva', description: 'Workbench per marchio, logo, preset cromatico e testi footer.', status: 'Prototipo disponibile', icon: '🎨', href: '/admin/brand' },
   { title: 'Società e contatti', description: 'Editor prototipo per profilo, recapiti, social, persone, sponsor e partner.', status: 'Prototipo disponibile', icon: '🏛️', href: '/admin/society' },
   { title: 'Utenti e audit', description: 'Ruoli, autorizzazioni e registro delle modifiche.', status: 'Pianificata', icon: '🔐' },
 ]
