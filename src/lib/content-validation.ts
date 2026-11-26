@@ -6,6 +6,9 @@ const nonEmpty = (value: unknown): value is string =>
 
 const normalizedKey = (value: string): string => value.trim().toLocaleLowerCase("it-IT");
 
+const isValidDate = (value: unknown): value is string =>
+  typeof value === "string" && value.trim().length > 0 && Number.isFinite(Date.parse(value));
+
 export function validateArticle(article: NewsArticle): string[] {
   const issues: string[] = [];
   if (!nonEmpty(article.id)) issues.push("Missing article id.");
@@ -18,9 +21,9 @@ export function validateArticle(article: NewsArticle): string[] {
     issues.push("Unknown article category.");
   if (!["draft", "published", "archived"].includes(article.status))
     issues.push("Unknown publication status.");
-  if (!Number.isFinite(Date.parse(article.createdAt))) issues.push("Invalid createdAt date.");
-  if (!Number.isFinite(Date.parse(article.updatedAt))) issues.push("Invalid updatedAt date.");
-  if (article.status === "published" && !Number.isFinite(Date.parse(article.publishedAt ?? "")))
+  if (!isValidDate(article.createdAt)) issues.push("Invalid createdAt date.");
+  if (!isValidDate(article.updatedAt)) issues.push("Invalid updatedAt date.");
+  if (article.status === "published" && !isValidDate(article.publishedAt))
     issues.push("Published articles require a valid publishedAt date.");
   return issues;
 }
@@ -73,10 +76,10 @@ export function validateEvent(event: MatchEvent): string[] {
   return issues;
 }
 
-function checkRosterIds(ids: string[], issues: string[], label = "roster") {
+function checkRosterIds(ids: readonly unknown[], issues: string[], label = "roster") {
   const seen = new Set<string>();
   for (const id of ids) {
-    if (!id.trim()) {
+    if (typeof id !== "string" || !id.trim()) {
       issues.push(`Missing ${label} identifier.`);
       continue;
     }
@@ -93,10 +96,10 @@ export function validateContentCollections(input: {
   events?: readonly MatchEvent[];
 }): string[] {
   const issues: string[] = [];
-  const checkUnique = (values: readonly string[], label: string) => {
+  const checkUnique = (values: readonly unknown[], label: string) => {
     const seen = new Set<string>();
     values.forEach((value) => {
-      if (!value.trim()) return;
+      if (typeof value !== "string" || !value.trim()) return;
       const key = normalizedKey(value);
       if (seen.has(key)) issues.push(`Duplicate ${label} (case-insensitive): ${value}.`);
       seen.add(key);
