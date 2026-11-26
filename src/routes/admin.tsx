@@ -7,7 +7,7 @@ const areas = [
   { title: 'Squadre e roster', description: 'Schede squadra, atlete, staff, ruoli e foto.', status: 'Pianificata', icon: '🏐' },
   { title: 'Calendario e risultati', description: 'Partite, date, campi, risultati e visibilità.', status: 'Pianificata', icon: '📅' },
   { title: 'Pagine e homepage', description: 'Testi, sezioni, CTA, ordine e contenuti visuali.', status: 'Pianificata', icon: '🧩' },
-  { title: 'Media library', description: 'Immagini, metadati, alt text e riutilizzo degli asset.', status: 'Pianificata', icon: '🖼️' },
+  { title: 'Media library', description: 'Libreria immagini: struttura e regole upload definite.', status: 'Struttura disponibile', icon: '🖼️', href: '/admin/media' },
   { title: 'Menu, footer e brand', description: 'Link, navigazione, logo, impostazioni visuali controllate.', status: 'Pianificata', icon: '🎨' },
   { title: 'Società e contatti', description: 'Profilo societario, referenti e informazioni pubbliche.', status: 'Pianificata', icon: '🏛️' },
   { title: 'Utenti e audit', description: 'Ruoli, autorizzazioni e registro delle modifiche.', status: 'Pianificata', icon: '🔐' },
@@ -39,6 +39,7 @@ function AdminOverview() {
               <div className="flex items-start justify-between gap-4"><span className="text-2xl" aria-hidden="true">{area.icon}</span><span className="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-400">{area.status}</span></div>
               <h3 className="mt-4 text-xl font-bold">{area.title}</h3>
               <p className="mt-3 leading-7 text-slate-400">{area.description}</p>
+              {area.href && <Link to={area.href} className="mt-5 inline-flex font-semibold text-red-300 underline decoration-red-300/40 underline-offset-4 hover:text-white">Apri modulo →</Link>}
             </article>)}
           </div>
         </section>
