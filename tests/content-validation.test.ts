@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { validateArticle, validateEvent, validateContentCollections, validateMediaAsset } from "../src/lib/content-validation";
+import { validateArticle, validateEvent, validateContentCollections, validateMediaAsset, validateSiteSettings } from "../src/lib/content-validation";
+import { siteSettings } from "../src/lib/site-data";
 import type { NewsArticle, MatchEvent, MediaAsset } from "../src/lib/content-types";
 
 const article: NewsArticle = {
@@ -49,6 +50,24 @@ describe("editorial content validation", () => {
     expect(validateMediaAsset({ ...media, altText: "" }).length).toBeGreaterThan(0);
     expect(validateMediaAsset({ ...media, publicUrl: "javascript:alert(1)" }).length).toBeGreaterThan(0);
     expect(validateMediaAsset({ ...media, sizeBytes: 0 }).length).toBeGreaterThan(0);
+  });
+
+  it("accepts the configured site settings", () => {
+    expect(validateSiteSettings(siteSettings)).toEqual([]);
+  });
+
+  it("rejects unsafe homepage links and duplicate ordered section IDs", () => {
+    const invalid = {
+      ...siteSettings,
+      home: {
+        ...siteSettings.home,
+        primaryActionHref: "javascript:alert(1)",
+        features: [siteSettings.home.features[0], { ...siteSettings.home.features[1], id: siteSettings.home.features[0].id }],
+      },
+    };
+    const issues = validateSiteSettings(invalid);
+    expect(issues.some(issue => issue.includes("Unsafe or invalid public link"))).toBe(true);
+    expect(issues.some(issue => issue.includes("Duplicate homepage feature id"))).toBe(true);
   });
 
   it("accepts only supported image formats and caps uploads at 10 MiB", () => {
