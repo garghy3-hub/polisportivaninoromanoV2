@@ -55,6 +55,9 @@ describe("provider-neutral News editorial service", () => {
       submitForReview: vi.fn().mockResolvedValue({ ok: true, value: record }),
       reviewDecision: vi.fn().mockResolvedValue({ ok: true, value: record }),
       publishApproved: vi.fn().mockResolvedValue({ ok: true, value: record }),
+      unpublish: vi.fn().mockResolvedValue({ ok: true, value: record }),
+      archivePublished: vi.fn().mockResolvedValue({ ok: true, value: record }),
+      restoreArchived: vi.fn().mockResolvedValue({ ok: true, value: record }),
     };
     service = createNewsEditorialService(repository, ["official", "match-report"]);
   });
@@ -259,6 +262,40 @@ describe("provider-neutral News editorial service", () => {
       expectedVersion: 5,
       actor: publisher,
     });
+  });
+
+  it("allows publisher lifecycle actions through explicit transitions", async () => {
+    const input = {
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 6,
+    };
+
+    await service.unpublish(publisher, input);
+    expect(repository.unpublish).toHaveBeenCalledWith({ ...input, actor: publisher });
+
+    await service.archive(publisher, input);
+    expect(repository.archivePublished).toHaveBeenCalledWith({ ...input, actor: publisher });
+
+    await service.restore(publisher, input);
+    expect(repository.restoreArchived).toHaveBeenCalledWith({ ...input, actor: publisher });
+  });
+
+  it("denies lifecycle operations to readers and editors", async () => {
+    const input = {
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 1,
+    };
+    expect(await service.unpublish(editor, input)).toEqual({ ok: false, code: "forbidden" });
+    expect(await service.archive({ ...editor, role: "reader" }, input)).toEqual({
+      ok: false,
+      code: "forbidden",
+    });
+    expect(await service.restore(editor, input)).toEqual({ ok: false, code: "forbidden" });
+    expect(repository.unpublish).not.toHaveBeenCalled();
+    expect(repository.archivePublished).not.toHaveBeenCalled();
+    expect(repository.restoreArchived).not.toHaveBeenCalled();
   });
 
   it("allows an editor to submit a revision with a version precondition", async () => {
