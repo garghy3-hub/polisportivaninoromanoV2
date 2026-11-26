@@ -50,3 +50,33 @@ export function validateEvent(event: MatchEvent): string[] {
     issues.push("Completed events require non-negative integer scores.");
   return issues;
 }
+
+/** Validate collections for collisions before a batch is published or imported. */
+export function validateContentCollections(input: {
+  articles?: readonly NewsArticle[];
+  teams?: readonly Team[];
+  events?: readonly MatchEvent[];
+}): string[] {
+  const issues: string[] = [];
+  const checkUnique = (values: readonly string[], label: string) => {
+    const seen = new Set<string>();
+    values.forEach((value, index) => {
+      if (!value.trim()) return;
+      if (seen.has(value)) issues.push(`Duplicate ${label}: ${value}.`);
+      seen.add(value);
+    });
+  };
+  const articles = input.articles ?? [];
+  const teams = input.teams ?? [];
+  const events = input.events ?? [];
+  checkUnique(articles.map(item => item.id), "article id");
+  checkUnique(articles.map(item => item.slug), "article slug");
+  checkUnique(teams.map(item => item.id), "team id");
+  checkUnique(teams.map(item => item.slug), "team slug");
+  checkUnique(events.map(item => item.id), "event id");
+  for (const team of teams) {
+    if (team.roster) checkUnique(team.roster.map(player => player.id), `player id in team ${team.slug}`);
+    if (team.staff) checkUnique(team.staff.map(member => member.id), `staff id in team ${team.slug}`);
+  }
+  return issues;
+}
