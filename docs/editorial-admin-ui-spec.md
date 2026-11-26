@@ -45,7 +45,7 @@
 - UI hides unavailable actions but server denies direct unauthorized requests independently.
 
 ## First implementation vertical slice
-Build one complete resource first (news article): list, create/edit draft, validation, server boundary, revision, review, preview and publication, audit, automated tests. Only after the vertical slice is proven, reuse the components and services for teams, calendar, club profile and settings.
+Build one complete resource first (news article): list, create/edit draft, validation, server boundary, revision, review, preview and publication, audit, automated tests. The field groups, workflow, service boundary and acceptance criteria are detailed in `docs/news-admin-contract.md`. Only after the vertical slice is proven, reuse the components and services for teams, calendar, club profile and settings.
 
 ## Acceptance criteria
 - Role-specific actions reflect permissions and unknown roles fail closed.
