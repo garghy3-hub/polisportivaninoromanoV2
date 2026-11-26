@@ -151,6 +151,8 @@ export interface StandardPageContent {
   title: string;
   accent: string;
   description: string;
+  seoTitle: string;
+  seoDescription: string;
 }
 export interface NewsTopic {
   id: string; title: string; label: string; description: string;
@@ -178,7 +180,9 @@ export interface SocietyPageContent extends StandardPageContent {
   pillars: SocietyPillar[]; asideTitle: string; asideDescription: string;
 }
 export interface FooterContent { copyright: string; projectLabel: string; }
+export interface SiteMetadata { title: string; description: string; ogTitle: string; ogDescription: string; }
 export interface SiteSettings {
+  site: SiteMetadata;
   navigation: NavigationItem[];
   home: HomePageContent;
   news: NewsPageContent;
