@@ -1,13 +1,23 @@
 import type { SiteSettings } from "./content-types";
 
 /**
- * Local editable-content seed for the V2 scaffold.
- * A future protected editorial adapter will replace this module without
- * changing the page components. Keep public copy out of route components.
+ * Local content seed for the V2 scaffold.
+ * This is a temporary source adapter, not an administration panel.
+ * Keep public-facing copy here until the protected editorial adapter exists.
  */
 export const siteSettings: SiteSettings = {
-  brand: { monogram: "NR", name: "NINO ROMANO", descriptor: "POLISPORTIVA · MILAZZO", ariaLabel: "Polisportiva Nino Romano home" },
-  site: { title: "Polisportiva Nino Romano | Milazzo", description: "Sito ufficiale della Polisportiva Nino Romano di Milazzo: pallavolo, squadre, news e calendario.", ogTitle: "Polisportiva Nino Romano | Milazzo", ogDescription: "Passione, squadra e territorio. Segui la pallavolo rossoblù a Milazzo." },
+  brand: {
+    monogram: "NR",
+    name: "NINO ROMANO",
+    descriptor: "POLISPORTIVA · MILAZZO",
+    ariaLabel: "Polisportiva Nino Romano home",
+  },
+  site: {
+    title: "Polisportiva Nino Romano | Milazzo",
+    description: "Sito ufficiale della Polisportiva Nino Romano di Milazzo: pallavolo, squadre, news e calendario.",
+    ogTitle: "Polisportiva Nino Romano | Milazzo",
+    ogDescription: "Passione, squadra e territorio. Segui la pallavolo rossoblù a Milazzo.",
+  },
   navigation: [
     { id: "home", label: "Home", href: "/", visible: true, order: 0 },
     { id: "societa", label: "La società", href: "/societa", visible: true, order: 1 },
@@ -45,11 +55,16 @@ export const siteSettings: SiteSettings = {
     closingSecondaryLabel: "Calendario",
     closingSecondaryHref: "/calendario",
   },
-,
   news: {
-    backLabel: "← Torna alla home", eyebrow: "Dentro la stagione", title: "News &", accent: "aggiornamenti.",
-    description: "La voce della Nino Romano: comunicati, cronache, storie e contenuti per vivere la pallavolo anche fuori dal campo.",\n    seoTitle: "News | Polisportiva Nino Romano", seoDescription: "Comunicati ufficiali, cronache, storie e aggiornamenti della Polisportiva Nino Romano di Milazzo.",
-    emptyEyebrow: "Archivio editoriale", emptyTitle: "Nessun articolo pubblicato al momento.",
+    backLabel: "← Torna alla home",
+    eyebrow: "Dentro la stagione",
+    title: "News &",
+    accent: "aggiornamenti.",
+    description: "La voce della Nino Romano: comunicati, cronache, storie e contenuti per vivere la pallavolo anche fuori dal campo.",
+    seoTitle: "News | Polisportiva Nino Romano",
+    seoDescription: "Comunicati ufficiali, cronache, storie e aggiornamenti della Polisportiva Nino Romano di Milazzo.",
+    emptyEyebrow: "Archivio editoriale",
+    emptyTitle: "Nessun articolo pubblicato al momento.",
     emptyDescription: "Le notizie ufficiali saranno pubblicate qui. I contenuti in bozza non vengono mostrati.",
     topics: [
       { id: "comunicati", title: "Comunicati ufficiali", label: "Società", description: "Comunicazioni, avvisi e informazioni condivise dalla Polisportiva.", visible: true, order: 0 },
@@ -58,25 +73,44 @@ export const siteSettings: SiteSettings = {
     ],
   },
   teams: {
-    backLabel: "← Torna alla home", eyebrow: "Il volley · Nino Romano", title: "Le nostre", accent: "squadre.",
-    description: "Il volto sportivo della Polisportiva: persone, gruppi, percorsi e passione condivisa.",\n    seoTitle: "Squadre | Polisportiva Nino Romano", seoDescription: "Scopri le squadre e i percorsi sportivi della Polisportiva Nino Romano di Milazzo.",
+    backLabel: "← Torna alla home",
+    eyebrow: "Il volley · Nino Romano",
+    title: "Le nostre",
+    accent: "squadre.",
+    description: "Il volto sportivo della Polisportiva: persone, gruppi, percorsi e passione condivisa.",
+    seoTitle: "Squadre | Polisportiva Nino Romano",
+    seoDescription: "Scopri le squadre e i percorsi sportivi della Polisportiva Nino Romano di Milazzo.",
     categories: [
       { id: "senior", title: "Prima squadra", eyebrow: "Campionati · attività agonistica", emptyDescription: "Le informazioni ufficiali di questa sezione saranno inserite appena disponibili.", category: "senior", visible: true, order: 0 },
       { id: "youth", title: "Settore giovanile", eyebrow: "Percorso · crescita · volley", emptyDescription: "Le informazioni ufficiali di questa sezione saranno inserite appena disponibili.", category: "youth", visible: true, order: 1 },
     ],
-    asideTitle: "Vuoi conoscere le attività?", asideDescription: "Le informazioni sulle squadre e sulle attività societarie saranno pubblicate e aggiornate in questa sezione.",
-    asideActionLabel: "Segui gli aggiornamenti ↗", asideActionHref: "/news",
+    asideTitle: "Vuoi conoscere le attività?",
+    asideDescription: "Le informazioni sulle squadre e sulle attività societarie saranno pubblicate e aggiornate in questa sezione.",
+    asideActionLabel: "Segui gli aggiornamenti ↗",
+    asideActionHref: "/news",
   },
   calendar: {
-    backLabel: "← Torna alla home", eyebrow: "La stagione · appuntamenti", title: "Calendario", accent: "rossoblù.",
-    description: "Partite, appuntamenti e attività della Polisportiva Nino Romano: il calendario ufficiale sarà il riferimento per seguire la stagione.",\n    seoTitle: "Calendario e risultati | Polisportiva Nino Romano", seoDescription: "Calendario delle partite, appuntamenti e risultati ufficiali della Polisportiva Nino Romano.",
-    eventTypes: ["Partite", "Attività societarie", "Eventi"], upcomingTitle: "Prossimi appuntamenti",
-    upcomingEmpty: "Non ci sono appuntamenti confermati da mostrare al momento.", resultsTitle: "Ultimi risultati",
+    backLabel: "← Torna alla home",
+    eyebrow: "La stagione · appuntamenti",
+    title: "Calendario",
+    accent: "rossoblù.",
+    description: "Partite, appuntamenti e attività della Polisportiva Nino Romano: il calendario ufficiale sarà il riferimento per seguire la stagione.",
+    seoTitle: "Calendario e risultati | Polisportiva Nino Romano",
+    seoDescription: "Calendario delle partite, appuntamenti e risultati ufficiali della Polisportiva Nino Romano.",
+    eventTypes: ["Partite", "Attività societarie", "Eventi"],
+    upcomingTitle: "Prossimi appuntamenti",
+    upcomingEmpty: "Non ci sono appuntamenti confermati da mostrare al momento.",
+    resultsTitle: "Ultimi risultati",
     resultsEmpty: "I risultati saranno inseriti solo dopo la verifica ufficiale. Nessun risultato disponibile.",
   },
   society: {
-    backLabel: "← Torna alla home", eyebrow: "La società · Milazzo", title: "Una storia", accent: "rossoblù.",
-    description: "La pagina dedicata alla Polisportiva Nino Romano: identità, progetto sportivo, persone e legame con il territorio. I contenuti saranno completati con informazioni verificate.",\n    seoTitle: "La società | Polisportiva Nino Romano", seoDescription: "Identità, valori, organizzazione e legame con Milazzo della Polisportiva Nino Romano.",
+    backLabel: "← Torna alla home",
+    eyebrow: "La società · Milazzo",
+    title: "Una storia",
+    accent: "rossoblù.",
+    description: "La pagina dedicata alla Polisportiva Nino Romano: identità, progetto sportivo, persone e legame con il territorio. I contenuti saranno completati con informazioni verificate.",
+    seoTitle: "La società | Polisportiva Nino Romano",
+    seoDescription: "Identità, valori, organizzazione e legame con Milazzo della Polisportiva Nino Romano.",
     pillars: [
       { id: "identita", title: "Identità e valori", description: "Una sezione per raccontare i principi, la visione e il progetto sportivo della Polisportiva.", visible: true, order: 0 },
       { id: "persone", title: "Persone e organizzazione", description: "Dirigenti, staff, collaboratori e ruoli societari, con nomi e informazioni da validare.", visible: true, order: 1 },
@@ -86,5 +120,8 @@ export const siteSettings: SiteSettings = {
     asideTitle: "La pagina è in fase di completamento",
     asideDescription: "La struttura è pronta per accogliere storia, organigramma, recapiti e informazioni istituzionali. I dettagli saranno pubblicati solo dopo conferma.",
   },
-  footer: { copyright: "© Polisportiva Nino Romano · Milazzo", projectLabel: "V2 · Nuovo progetto digitale" }
+  footer: {
+    copyright: "© Polisportiva Nino Romano · Milazzo",
+    projectLabel: "V2 · Nuovo progetto digitale",
+  },
 };
