@@ -1,7 +1,8 @@
-import type { ClubProfile, MatchEvent, NewsArticle, Team } from "./content-types";
+import type { ClubProfile, MatchEvent, NewsArticle, SiteSettings, Team } from "./content-types";
 import { getCompletedEvents, getPublishedNews, getUpcomingEvents } from "./content-query";
 import { articles, events, teams } from "./content-data";
 import { clubProfile } from "./club-data";
+import { siteSettings } from "./site-data";
 
 /**
  * Lightweight, UI-independent content service.
@@ -14,6 +15,7 @@ export interface ClubContentService {
   results(): MatchEvent[];
   teamsByCategory(category: Team["category"]): Team[];
   profile(): ClubProfile;
+  settings(): SiteSettings;
 }
 
 export const localContentService: ClubContentService = {
@@ -22,4 +24,5 @@ export const localContentService: ClubContentService = {
   results: () => getCompletedEvents(events),
   teamsByCategory: (category) => teams.filter((team) => team.category === category),
   profile: () => clubProfile,
+  settings: () => siteSettings,
 };
