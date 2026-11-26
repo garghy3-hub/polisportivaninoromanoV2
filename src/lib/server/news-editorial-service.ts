@@ -61,7 +61,9 @@ export interface NewsEditorialRepository {
   /**
    * Must verify the current state/version, write reviewer metadata and audit
    * atomically. A rejection note is mandatory; the repository never trusts a
-   * target state supplied outside this constrained decision.
+   * target state supplied outside this constrained decision. It must enforce
+   * separation of duties by preventing the revision creator from reviewing
+   * their own submission.
    */
   reviewDecision(input: {
     articleId: string;
