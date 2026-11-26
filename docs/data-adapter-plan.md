@@ -121,3 +121,12 @@ Homepage and interface-copy audit continued:
 - News category and event-status internal values are rendered through editable Italian label maps; roster count label is configurable.
 - The settings validator checks these labels before a future save/publish operation.
 The `ClubContentService` also exposes `validateSettings()` so a future editor can obtain configuration validation feedback through the same content boundary instead of importing implementation details from route components.
+## Managed image slots and identity groundwork
+
+Brand and homepage content contracts now include:
+- An optional club-logo URL with required alternative text; the shared header renders the uploaded logo when configured and otherwise uses the editable monogram.
+- An optional homepage hero image URL with alternative text; when supplied, it replaces the built-in volleyball illustration.
+- A controlled brand-theme preset identifier rather than arbitrary editor-entered CSS.
+- Validation for media URLs, alternative text and allowed theme preset values.
+
+The media library itself, upload/storage workflow, image crop/transform tools and UI for selecting assets are not implemented yet. The local seed currently leaves image URLs empty so no unverified club image is shown.
