@@ -86,6 +86,7 @@ export const siteSettings: SiteSettings = {
     emptyEyebrow: "Archivio editoriale",
     emptyTitle: "Nessun articolo pubblicato al momento.",
     emptyDescription: "Le notizie ufficiali saranno pubblicate qui. I contenuti in bozza non vengono mostrati.",
+    categoryLabels: { official: "Società", "match-report": "Match report", interview: "Interviste", youth: "Settore giovanile", "club-life": "Vita societaria" },
     topics: [
       { id: "comunicati", title: "Comunicati ufficiali", label: "Società", description: "Comunicazioni, avvisi e informazioni condivise dalla Polisportiva.", visible: true, order: 0 },
       { id: "partite", title: "Il racconto delle partite", label: "Match report", description: "Cronache, momenti chiave e approfondimenti, dopo la verifica dei risultati.", visible: true, order: 1 },
@@ -108,6 +109,7 @@ export const siteSettings: SiteSettings = {
     asideDescription: "Le informazioni sulle squadre e sulle attività societarie saranno pubblicate e aggiornate in questa sezione.",
     asideActionLabel: "Segui gli aggiornamenti ↗",
     asideActionHref: "/news",
+    rosterCountLabel: "Atlete",
   },
   calendar: {
     backLabel: "← Torna alla home",
@@ -118,6 +120,7 @@ export const siteSettings: SiteSettings = {
     seoTitle: "Calendario e risultati | Polisportiva Nino Romano",
     seoDescription: "Calendario delle partite, appuntamenti e risultati ufficiali della Polisportiva Nino Romano.",
     eventTypes: ["Partite", "Attività societarie", "Eventi"],
+    eventStatusLabels: { scheduled: "In programma", postponed: "Rinviata", cancelled: "Annullata", completed: "Conclusa" },
     upcomingTitle: "Prossimi appuntamenti",
     upcomingEmpty: "Non ci sono appuntamenti confermati da mostrare al momento.",
     resultsTitle: "Ultimi risultati",
