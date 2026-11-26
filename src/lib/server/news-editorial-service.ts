@@ -194,7 +194,7 @@ export function createNewsEditorialService(
       if (denied) return denied;
       const issues = validate(content);
       if (issues.length) return { ok: false, code: "invalid", issues };
-      return repository.createDraft({ actor: actor!, content });
+      return callRepository(() => repository.createDraft({ actor: actor!, content }));
     },
 
     async updateDraft(actor, input) {
@@ -213,7 +213,7 @@ export function createNewsEditorialService(
           message: "Valid article and revision IDs plus a positive expected version are required.",
         };
       }
-      return repository.updateDraft({ ...input, actor: actor! });
+      return callRepository(() => repository.updateDraft({ ...input, actor: actor! }));
     },
 
     async submitForReview(actor, input) {
@@ -230,7 +230,7 @@ export function createNewsEditorialService(
           message: "Valid article and revision IDs plus a positive expected version are required.",
         };
       }
-      return repository.submitForReview({ ...input, actor: actor! });
+      return callRepository(() => repository.submitForReview({ ...input, actor: actor! }));
     },
 
     async approve(actor, input) {
@@ -249,7 +249,7 @@ export function createNewsEditorialService(
       if (!canTransitionRevision(actor!.role, "approved", "published")) {
         return { ok: false, code: "forbidden" };
       }
-      return repository.publishApproved({ ...input, actor: actor! });
+      return callRepository(() => repository.publishApproved({ ...input, actor: actor! }));
     },
   };
 
@@ -268,6 +268,13 @@ export function createNewsEditorialService(
     if (denied) return Promise.resolve(denied);
     const invalid = validateRevisionCommand(input);
     if (invalid) return Promise.resolve(invalid);
+    if (input.reviewNote !== undefined && typeof input.reviewNote !== "string") {
+      return Promise.resolve({
+        ok: false,
+        code: "invalid",
+        message: "La nota di revisione deve essere un testo valido.",
+      });
+    }
     const note = input.reviewNote?.trim();
     if (decision === "rejected" && !note) {
       return Promise.resolve({
@@ -286,14 +293,14 @@ export function createNewsEditorialService(
     if (!canTransitionRevision(actor!.role, "in-review", decision)) {
       return Promise.resolve({ ok: false, code: "forbidden" });
     }
-    return repository.reviewDecision({
+    return callRepository(() => repository.reviewDecision({
       articleId: input.articleId,
       revisionId: input.revisionId,
       expectedVersion: input.expectedVersion,
       decision,
       ...(note ? { reviewNote: note } : {}),
       actor: actor!,
-    });
+    }));
   }
 }
 
@@ -333,4 +340,23 @@ function isValidRevisionTarget(articleId: string, revisionId: string): boolean {
   return [articleId, revisionId].every(
     value => typeof value === "string" && value.trim().length > 0 && value.length <= 128,
   );
+}
+
+
+/**
+ * Persistence failures are deliberately normalized: adapter errors may
+ * contain SQL, storage details or other internals and must never reach clients.
+ */
+async function callRepository<T>(
+  operation: () => Promise<NewsRepositoryResult<T>>,
+): Promise<NewsEditorialResult<T>> {
+  try {
+    return await operation();
+  } catch {
+    return {
+      ok: false,
+      code: "internal",
+      message: "Operazione editoriale non riuscita. Riprova o contatta un amministratore.",
+    };
+  }
 }
