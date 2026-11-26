@@ -75,3 +75,19 @@ The following first step is now present in the V2 codebase:
 This is an architectural foundation only. It is **not** yet a visual admin panel: content is still edited in the local seed module by a developer. The next implementation stages are to move the remaining public copy (including secondary pages, footer, branding and metadata) behind the same content boundary, then build authenticated editor screens with draft/preview/publish, media management, permissions and audit history. Only after those foundations are reviewed should a persistent storage adapter be introduced.
 
 Do not describe the site as fully editable until the protected editor can manage every public-facing field end-to-end without source-code changes.
+## Implementation progress — all public page copy and SEO
+
+The local content boundary now includes typed, seeded settings for:
+- Site-wide title, description and Open Graph title/description.
+- Main navigation labels, destinations, order and visibility.
+- Homepage hero, calls to action, feature cards and closing sections.
+- News page headings, empty state and editorial topic cards.
+- Team page headings, category cards, empty states and related action.
+- Calendar page headings, event-type labels and empty states.
+- Society page headings, information pillars and completion notice.
+- Footer copyright and project label.
+- Per-page SEO title and description for news, teams, calendar and society.
+
+The shared layout and public routes now read these values through the content service. Editorial data such as articles, teams and match events continues to use the same service boundary.
+
+**Important limitation:** this is still local seed data, not a working editor. The settings are not yet editable through a browser-based panel, and no authentication, roles, draft workflow, media library, audit log or persistent storage has been implemented. Brand assets and some identity details in the shared header remain to be moved into settings. The acceptance criterion remains that an authorized editor can change every public-facing field without source-code changes.
