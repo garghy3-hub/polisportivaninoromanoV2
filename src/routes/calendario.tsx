@@ -7,8 +7,9 @@ export const Route = createFileRoute('/calendario')({ head: () => getPageHead(lo
 function CalendarPage() {
   const upcoming = localContentService.upcoming()
   const results = localContentService.results()
-  const content = localContentService.settings().calendar
-  const formatDate = (value: string, withTime = true) => new Date(value).toLocaleString('it-IT', withTime
+  const settings = localContentService.settings()
+  const content = settings.calendar
+  const formatDate = (value: string, withTime = true) => new Date(value).toLocaleString(settings.site.locale, withTime
     ? { dateStyle: 'full', timeStyle: 'short' }
     : { dateStyle: 'medium' })
 
