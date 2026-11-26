@@ -155,7 +155,6 @@ export const siteSettings: SiteSettings = {
     contactsTitle: "Contatti",
     socialLinksTitle: "Seguici",
     peopleTitle: "Persone e organizzazione",
-    partnersTitle: "Sponsor e partner",
     sponsorsLabel: "Sponsor",
     partnersLabel: "Partner",
   },
