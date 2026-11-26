@@ -59,8 +59,10 @@ Build one complete resource first (news article): list, create/edit draft, valid
 - No fake login, local-only publish simulation, or client-only authorization.
 
 ## Current repository status
-This specification is not implemented. Current V2 still has local seeded data, no authenticated server API, no admin UI, no persistent editorial storage and no preview security.
 
+The repository now contains an initial admin dashboard, a client-only News editing/preview workbench and a Media Library structural screen. These are prototypes only: News fields remain in component state and are not persisted; the Media Library has no upload, storage, asset listing or metadata persistence. No authenticated admin API, production authentication, or editorial database is connected. The remaining management areas are specified but not yet implemented.
+
+The admin dashboard and both workbenches must not be treated as operational publishing tools. The server-side prerequisites and release gates above remain mandatory.
 ## Media library: upload and asset rules
 
 The media library is a managed editorial resource, not a free-form URL field. Its first implementation must provide searchable/filterable assets, upload progress and failure recovery, preview, editable alternative text and caption, and explicit selection when attaching an asset to an article, team, player, staff member, sponsor or site setting.
