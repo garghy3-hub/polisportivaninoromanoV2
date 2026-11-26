@@ -145,7 +145,45 @@ export interface HomePageContent {
   closingSecondaryHref: string;
 }
 
+export interface StandardPageContent {
+  backLabel: string;
+  eyebrow: string;
+  title: string;
+  accent: string;
+  description: string;
+}
+export interface NewsTopic {
+  id: string; title: string; label: string; description: string;
+  visible: boolean; order: number;
+}
+export interface NewsPageContent extends StandardPageContent {
+  emptyEyebrow: string; emptyTitle: string; emptyDescription: string; topics: NewsTopic[];
+}
+export interface TeamPageCategory {
+  id: string; title: string; eyebrow: string; emptyDescription: string;
+  category: Team["category"]; visible: boolean; order: number;
+}
+export interface TeamsPageContent extends StandardPageContent {
+  categories: TeamPageCategory[];
+  asideTitle: string; asideDescription: string; asideActionLabel: string; asideActionHref: string;
+}
+export interface CalendarPageContent extends StandardPageContent {
+  eventTypes: string[]; upcomingTitle: string; upcomingEmpty: string;
+  resultsTitle: string; resultsEmpty: string;
+}
+export interface SocietyPillar {
+  id: string; title: string; description: string; visible: boolean; order: number;
+}
+export interface SocietyPageContent extends StandardPageContent {
+  pillars: SocietyPillar[]; asideTitle: string; asideDescription: string;
+}
+export interface FooterContent { copyright: string; projectLabel: string; }
 export interface SiteSettings {
   navigation: NavigationItem[];
   home: HomePageContent;
+  news: NewsPageContent;
+  teams: TeamsPageContent;
+  calendar: CalendarPageContent;
+  society: SocietyPageContent;
+  footer: FooterContent;
 }
