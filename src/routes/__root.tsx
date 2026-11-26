@@ -44,9 +44,9 @@ function RootComponent() {
         </a>
         <header className="border-b border-white/10 bg-[#090d18]/95">
           <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-8">
-            <Link to="/" className="flex items-center gap-3" aria-label="Polisportiva Nino Romano home" onClick={() => setMenuOpen(false)}>
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#d92738] font-black tracking-tight">NR</div>
-              <div><p className="text-sm font-bold tracking-wide">NINO ROMANO</p><p className="text-xs text-slate-400">POLISPORTIVA · MILAZZO</p></div>
+            <Link to="/" className="flex items-center gap-3" aria-label={localContentService.settings().brand.ariaLabel} onClick={() => setMenuOpen(false)}>
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#d92738] font-black tracking-tight">{localContentService.settings().brand.monogram}</div>
+              <div><p className="text-sm font-bold tracking-wide">{localContentService.settings().brand.name}</p><p className="text-xs text-slate-400">{localContentService.settings().brand.descriptor}</p></div>
             </Link>
             <button type="button" className="rounded-lg border border-white/15 px-3 py-2 text-sm font-semibold md:hidden" aria-expanded={menuOpen} aria-controls="primary-navigation" onClick={() => setMenuOpen((open) => !open)}>
               {menuOpen ? 'Chiudi ✕' : 'Menu ☰'}
