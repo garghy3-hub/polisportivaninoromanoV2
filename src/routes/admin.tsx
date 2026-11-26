@@ -3,7 +3,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 export const Route = createFileRoute('/admin')({ component: AdminOverview })
 
 const areas = [
-  { title: 'News', description: 'Articoli, categorie, immagini, bozze e revisioni.', status: 'Prima area da implementare', icon: '✍️' },
+  { title: 'News', description: 'Editor prototipo: contenuto, slug, SEO e anteprima.', status: 'Prototipo disponibile', icon: '✍️', href: '/admin/news' },
   { title: 'Squadre e roster', description: 'Schede squadra, atlete, staff, ruoli e foto.', status: 'Pianificata', icon: '🏐' },
   { title: 'Calendario e risultati', description: 'Partite, date, campi, risultati e visibilità.', status: 'Pianificata', icon: '📅' },
   { title: 'Pagine e homepage', description: 'Testi, sezioni, CTA, ordine e contenuti visuali.', status: 'Pianificata', icon: '🧩' },
