@@ -99,7 +99,22 @@ describe("provider-neutral News editorial service", () => {
     expect(result).toEqual({
       ok: false,
       code: "invalid",
-      message: "A positive expected revision version is required.",
+      message: "Valid article and revision IDs plus a positive expected version are required.",
+    });
+    expect(repository.updateDraft).not.toHaveBeenCalled();
+  });
+
+  it("rejects missing revision identifiers before repository access", async () => {
+    const result = await service.updateDraft(editor, {
+      articleId: " ",
+      revisionId: "revision-1",
+      expectedVersion: 1,
+      content: validContent,
+    });
+    expect(result).toEqual({
+      ok: false,
+      code: "invalid",
+      message: "Valid article and revision IDs plus a positive expected version are required.",
     });
     expect(repository.updateDraft).not.toHaveBeenCalled();
   });
