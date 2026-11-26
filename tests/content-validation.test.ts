@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { validateArticle, validateEvent, validateContentCollections, validateMediaAsset, validateSiteSettings } from "../src/lib/content-validation";
+import { validateArticle, validateEvent, validateContentCollections, validateMediaAsset, validateSiteSettings, validateClubProfile } from "../src/lib/content-validation";
 import { siteSettings } from "../src/lib/site-data";
+import { clubProfile } from "../src/lib/club-data";
 import type { NewsArticle, MatchEvent, MediaAsset } from "../src/lib/content-types";
 
 const article: NewsArticle = {
@@ -50,6 +51,22 @@ describe("editorial content validation", () => {
     expect(validateMediaAsset({ ...media, altText: "" }).length).toBeGreaterThan(0);
     expect(validateMediaAsset({ ...media, publicUrl: "javascript:alert(1)" }).length).toBeGreaterThan(0);
     expect(validateMediaAsset({ ...media, sizeBytes: 0 }).length).toBeGreaterThan(0);
+  });
+
+  it("accepts the configured club profile", () => {
+    expect(validateClubProfile(clubProfile)).toEqual([]);
+  });
+
+  it("rejects unsafe social destinations and invalid partner image metadata", () => {
+    expect(validateClubProfile({
+      name: "Club",
+      socialLinks: [{ label: "Social", value: "club", href: "javascript:alert(1)" }],
+      partners: [{ id: "partner-1", name: "Partner", relationship: "partner", logoUrl: "https://example.com/logo.png", visible: true, order: 0 }],
+    }).some(issue => issue.includes("Social link 1: destination must use HTTPS"))).toBe(true);
+    expect(validateClubProfile({
+      name: "Club",
+      partners: [{ id: "partner-1", name: "Partner", relationship: "partner", logoUrl: "https://example.com/logo.png", visible: true, order: 0 }],
+    }).some(issue => issue.includes("logo URL and alternative text"))).toBe(true);
   });
 
   it("accepts the configured site settings", () => {
