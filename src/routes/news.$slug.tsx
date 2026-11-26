@@ -65,7 +65,7 @@ function NewsArticlePage() {
           {article.excerpt && <p className="mt-6 text-lg leading-8 text-slate-300">{article.excerpt}</p>}
           {article.publishedAt && (
             <p className="mt-5 text-sm text-slate-500">
-              {content.publishedLabel} <time dateTime={article.publishedAt}>{new Date(article.publishedAt).toLocaleDateString('it-IT')}</time>
+              {content.publishedLabel} <time dateTime={article.publishedAt}>{new Date(article.publishedAt).toLocaleDateString(settings.site.locale)}</time>
             </p>
           )}
         </header>
