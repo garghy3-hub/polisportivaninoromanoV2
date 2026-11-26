@@ -354,6 +354,16 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
   );
   requiredText(settings.society.asideTitle, "society aside title");
   requiredText(settings.society.asideDescription, "society aside description");
+  [
+    ["history section title", settings.society.historyTitle],
+    ["mission section title", settings.society.missionTitle],
+    ["address section title", settings.society.addressTitle],
+    ["contacts section title", settings.society.contactsTitle],
+    ["social links section title", settings.society.socialLinksTitle],
+    ["people section title", settings.society.peopleTitle],
+    ["sponsors section title", settings.society.sponsorsLabel],
+    ["partners section title", settings.society.partnersLabel],
+  ].forEach(([label, value]) => requiredText(value, `society ${label}`));
 
   return issues;
 }
