@@ -298,6 +298,10 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
   checkOrderedItems(settings.news.topics, "news topic");
   settings.news.topics.forEach((topic, index) => requiredText(topic.title, `news topic ${index + 1} title`));
   requiredText(settings.teams.rosterCountLabel, "roster count label");
+  requiredText(settings.teams.teamDescriptionLabel, "team description label");
+  requiredText(settings.teams.rosterTitle, "team roster title");
+  requiredText(settings.teams.staffTitle, "team staff title");
+  requiredText(settings.teams.jerseyNumberLabel, "jersey number label");
   checkOrderedItems(settings.teams.categories, "team page category");
   settings.teams.categories.forEach((category, index) => requiredText(category.title, `team category ${index + 1} title`));
   Object.entries(settings.calendar.eventStatusLabels).forEach(([key, value]) => requiredText(value, `event status ${key}`));
