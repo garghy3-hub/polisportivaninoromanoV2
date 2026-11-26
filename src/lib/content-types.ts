@@ -130,6 +130,8 @@ export interface HomePageContent {
   visualEyebrow: string;
   visualTitle: string;
   visualDescription: string;
+  visualImageUrl?: string;
+  visualImageAlt: string;
   visualTopLabel: string;
   visualTag: string;
   visualMonogram: string;
@@ -190,7 +192,8 @@ export interface SocietyPageContent extends StandardPageContent {
 }
 export interface FooterContent { copyright: string; projectLabel: string; }
 export interface SiteMetadata { title: string; description: string; ogTitle: string; ogDescription: string; }
-export interface BrandSettings { monogram: string; name: string; descriptor: string; ariaLabel: string; }
+export type BrandThemePreset = "rossoblu-classic" | "rossoblu-dark";
+export interface BrandSettings { monogram: string; name: string; descriptor: string; ariaLabel: string; logoUrl?: string; logoAlt: string; themePreset: BrandThemePreset; }
 export interface InterfaceCopy {
   skipToContent: string;
   navigationLabel: string;
