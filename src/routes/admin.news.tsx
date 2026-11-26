@@ -44,7 +44,7 @@ function NewsDraftWorkbench() {
   const [imageUrl, setImageUrl] = useState('')
   const [imageAlt, setImageAlt] = useState('')
 
-  const draftIssues = validateNewsDraft({ title, slug, category, excerpt, body, seoTitle, seoDescription, imageUrl, imageAlt })
+  const draftIssues = validateNewsDraft({ title, slug, category, excerpt, body, seoTitle, seoDescription, imageUrl, imageAlt }, categoryOptions.map(([value]) => value))
   const fieldMessage = (field: NewsDraftField) => draftIssues.find((issue) => issue.field === field)?.message
   const updateTitle = (value: string) => { setTitle(value); if (!slugEdited) setSlug(slugifyEditorialTitle(value)) }
 
