@@ -130,6 +130,15 @@ export interface HomePageContent {
   visualEyebrow: string;
   visualTitle: string;
   visualDescription: string;
+  visualTopLabel: string;
+  visualTag: string;
+  visualMonogram: string;
+  visualCounter: string;
+  heroSocialProof: string;
+  brandColorsLabel: string;
+  brandColorsDescriptor: string;
+  artworkTitle: string;
+  artworkDescription: string;
   features: HomeFeature[];
   projectEyebrow: string;
   projectTitle: string;
@@ -182,7 +191,14 @@ export interface SocietyPageContent extends StandardPageContent {
 export interface FooterContent { copyright: string; projectLabel: string; }
 export interface SiteMetadata { title: string; description: string; ogTitle: string; ogDescription: string; }
 export interface BrandSettings { monogram: string; name: string; descriptor: string; ariaLabel: string; }
+export interface InterfaceCopy {
+  skipToContent: string;
+  navigationLabel: string;
+  openMenu: string;
+  closeMenu: string;
+}
 export interface SiteSettings {
+  interface: InterfaceCopy;
   brand: BrandSettings;
   site: SiteMetadata;
   navigation: NavigationItem[];
