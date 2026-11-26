@@ -14,7 +14,8 @@ Prioritized implementation sequence for the V2 editorial panel. Provider selecti
 - Define media storage and upload scanning/validation.
 - Define deployment environment, secret handling, backups and recovery.
 - Review data protection, administrator invitation and account recovery.
-- Implement CI test runner and automated security boundary tests.
+- [x] Implement CI test runner and unit-level permission/session/service boundary tests.
+- [ ] Complete integration-level security tests against a real authenticated server and transactional persistence.
 
 ## Phase 2 — news vertical slice
 - Authenticated admin shell and navigation.
@@ -52,4 +53,8 @@ Prioritized implementation sequence for the V2 editorial panel. Provider selecti
 - Release and deployment authorization explicitly obtained.
 
 ## Current status
-Planning/contracts are documented; phases 1–4 have not been implemented. No provider, database, auth or deployment has been chosen or connected.
+- Phase 0 contracts are documented.
+- Phase 1 is partially complete: Vitest runs in CI; pure permission/session helpers and a provider-neutral News service boundary cover draft creation, updates, review decisions and publication commands. The service has no HTTP endpoint, trusted authentication adapter or repository implementation.
+- Phase 2 UI workbenches exist as local, non-persistent prototypes. They are not connected to the News service and do not save or publish content.
+- Authentication, persistence, media storage, transactional audit, public projection integration and operational hardening remain unimplemented.
+- No provider, database, auth or deployment has been chosen or connected.
