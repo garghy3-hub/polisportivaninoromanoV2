@@ -117,6 +117,10 @@ export const siteSettings: SiteSettings = {
     asideActionLabel: "Segui gli aggiornamenti ↗",
     asideActionHref: "/news",
     rosterCountLabel: "Atlete",
+    teamDescriptionLabel: "La squadra",
+    rosterTitle: "Roster",
+    staffTitle: "Staff tecnico",
+    jerseyNumberLabel: "Numero",
   },
   calendar: {
     backLabel: "← Torna alla home",
