@@ -4,11 +4,15 @@ import { isValidEventDate } from "./content-query";
 const nonEmpty = (value: unknown): value is string =>
   typeof value === "string" && value.trim().length > 0;
 
+const normalizedKey = (value: string): string => value.trim().toLocaleLowerCase("it-IT");
+
 export function validateArticle(article: NewsArticle): string[] {
   const issues: string[] = [];
   if (!nonEmpty(article.id)) issues.push("Missing article id.");
   if (!nonEmpty(article.slug)) issues.push("Missing article slug.");
   if (!nonEmpty(article.title)) issues.push("Missing article title.");
+  if (nonEmpty(article.slug) && article.slug !== article.slug.trim())
+    issues.push("Article slug must not have surrounding whitespace.");
   if (!nonEmpty(article.body)) issues.push("Missing article body.");
   if (!["official", "match-report", "interview", "youth", "club-life"].includes(article.category))
     issues.push("Unknown article category.");
@@ -26,6 +30,8 @@ export function validateTeam(team: Team): string[] {
   if (!nonEmpty(team.id)) issues.push("Missing team id.");
   if (!nonEmpty(team.name)) issues.push("Missing team name.");
   if (!nonEmpty(team.slug)) issues.push("Missing team slug.");
+  if (nonEmpty(team.slug) && team.slug !== team.slug.trim())
+    issues.push("Team slug must not have surrounding whitespace.");
   if (!["senior", "youth"].includes(team.category)) issues.push("Unknown team category.");
   const numbers = team.roster?.flatMap((player) =>
     player.jerseyNumber === undefined ? [] : [player.jerseyNumber],
@@ -90,8 +96,9 @@ export function validateContentCollections(input: {
     const seen = new Set<string>();
     values.forEach((value) => {
       if (!value.trim()) return;
-      if (seen.has(value)) issues.push(`Duplicate ${label}: ${value}.`);
-      seen.add(value);
+      const key = normalizedKey(value);
+      if (seen.has(key)) issues.push(`Duplicate ${label} (case-insensitive): ${value}.`);
+      seen.add(key);
     });
   };
   const articles = input.articles ?? [];
