@@ -50,7 +50,7 @@ This inventory is based on the V2 route and content contracts. It is the field-l
 
 1. The society route now conditionally renders ClubProfile description, history, mission, address, contacts, social links, visible organization people and visible sponsors/partners. Labels are stored in SiteSettings.society and validated. No blank profile section is rendered.
 2. ClubProfile is still seeded only with the verified club name. No addresses, contacts, biographies, sponsor names or partner data should be added until supplied and checked.
-3. The news index displays article cards but does not yet have a dedicated article-detail route. Article slugs and bodies exist in the type contract but are not yet exposed as public detail pages.
+3. The news index links to a dedicated /news/$slug detail route. The route resolves published articles only, renders body as plain text (never raw HTML), supports cover-image alt text and article-level SEO/social metadata, and uses editable not-found and publication labels.
 4. The root head currently emits Open Graph title/description and a basic Twitter card. Canonical and image metadata are now represented in the type contract but still need route-head rendering and validation.
 5. The team contracts support roster and staff records, but the public route should be audited against all desired player/staff fields before the admin forms are finalized.
 6. No protected admin, authentication, server mutation API, persistent content store, upload workflow, revision history or audit log is implemented.
@@ -71,3 +71,10 @@ This inventory is based on the V2 route and content contracts. It is the field-l
 The public society page now reads the ClubProfile through ClubContentService and conditionally renders its optional description, history, mission, address, contacts, social links, organization people, sponsors and partners. People and partner collections respect visibility and order. The section labels are editable SiteSettings fields and are covered by settings validation. Profile validation is exposed by the local content service.
 
 The local ClubProfile still contains only the verified club name, so no additional profile sections appear until official information is supplied. This work does not add an admin panel or persistent editing; the seed remains developer-managed.
+
+
+## Implementation progress — public news detail pages
+
+Published news cards now link to a slug-based detail route. The content service resolves slugs only from the published-news collection, so drafts and archived articles are not exposed. The detail page renders article body as plain text with preserved line breaks, displays optional cover imagery and publication date, and derives page/Open Graph metadata from article fields with settings-based fallbacks. The back link, publication label and not-found copy are editable in SiteSettings.news.
+
+The route file is discovered by the TanStack file-route plugin; generated route types and the build still need CI confirmation. Article bodies are deliberately not interpreted as HTML.
