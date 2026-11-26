@@ -1,4 +1,4 @@
-import type { NewsCategory, EditorialRevision, RevisionStatus } from "../content-types";
+import type { NewsCategory, EditorialRevision } from "../content-types";
 import type { EditorialActor } from "../editorial-session";
 import type { NewsDraftInput, NewsDraftIssue } from "../news-draft-validation";
 import { validateNewsDraft } from "../news-draft-validation";
@@ -164,7 +164,13 @@ export function createNewsEditorialService(
 
   const authorize = (
     actor: EditorialActor | null,
-    permission: "create-content" | "edit-content" | "submit-for-review",
+    permission:
+      | "create-content"
+      | "edit-content"
+      | "submit-for-review"
+      | "approve-content"
+      | "reject-content"
+      | "publish-content",
   ): NewsEditorialResult<never> | null => {
     if (!actor) return { ok: false, code: "unauthenticated" };
     if (!actorHasPermission(actor, permission)) {
