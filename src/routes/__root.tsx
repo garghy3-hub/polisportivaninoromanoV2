@@ -41,6 +41,9 @@ function RootComponent() {
     <html lang="it">
       <head><HeadContent /></head>
       <body className="bg-[#090d18] text-white">
+        <a href="#main-content" className="sr-only z-50 rounded-lg bg-white px-4 py-3 font-semibold text-slate-950 focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
+          Salta al contenuto principale
+        </a>
         <header className="border-b border-white/10 bg-[#090d18]/95">
           <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-8">
             <Link to="/" className="flex items-center gap-3" aria-label="Polisportiva Nino Romano home" onClick={() => setMenuOpen(false)}>
