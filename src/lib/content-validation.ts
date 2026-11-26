@@ -63,7 +63,7 @@ export function validateEvent(event: MatchEvent): string[] {
   if (!isValidEventDate(event.dateTime)) issues.push("Invalid event date/time.");
   if (!nonEmpty(event.homeTeam)) issues.push("Missing home team.");
   if (!nonEmpty(event.awayTeam)) issues.push("Missing away team.");
-  if (event.homeTeam === event.awayTeam) issues.push("Home and away teams must differ.");
+  if (nonEmpty(event.homeTeam) && nonEmpty(event.awayTeam) && normalizedKey(event.homeTeam) === normalizedKey(event.awayTeam)) issues.push("Home and away teams must differ.");
   if (!["scheduled", "postponed", "cancelled", "completed"].includes(event.status))
     issues.push("Unknown event status.");
   if (event.status === "completed" &&
@@ -80,8 +80,9 @@ function checkRosterIds(ids: string[], issues: string[], label = "roster") {
       issues.push(`Missing ${label} identifier.`);
       continue;
     }
-    if (seen.has(id)) issues.push(`Duplicate ${label} identifier: ${id}.`);
-    seen.add(id);
+    const key = normalizedKey(id);
+    if (seen.has(key)) issues.push(`Duplicate ${label} identifier (case-insensitive): ${id}.`);
+    seen.add(key);
   }
 }
 
