@@ -170,6 +170,38 @@ describe("provider-neutral News editorial service", () => {
     expect(repository.reviewDecision).not.toHaveBeenCalled();
   });
 
+  it("records a rejection reason and rejects oversized review notes", async () => {
+    const rejected = await service.reject(publisher, {
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 2,
+      reviewNote: "Dati da verificare.",
+    });
+    expect(rejected).toEqual({ ok: true, value: record });
+    expect(repository.reviewDecision).toHaveBeenCalledWith({
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 2,
+      decision: "rejected",
+      reviewNote: "Dati da verificare.",
+      actor: publisher,
+    });
+
+    vi.mocked(repository.reviewDecision).mockClear();
+    const tooLong = await service.reject(publisher, {
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 2,
+      reviewNote: "x".repeat(1001),
+    });
+    expect(tooLong).toEqual({
+      ok: false,
+      code: "invalid",
+      message: "La nota di revisione non può superare 1000 caratteri.",
+    });
+    expect(repository.reviewDecision).not.toHaveBeenCalled();
+  });
+
   it("records publisher approval with the expected version", async () => {
     await service.approve(publisher, {
       articleId: "article-1",
