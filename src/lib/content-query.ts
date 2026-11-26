@@ -27,8 +27,10 @@ export function getCompletedEvents(events: readonly MatchEvent[]): MatchEvent[] 
       (event) =>
         event.status === "completed" &&
         isValidEventDate(event.dateTime) &&
-        Number.isFinite(event.homeScore) &&
-        Number.isFinite(event.awayScore),
+        Number.isInteger(event.homeScore) &&
+        Number.isInteger(event.awayScore) &&
+        (event.homeScore ?? -1) >= 0 &&
+        (event.awayScore ?? -1) >= 0,
     )
     .slice()
     .sort((a, b) => Date.parse(b.dateTime) - Date.parse(a.dateTime));
