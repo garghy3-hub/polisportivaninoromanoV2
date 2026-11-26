@@ -37,7 +37,7 @@ function SocietyWorkbench() {
     ...current,
     people: (current.people ?? []).map((item, i) => i === index ? { ...item, ...patch } : item),
   }))
-  const addPerson = () => setProfile(current => ({
+  const movePerson = (index: number, direction: -1 | 1) => setProfile(current => {\n    const people = [...(current.people ?? [])]\n    const target = index + direction\n    if (target < 0 || target >= people.length) return current\n    ;[people[index], people[target]] = [people[target], people[index]]\n    return { ...current, people: people.map((item, order) => ({ ...item, order })) }\n  })\n  const addPerson = () => setProfile(current => ({
     ...current,
     people: [...(current.people ?? []), { id: `persona-bozza-${(current.people ?? []).length + 1}`, name: '', role: '', biography: '', visible: false, order: (current.people ?? []).length }],
   }))
@@ -49,7 +49,7 @@ function SocietyWorkbench() {
     ...current,
     partners: (current.partners ?? []).map((item, i) => i === index ? { ...item, ...patch } : item),
   }))
-  const addPartner = (relationship: ClubPartner['relationship']) => setProfile(current => ({
+  const movePartner = (index: number, direction: -1 | 1) => setProfile(current => {\n    const partners = [...(current.partners ?? [])]\n    const target = index + direction\n    if (target < 0 || target >= partners.length) return current\n    ;[partners[index], partners[target]] = [partners[target], partners[index]]\n    return { ...current, partners: partners.map((item, order) => ({ ...item, order })) }\n  })\n  const addPartner = (relationship: ClubPartner['relationship']) => setProfile(current => ({
     ...current,
     partners: [...(current.partners ?? []), { id: `${relationship}-bozza-${(current.partners ?? []).length + 1}`, name: '', relationship, visible: false, order: (current.partners ?? []).length }],
   }))
@@ -138,7 +138,7 @@ function SocietyWorkbench() {
             <div className="md:col-span-2">{textField(`person-${index}-bio`, 'Biografia / descrizione', person.biography, value => patchPerson(index, { biography: value }), true)}</div>
             {textField(`person-${index}-photo`, 'URL foto', person.photoUrl, value => patchPerson(index, { photoUrl: value }))}
             {textField(`person-${index}-alt`, 'Testo alternativo foto', person.photoAlt, value => patchPerson(index, { photoAlt: value }))}
-          </div><div className="mt-3 flex items-center gap-4"><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={person.visible} onChange={event => patchPerson(index, { visible: event.target.checked })} className="accent-red-400" /> Pubblica</label><button type="button" onClick={() => removePerson(index)} className="text-xs font-semibold text-rose-300 underline">Rimuovi</button></div></fieldset>)}
+          </div><div className="mt-3 flex items-center gap-4"><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={person.visible} onChange={event => patchPerson(index, { visible: event.target.checked })} className="accent-red-400" /> Pubblica</label><button type="button" disabled={index === 0} onClick={() => movePerson(index, -1)} className="rounded border border-white/15 px-3 py-1 text-xs disabled:opacity-30" aria-label="Sposta persona in alto">↑</button><button type="button" disabled={index === (profile.people ?? []).length - 1} onClick={() => movePerson(index, 1)} className="rounded border border-white/15 px-3 py-1 text-xs disabled:opacity-30" aria-label="Sposta persona in basso">↓</button><button type="button" onClick={() => removePerson(index)} className="text-xs font-semibold text-rose-300 underline">Rimuovi</button></div></fieldset>)}
           {(profile.people ?? []).length === 0 && <p className="rounded-xl border border-dashed border-white/15 p-5 text-sm text-slate-400">Nessuna persona inserita.</p>}</div>
         </section>}
 
@@ -151,7 +151,7 @@ function SocietyWorkbench() {
             {textField(`partner-${index}-logo`, 'URL logo', partner.logoUrl, value => patchPartner(index, { logoUrl: value }))}
             {textField(`partner-${index}-logo-alt`, 'Testo alternativo logo', partner.logoAlt, value => patchPartner(index, { logoAlt: value }))}
             {textField(`partner-${index}-website`, 'Sito web (HTTPS)', partner.websiteUrl, value => patchPartner(index, { websiteUrl: value }))}
-          </div><div className="mt-3 flex items-center gap-4"><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={partner.visible} onChange={event => patchPartner(index, { visible: event.target.checked })} className="accent-red-400" /> Pubblica</label><button type="button" onClick={() => removePartner(index)} className="text-xs font-semibold text-rose-300 underline">Rimuovi</button></div></fieldset>)}
+          </div><div className="mt-3 flex items-center gap-4"><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={partner.visible} onChange={event => patchPartner(index, { visible: event.target.checked })} className="accent-red-400" /> Pubblica</label><button type="button" disabled={index === 0} onClick={() => movePartner(index, -1)} className="rounded border border-white/15 px-3 py-1 text-xs disabled:opacity-30" aria-label="Sposta sponsor o partner in alto">↑</button><button type="button" disabled={index === (profile.partners ?? []).length - 1} onClick={() => movePartner(index, 1)} className="rounded border border-white/15 px-3 py-1 text-xs disabled:opacity-30" aria-label="Sposta sponsor o partner in basso">↓</button><button type="button" onClick={() => removePartner(index)} className="text-xs font-semibold text-rose-300 underline">Rimuovi</button></div></fieldset>)}
           {(profile.partners ?? []).length === 0 && <p className="rounded-xl border border-dashed border-white/15 p-5 text-sm text-slate-400">Nessuno sponsor o partner inserito.</p>}</div>
         </section>}
 
