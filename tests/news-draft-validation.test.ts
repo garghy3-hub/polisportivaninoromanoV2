@@ -64,6 +64,11 @@ describe('validateNewsDraft', () => {
     expect(issues).toEqual([])
   })
 
+  it('rejects alternative text longer than 200 characters', () => {
+    const issues = validateNewsDraft({ ...validDraft, imageUrl: 'https://example.com/cover.jpg', imageAlt: 'a'.repeat(201) })
+    expect(issues).toContainEqual({ field: 'imageAlt', message: 'Massimo 200 caratteri.' })
+  })
+
   it('requires non-whitespace alternative text for an image', () => {
     const issues = validateNewsDraft({
       ...validDraft,
