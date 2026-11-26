@@ -1,4 +1,4 @@
-import type { MatchEvent, MediaAsset, NewsArticle, SiteSettings, Team } from "./content-types";
+import type { ClubProfile, MatchEvent, MediaAsset, NewsArticle, SiteSettings, Team } from "./content-types";
 import { isValidEventDate } from "./content-query";
 
 const nonEmpty = (value: unknown): value is string =>
@@ -60,6 +60,45 @@ export function validateTeam(team: Team): string[] {
   return issues;
 }
 
+/** Validate editable club identity, organization, contacts, sponsors and partners. */
+export function validateClubProfile(profile: ClubProfile): string[] {
+  const issues: string[] = [];
+  if (!nonEmpty(profile.name)) issues.push("Missing club name.");
+  const checkIds = (ids: string[], label: string) => {
+    const seen = new Set<string>();
+    ids.forEach((id) => {
+      if (!nonEmpty(id)) issues.push(`Missing ${label} id.`);
+      const key = normalizedKey(id);
+      if (seen.has(key)) issues.push(`Duplicate ${label} id: ${id}.`);
+      seen.add(key);
+    });
+  };
+  (profile.contacts ?? []).forEach((item, index) => {
+    if (!nonEmpty(item.label)) issues.push(`Club contact ${index + 1}: missing label.`);
+    if (!nonEmpty(item.value)) issues.push(`Club contact ${index + 1}: missing value.`);
+    if (item.href !== undefined && !(/^https:\/\//i.test(item.href) || /^mailto:/i.test(item.href) || /^tel:/i.test(item.href) || (item.href.startsWith("/") && !item.href.startsWith("//")))) issues.push(`Club contact ${index + 1}: unsafe link.`);
+  });
+  (profile.socialLinks ?? []).forEach((item, index) => {
+    if (!nonEmpty(item.label) || !nonEmpty(item.value)) issues.push(`Social link ${index + 1}: label and value are required.`);
+    if (item.href !== undefined && !/^https:\/\//i.test(item.href)) issues.push(`Social link ${index + 1}: destination must use HTTPS.`);
+  });
+  const people = profile.people ?? [];
+  checkIds(people.map((item) => item.id), "club person");
+  people.forEach((item, index) => {
+    if (!nonEmpty(item.name) || !nonEmpty(item.role)) issues.push(`Club person ${index + 1}: name and role are required.`);
+    if (!Number.isInteger(item.order) || typeof item.visible !== "boolean") issues.push(`Club person ${index + 1}: invalid order or visibility.`);
+    if (item.photoUrl !== undefined && (!isSafePublicHref(item.photoUrl) || !nonEmpty(item.photoAlt))) issues.push(`Club person ${index + 1}: photo URL and alternative text must be valid.`);
+  });
+  const partners = profile.partners ?? [];
+  checkIds(partners.map((item) => item.id), "club sponsor/partner");
+  partners.forEach((item, index) => {
+    if (!nonEmpty(item.name) || !["sponsor", "partner"].includes(item.relationship)) issues.push(`Sponsor/partner ${index + 1}: name or relationship is invalid.`);
+    if (!Number.isInteger(item.order) || typeof item.visible !== "boolean") issues.push(`Sponsor/partner ${index + 1}: invalid order or visibility.`);
+    if (item.logoUrl !== undefined && (!isSafePublicHref(item.logoUrl) || !nonEmpty(item.logoAlt))) issues.push(`Sponsor/partner ${index + 1}: logo URL and alternative text must be valid.`);
+    if (item.websiteUrl !== undefined && !/^https:\/\//i.test(item.websiteUrl)) issues.push(`Sponsor/partner ${index + 1}: website must use HTTPS.`);
+  });
+  return issues;
+}
 export function validateEvent(event: MatchEvent): string[] {
   const issues: string[] = [];
   if (!nonEmpty(event.id)) issues.push("Missing event id.");
