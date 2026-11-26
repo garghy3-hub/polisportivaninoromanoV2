@@ -4,8 +4,8 @@ import { localContentService } from '../lib/content-service'
 export const Route = createFileRoute('/')({
   head: () => ({
     meta: [
-      { title: 'Polisportiva Nino Romano | Volley a Milazzo' },
-      { name: 'description', content: 'La casa digitale della Polisportiva Nino Romano di Milazzo: società, squadre, news e calendario della pallavolo rossoblù.' },
+      { title: localContentService.settings().site.title },
+      { name: 'description', content: localContentService.settings().site.description },
     ],
   }),
   component: Home,
@@ -45,7 +45,7 @@ function Home() {
                 <span className="h-8 w-8 rounded-full border-2 border-[#080d1b] bg-[#1d4e89]" />
                 <span className="h-8 w-8 rounded-full border-2 border-[#080d1b] bg-slate-500" />
               </div>
-              <p className="text-xs font-medium tracking-wide text-slate-400">Una squadra. Una città. Una passione.</p>
+              <p className="text-xs font-medium tracking-wide text-slate-400">{content.heroSocialProof}</p>
             </div>
           </div>
 
@@ -53,14 +53,14 @@ function Home() {
             <div aria-hidden="true" className="absolute left-1/2 top-1/2 h-[78%] w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/20 blur-[85px]" />
             <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#142541] via-[#101b30] to-[#111827] p-4 shadow-2xl shadow-black/50 sm:p-6">
               <div className="flex items-center justify-between px-2 pb-4">
-                <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400">Polisportiva · Milazzo</span>
-                <span className="rounded-full border border-red-300/25 bg-red-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-red-200">Volley</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400">{content.visualTopLabel}</span>
+                <span className="rounded-full border border-red-300/25 bg-red-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-red-200">{content.visualTag}</span>
               </div>
               <div className="relative aspect-[1/1.03] overflow-hidden rounded-[1.4rem] border border-white/10 bg-[linear-gradient(145deg,#173b65,#102541_58%,#0d1a2e)]">
                 <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(255,255,255,.12),transparent_48%)]" />
                 <svg viewBox="0 0 520 520" role="img" aria-labelledby="volley-art-title volley-art-desc" className="absolute inset-0 h-full w-full">
-                  <title id="volley-art-title">Illustrazione stilizzata di un campo da pallavolo e di un pallone</title>
-                  <desc id="volley-art-desc">Campo visto in prospettiva con rete centrale e pallone rossoblù in primo piano.</desc>
+                  <title id="volley-art-title">{content.artworkTitle}</title>
+                  <desc id="volley-art-desc">{content.artworkDescription}</desc>
                   <defs>
                     <linearGradient id="court" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#d92738"/><stop offset="1" stopColor="#8e1c35"/></linearGradient>
                     <radialGradient id="ball" cx="32%" cy="24%" r="80%"><stop offset="0" stopColor="#fff"/><stop offset=".7" stopColor="#dce7f3"/><stop offset="1" stopColor="#9eb4ca"/></radialGradient>
@@ -90,16 +90,16 @@ function Home() {
                 </svg>
                 <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
                   <div><p className="text-[10px] font-bold uppercase tracking-[0.25em] text-red-200">{content.visualEyebrow}</p><p className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">{content.visualTitle}</p></div>
-                  <span className="text-5xl font-black tracking-tighter text-white/15">NR</span>
+                  <span className="text-5xl font-black tracking-tighter text-white/15">{content.visualMonogram}</span>
                 </div>
               </div>
               <div className="flex items-center justify-between px-2 pt-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                <span>{content.visualDescription}</span><span>01 / 03</span>
+                <span>{content.visualDescription}</span><span>{content.visualCounter}</span>
               </div>
             </div>
             <div className="absolute -bottom-5 -left-3 rounded-2xl border border-white/10 bg-[#111c30] px-5 py-4 shadow-xl sm:-left-7">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">I nostri colori</p>
-              <div className="mt-2 flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#d92738]" /><span className="h-3 w-3 rounded-full bg-[#1d4e89]" /><span className="text-sm font-bold">Orgoglio rossoblù</span></div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{content.brandColorsLabel}</p>
+              <div className="mt-2 flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#d92738]" /><span className="h-3 w-3 rounded-full bg-[#1d4e89]" /><span className="text-sm font-bold">{content.brandColorsDescriptor}</span></div>
             </div>
           </div>
         </div>
