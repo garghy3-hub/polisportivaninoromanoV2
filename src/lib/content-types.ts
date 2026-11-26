@@ -165,35 +165,90 @@ export interface StandardPageContent {
   seoTitle: string;
   seoDescription: string;
 }
+
 export interface NewsTopic {
-  id: string; title: string; label: string; description: string;
-  visible: boolean; order: number;
+  id: string;
+  title: string;
+  label: string;
+  description: string;
+  visible: boolean;
+  order: number;
 }
+
 export interface NewsPageContent extends StandardPageContent {
-  emptyEyebrow: string; emptyTitle: string; emptyDescription: string; topics: NewsTopic[]; categoryLabels: Record<NewsCategory, string>;
+  emptyEyebrow: string;
+  emptyTitle: string;
+  emptyDescription: string;
+  topics: NewsTopic[];
+  categoryLabels: Record<NewsCategory, string>;
 }
+
 export interface TeamPageCategory {
-  id: string; title: string; eyebrow: string; emptyDescription: string;
-  category: Team["category"]; visible: boolean; order: number;
+  id: string;
+  title: string;
+  eyebrow: string;
+  emptyDescription: string;
+  category: Team["category"];
+  visible: boolean;
+  order: number;
 }
+
 export interface TeamsPageContent extends StandardPageContent {
   categories: TeamPageCategory[];
-  asideTitle: string; asideDescription: string; asideActionLabel: string; asideActionHref: string; rosterCountLabel: string;
+  asideTitle: string;
+  asideDescription: string;
+  asideActionLabel: string;
+  asideActionHref: string;
+  rosterCountLabel: string;
 }
+
 export interface CalendarPageContent extends StandardPageContent {
-  eventTypes: string[]; eventStatusLabels: Record<EventStatus, string>; upcomingTitle: string; upcomingEmpty: string;
-  resultsTitle: string; resultsEmpty: string;
+  eventTypes: string[];
+  eventStatusLabels: Record<EventStatus, string>;
+  upcomingTitle: string;
+  upcomingEmpty: string;
+  resultsTitle: string;
+  resultsEmpty: string;
 }
+
 export interface SocietyPillar {
-  id: string; title: string; description: string; visible: boolean; order: number;
+  id: string;
+  title: string;
+  description: string;
+  visible: boolean;
+  order: number;
 }
+
 export interface SocietyPageContent extends StandardPageContent {
-  pillars: SocietyPillar[]; asideTitle: string; asideDescription: string;
+  pillars: SocietyPillar[];
+  asideTitle: string;
+  asideDescription: string;
 }
-export interface FooterContent { copyright: string; projectLabel: string; }
-export interface SiteMetadata { title: string; description: string; ogTitle: string; ogDescription: string; }
+
+export interface FooterContent {
+  copyright: string;
+  projectLabel: string;
+}
+
+export interface SiteMetadata {
+  title: string;
+  description: string;
+  ogTitle: string;
+  ogDescription: string;
+}
+
 export type BrandThemePreset = "rossoblu-classic" | "rossoblu-dark";
-export interface BrandSettings { monogram: string; name: string; descriptor: string; ariaLabel: string; logoUrl?: string; logoAlt: string; themePreset: BrandThemePreset; }
+
+export interface BrandSettings {
+  monogram: string;
+  name: string;
+  descriptor: string;
+  ariaLabel: string;
+  logoUrl?: string;
+  logoAlt: string;
+  themePreset: BrandThemePreset;
+}
+
 export interface InterfaceCopy {
   skipToContent: string;
   navigationLabel: string;
@@ -205,6 +260,7 @@ export interface InterfaceCopy {
   calendarTypesLabel: string;
   societyInformationLabel: string;
 }
+
 export interface SiteSettings {
   interface: InterfaceCopy;
   brand: BrandSettings;
@@ -218,11 +274,16 @@ export interface SiteSettings {
   footer: FooterContent;
 }
 
-
 export type EditorialRole = "reader" | "editor" | "publisher" | "administrator";
-export type RevisionStatus = "draft" | "in-review" | "approved" | "published" | "rejected";
+export type RevisionStatus =
+  | "draft"
+  | "in-review"
+  | "approved"
+  | "published"
+  | "rejected"
+  | "archived";
 
-/** Metadata for managed media; binary files belong in private/public object storage. */
+/** Safe metadata for managed media; binary files belong in object storage. */
 export interface MediaAsset {
   id: string;
   storageKey: string;
