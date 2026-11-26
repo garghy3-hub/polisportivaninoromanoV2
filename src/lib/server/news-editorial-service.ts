@@ -84,6 +84,30 @@ export interface NewsEditorialRepository {
     expectedVersion: number;
     actor: EditorialActor;
   }): Promise<NewsRepositoryResult<NewsRevisionRecord>>;
+
+  /** Atomically remove the public projection, return revision to draft and audit. */
+  unpublish(input: {
+    articleId: string;
+    revisionId: string;
+    expectedVersion: number;
+    actor: EditorialActor;
+  }): Promise<NewsRepositoryResult<NewsRevisionRecord>>;
+
+  /** Atomically remove the public projection, archive the revision and audit. */
+  archivePublished(input: {
+    articleId: string;
+    revisionId: string;
+    expectedVersion: number;
+    actor: EditorialActor;
+  }): Promise<NewsRepositoryResult<NewsRevisionRecord>>;
+
+  /** Restore an archived revision to draft without making it public. */
+  restoreArchived(input: {
+    articleId: string;
+    revisionId: string;
+    expectedVersion: number;
+    actor: EditorialActor;
+  }): Promise<NewsRepositoryResult<NewsRevisionRecord>>;
 }
 
 export type NewsEditorialFailureCode =
@@ -149,6 +173,18 @@ export interface NewsEditorialService {
       expectedVersion: number;
     },
   ): Promise<NewsEditorialResult<NewsRevisionRecord>>;
+  unpublish(
+    actor: EditorialActor | null,
+    input: { articleId: string; revisionId: string; expectedVersion: number },
+  ): Promise<NewsEditorialResult<NewsRevisionRecord>>;
+  archive(
+    actor: EditorialActor | null,
+    input: { articleId: string; revisionId: string; expectedVersion: number },
+  ): Promise<NewsEditorialResult<NewsRevisionRecord>>;
+  restore(
+    actor: EditorialActor | null,
+    input: { articleId: string; revisionId: string; expectedVersion: number },
+  ): Promise<NewsEditorialResult<NewsRevisionRecord>>;
 }
 
 const toDraftInput = (content: NewsDraftContent): NewsDraftInput => ({
@@ -179,7 +215,10 @@ export function createNewsEditorialService(
       | "submit-for-review"
       | "approve-content"
       | "reject-content"
-      | "publish-content",
+      | "publish-content"
+      | "unpublish-content"
+      | "archive-content"
+      | "restore-content",
   ): NewsEditorialResult<never> | null => {
     if (!actor) return { ok: false, code: "unauthenticated" };
     if (!actorHasPermission(actor, permission)) {
@@ -250,6 +289,39 @@ export function createNewsEditorialService(
         return { ok: false, code: "forbidden" };
       }
       return callRepository(() => repository.publishApproved({ ...input, actor: actor! }));
+    },
+
+    async unpublish(actor, input) {
+      const denied = authorize(actor, "unpublish-content");
+      if (denied) return denied;
+      const invalid = validateRevisionCommand(input);
+      if (invalid) return invalid;
+      if (!canTransitionRevision(actor!.role, "published", "draft")) {
+        return { ok: false, code: "forbidden" };
+      }
+      return callRepository(() => repository.unpublish({ ...input, actor: actor! }));
+    },
+
+    async archive(actor, input) {
+      const denied = authorize(actor, "archive-content");
+      if (denied) return denied;
+      const invalid = validateRevisionCommand(input);
+      if (invalid) return invalid;
+      if (!canTransitionRevision(actor!.role, "published", "archived")) {
+        return { ok: false, code: "forbidden" };
+      }
+      return callRepository(() => repository.archivePublished({ ...input, actor: actor! }));
+    },
+
+    async restore(actor, input) {
+      const denied = authorize(actor, "restore-content");
+      if (denied) return denied;
+      const invalid = validateRevisionCommand(input);
+      if (invalid) return invalid;
+      if (!canTransitionRevision(actor!.role, "archived", "draft")) {
+        return { ok: false, code: "forbidden" };
+      }
+      return callRepository(() => repository.restoreArchived({ ...input, actor: actor! }));
     },
   };
 
