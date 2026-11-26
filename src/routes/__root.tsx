@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { createRootRoute, HeadContent, Link, Outlet, Scripts } from '@tanstack/react-router'
 import '../styles.css'
 
@@ -20,18 +21,23 @@ export const Route = createRootRoute({
 })
 
 function RootComponent() {
+  const [menuOpen, setMenuOpen] = useState(false)
+
   return (
     <html lang="it">
       <head><HeadContent /></head>
       <body className="bg-[#090d18] text-white">
         <header className="border-b border-white/10 bg-[#090d18]/95">
           <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-8">
-            <Link to="/" className="flex items-center gap-3" aria-label="Polisportiva Nino Romano home">
+            <Link to="/" className="flex items-center gap-3" aria-label="Polisportiva Nino Romano home" onClick={() => setMenuOpen(false)}>
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#d92738] font-black tracking-tight">NR</div>
               <div><p className="text-sm font-bold tracking-wide">NINO ROMANO</p><p className="text-xs text-slate-400">POLISPORTIVA · MILAZZO</p></div>
             </Link>
-            <nav aria-label="Navigazione principale" className="flex flex-wrap gap-x-5 gap-y-2">
-              {navigation.map((item) => <Link key={item.href} to={item.href} className="text-sm text-slate-300 transition hover:text-white" activeProps={{ className: 'text-red-300 font-semibold' }}>{item.label}</Link>)}
+            <button type="button" className="rounded-lg border border-white/15 px-3 py-2 text-sm font-semibold md:hidden" aria-expanded={menuOpen} aria-controls="primary-navigation" onClick={() => setMenuOpen((open) => !open)}>
+              {menuOpen ? 'Chiudi ✕' : 'Menu ☰'}
+            </button>
+            <nav id="primary-navigation" aria-label="Navigazione principale" className={`${menuOpen ? 'flex' : 'hidden'} w-full flex-col gap-3 md:flex md:w-auto md:flex-row md:gap-x-5 md:gap-y-2`}>
+              {navigation.map((item) => <Link key={item.href} to={item.href} onClick={() => setMenuOpen(false)} className="text-sm text-slate-300 transition hover:text-white" activeProps={{ className: 'text-red-300 font-semibold' }}>{item.label}</Link>)}
             </nav>
           </div>
         </header>
