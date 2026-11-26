@@ -83,6 +83,8 @@ export type MatchOutcome = "win" | "loss" | "draw";
 export interface MatchEvent {
   id: string;
   season?: string;
+  type?: string;
+  round?: string;
   dateTime: string;
   homeTeam: string;
   awayTeam: string;
@@ -93,6 +95,8 @@ export interface MatchEvent {
   awayScore?: number;
   outcome?: MatchOutcome;
   notes?: string;
+  visible?: boolean;
+  order?: number;
 }
 
 export interface ClubContact {
@@ -259,6 +263,12 @@ export interface TeamsPageContent extends StandardPageContent {
 export interface CalendarPageContent extends StandardPageContent {
   eventTypes: string[];
   eventStatusLabels: Record<EventStatus, string>;
+  outcomeLabels: Record<MatchOutcome, string>;
+  seasonLabel: string;
+  competitionLabel: string;
+  venueLabel: string;
+  roundLabel: string;
+  notesLabel: string;
   upcomingTitle: string;
   upcomingEmpty: string;
   resultsTitle: string;
