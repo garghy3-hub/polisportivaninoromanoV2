@@ -5,7 +5,7 @@ export const Route = createFileRoute('/admin')({ component: AdminOverview })
 const areas = [
   { title: 'News', description: 'Editor prototipo: contenuto, slug, SEO e anteprima.', status: 'Prototipo disponibile', icon: '✍️', href: '/admin/news' },
   { title: 'Squadre e roster', description: 'Editor prototipo per schede squadra, atlete, staff e anteprima.', status: 'Prototipo disponibile', icon: '🏐', href: '/admin/teams' },
-  { title: 'Calendario e risultati', description: 'Partite, date, campi, risultati e visibilità.', status: 'Pianificata', icon: '📅' },
+  { title: 'Calendario e risultati', description: 'Editor prototipo per appuntamenti, partite, stati e punteggi.', status: 'Prototipo disponibile', icon: '📅', href: '/admin/calendar' },
   { title: 'Pagine e homepage', description: 'Testi, sezioni, CTA, ordine e contenuti visuali.', status: 'Pianificata', icon: '🧩' },
   { title: 'Media library', description: 'Libreria immagini: struttura e regole upload definite.', status: 'Struttura disponibile', icon: '🖼️', href: '/admin/media' },
   { title: 'Menu, footer e brand', description: 'Link, navigazione, logo, impostazioni visuali controllate.', status: 'Pianificata', icon: '🎨' },
