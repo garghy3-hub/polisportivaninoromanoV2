@@ -37,4 +37,40 @@ describe('validateNewsDraft', () => {
     const issues = validateNewsDraft({ ...validDraft, imageUrl: 'javascript:alert(1)' })
     expect(issues.some((issue) => issue.field === 'imageUrl')).toBe(true)
   })
+  it('treats whitespace-only required fields as missing', () => {
+    const issues = validateNewsDraft({ ...validDraft, title: '   ', category: '\n', excerpt: '  ', body: '\t' })
+    expect(issues.map((issue) => issue.field)).toEqual(['title', 'category', 'excerpt', 'body'])
+  })
+
+  it('enforces maximum lengths on required content fields', () => {
+    const issues = validateNewsDraft({
+      ...validDraft,
+      title: 't'.repeat(141),
+      category: 'c'.repeat(61),
+      excerpt: 'e'.repeat(301),
+      body: 'b'.repeat(20001),
+    })
+    expect(issues.map((issue) => issue.field)).toEqual(['title', 'category', 'excerpt', 'body'])
+  })
+
+  it('accepts required fields exactly at their maximum lengths', () => {
+    const issues = validateNewsDraft({
+      ...validDraft,
+      title: 't'.repeat(140),
+      category: 'c'.repeat(60),
+      excerpt: 'e'.repeat(300),
+      body: 'b'.repeat(20000),
+    })
+    expect(issues).toEqual([])
+  })
+
+  it('requires non-whitespace alternative text for an image', () => {
+    const issues = validateNewsDraft({
+      ...validDraft,
+      imageUrl: 'https://example.com/cover.jpg',
+      imageAlt: '   ',
+    })
+    expect(issues.some((issue) => issue.field === 'imageAlt')).toBe(true)
+  })
+
 })
