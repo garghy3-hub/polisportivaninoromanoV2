@@ -5,16 +5,9 @@ export const Route = createFileRoute('/')({
   component: Home,
 })
 
-const navigation = [
-  { label: 'La società', href: '/societa' },
-  { label: 'Le squadre', href: '/squadre' },
-  { label: 'News', href: '/news' },
-  { label: 'Calendario', href: '/calendario' },
-]
-
 function Home() {
   return (
-    <main className="min-h-screen overflow-hidden bg-[#090d18] text-white">
+    <main id="main-content" tabIndex={-1} className="min-h-screen overflow-hidden bg-[#090d18] text-white">
       <section className="relative">
         <div className="absolute -right-36 -top-24 h-[34rem] w-[34rem] rounded-full bg-[#d92738]/20 blur-3xl" />
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-24 sm:px-8 lg:grid-cols-[1.2fr_0.8fr] lg:py-32">
@@ -78,7 +71,6 @@ function Home() {
           <Link to="/news" className="rounded-full border border-white/30 px-5 py-3 text-sm font-semibold transition hover:bg-white/10">Vai alle news ↗</Link>
         </div>
       </section>
-
     </main>
   )
 }
