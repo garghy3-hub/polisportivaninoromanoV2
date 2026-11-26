@@ -63,8 +63,28 @@ function RootComponent() {
         </header>
         <Outlet />
         <footer className="border-t border-white/10 px-5 py-8 text-sm text-slate-500 sm:px-8">
-          <div className="mx-auto flex max-w-7xl flex-col gap-3 md:flex-row md:justify-between">
-            <p>{localContentService.settings().footer.copyright}</p><p>{localContentService.settings().footer.projectLabel}</p>
+          <div className="mx-auto flex max-w-7xl flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-3">
+              {localContentService.settings().brand.logoUrl ? (
+                <img
+                  src={localContentService.settings().brand.logoUrl}
+                  alt={localContentService.settings().brand.logoAlt}
+                  className="h-10 w-10 rounded-lg object-contain"
+                />
+              ) : (
+                <span aria-hidden="true" className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/10 font-black text-red-300">
+                  {localContentService.settings().brand.monogram}
+                </span>
+              )}
+              <div>
+                <p className="font-bold text-slate-200">{localContentService.settings().brand.name}</p>
+                <p className="text-xs text-slate-500">{localContentService.settings().brand.descriptor}</p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1 md:items-end">
+              <p>{localContentService.settings().footer.copyright}</p>
+              <p>{localContentService.settings().footer.projectLabel}</p>
+            </div>
           </div>
         </footer>
         <Scripts />
