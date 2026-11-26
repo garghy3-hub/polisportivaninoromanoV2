@@ -127,3 +127,27 @@ The initial admin implementation should be decomposed into reusable, storage-agn
 ### Stage A exit gate
 
 Before implementation of any editing screen, confirm the content inventory against all public routes and document the typed form contracts. No local-only save/publish simulation, fake authentication, or browser storage persistence is acceptable as a substitute for secure server behavior.
+
+
+## Authorization test matrix (required before exposing admin mutations)
+
+| Scenario | Expected result |
+| --- | --- |
+| Reader attempts content create/edit/submit | Denied |
+| Editor attempts review, approve, reject or publish | Denied |
+| Publisher attempts role assignment or settings administration | Denied |
+| Administrator manages roles/settings | Allowed only after server session verification |
+| Unknown role or permission value | Denied (fail closed) |
+| Draft -> in-review by Editor | Allowed |
+| Draft -> published directly | Denied |
+| In-review -> approved/rejected by Publisher | Allowed |
+| Rejected -> draft by Editor | Allowed |
+| Approved -> published by Publisher | Allowed |
+| Published -> draft/archive by Publisher | Allowed |
+| Archived -> draft by Publisher | Allowed |
+| Same-state transition or unlisted transition | Denied |
+| Client-supplied actor/role differs from session | Ignore client value; derive from session |
+| Audit write fails during mutation | Mutation transaction rolls back |
+| Last active admin removal/demotion | Denied unless safe replacement is confirmed in the same transaction |
+
+These are target test cases. The pure permission module alone does not enforce them in production; integration tests must exercise the authenticated server boundary and persistence transaction.
