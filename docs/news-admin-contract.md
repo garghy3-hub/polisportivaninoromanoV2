@@ -50,18 +50,17 @@ Each mutation revalidates the session, derives actor from session, checks permis
 
 ## API/service boundary
 
-Proposed server-only operations (names are illustrative, not implemented):
+A provider-neutral server service boundary now exists at `src/lib/server/news-editorial-service.ts` for the first three editor operations:
 
-- list news revisions with pagination/search/status/category filters
 - create draft
-- update draft with base-revision concurrency token
-- submit for review
-- approve/reject with rationale
-- publish approved revision
-- archive/unpublish according to policy
-- get preview for an authorized short-lived token
+- update draft with an expected revision version
+- submit for review with an expected revision version
 
-Do not expose these through client code until authentication, session verification, persistence and server-side authorization exist. Keep public routes restricted to published data.
+The service checks the session-derived actor's permissions, validates required News fields and configured categories, and delegates to a repository port. The repository contract explicitly requires server-generated identity/timestamps, atomic revision plus audit writes, slug uniqueness, editability/ownership checks and optimistic concurrency. Unit tests cover denied actors, invalid content and version preconditions.
+
+This is not yet a running API or persistence adapter. No route calls the service, no repository implementation exists, and the session actor must be created only after a trusted server-side authentication adapter verifies the credential and loads the session. The helper does not verify cookies or credentials itself.
+
+Still planned: list revisions, approve/reject with rationale, publish approved revisions, archive/unpublish, and authorized short-lived preview. Do not expose mutations through client code until authentication, session verification, persistence and server-side authorization exist. Keep public routes restricted to published data.
 
 ## Test acceptance
 
