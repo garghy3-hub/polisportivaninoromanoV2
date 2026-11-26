@@ -14,7 +14,7 @@ export const Route = createRootRoute({
   head: () => ({
     meta: [
       { title: 'Polisportiva Nino Romano | Milazzo' },
-      { name: 'description', content: 'Sito ufficiale della Polisportiva Nino Romano di Milazzo.' },
+      { name: 'description', content: 'Sito ufficiale della Polisportiva Nino Romano di Milazzo: pallavolo, squadre, news e calendario.' },\n      { name: 'og:title', content: 'Polisportiva Nino Romano | Milazzo' },\n      { name: 'og:description', content: 'Passione, squadra e territorio. Segui la pallavolo rossoblù a Milazzo.' },\n      { name: 'og:type', content: 'website' },\n      { name: 'og:locale', content: 'it_IT' },\n      { name: 'twitter:card', content: 'summary' },
     ],
   }),
   component: RootComponent,
