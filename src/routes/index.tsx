@@ -1,6 +1,10 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
+  head: () => ({ meta: [{ title: 'Polisportiva Nino Romano | Volley a Milazzo' }, { name: 'description', content: 'La casa digitale della Polisportiva Nino Romano di Milazzo: società, squadre, news e calendario della pallavolo rossoblù.' }] }),
+  component: Home,
+})
+export const Route = createFileRoute('/')({
   component: Home,
 })
 
