@@ -403,7 +403,10 @@ function actorHasPermission(
     | "submit-for-review"
     | "approve-content"
     | "reject-content"
-    | "publish-content",
+    | "publish-content"
+    | "unpublish-content"
+    | "archive-content"
+    | "restore-content",
 ): boolean {
   return hasEditorialPermission(actor.role, permission);
 }
