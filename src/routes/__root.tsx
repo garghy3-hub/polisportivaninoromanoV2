@@ -4,17 +4,18 @@ import '../styles.css'
 import { localContentService } from '../lib/content-service'
 
 export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { title: 'Polisportiva Nino Romano | Milazzo' },
-      { name: 'description', content: 'Sito ufficiale della Polisportiva Nino Romano di Milazzo: pallavolo, squadre, news e calendario.' },
-      { property: 'og:title', content: 'Polisportiva Nino Romano | Milazzo' },
-      { property: 'og:description', content: 'Passione, squadra e territorio. Segui la pallavolo rossoblù a Milazzo.' },
+  head: () => {
+    const site = localContentService.settings().site
+    return { meta: [
+      { title: site.title },
+      { name: 'description', content: site.description },
+      { property: 'og:title', content: site.ogTitle },
+      { property: 'og:description', content: site.ogDescription },
       { property: 'og:type', content: 'website' },
       { property: 'og:locale', content: 'it_IT' },
       { name: 'twitter:card', content: 'summary' },
-    ],
-  }),
+    ] }
+  },
   component: RootComponent,
 })
 
