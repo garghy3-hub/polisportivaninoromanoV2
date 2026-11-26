@@ -35,8 +35,19 @@ export function validateTeam(team: Team): string[] {
   const assignedNumbers = numbers.filter((number) => Number.isInteger(number) && number >= 0);
   if (new Set(assignedNumbers).size !== assignedNumbers.length)
     issues.push("Roster jersey numbers must be unique within a team.");
-  if (team.roster) checkRosterIds(team.roster.map((player) => player.id), issues);
-  if (team.staff) checkRosterIds(team.staff.map((member) => member.id), issues);
+  if (team.roster) {
+    checkRosterIds(team.roster.map((player) => player.id), issues, "player");
+    team.roster.forEach((player, index) => {
+      if (!nonEmpty(player.name)) issues.push(`Roster entry ${index + 1}: missing player name.`);
+    });
+  }
+  if (team.staff) {
+    checkRosterIds(team.staff.map((member) => member.id), issues, "staff");
+    team.staff.forEach((member, index) => {
+      if (!nonEmpty(member.name)) issues.push(`Staff entry ${index + 1}: missing name.`);
+      if (!nonEmpty(member.role)) issues.push(`Staff entry ${index + 1}: missing role.`);
+    });
+  }
   return issues;
 }
 
@@ -56,11 +67,14 @@ export function validateEvent(event: MatchEvent): string[] {
   return issues;
 }
 
-function checkRosterIds(ids: string[], issues: string[]) {
+function checkRosterIds(ids: string[], issues: string[], label = "roster") {
   const seen = new Set<string>();
   for (const id of ids) {
-    if (!id.trim()) continue;
-    if (seen.has(id)) issues.push(`Duplicate roster identifier: ${id}.`);
+    if (!id.trim()) {
+      issues.push(`Missing ${label} identifier.`);
+      continue;
+    }
+    if (seen.has(id)) issues.push(`Duplicate ${label} identifier: ${id}.`);
     seen.add(id);
   }
 }
@@ -74,7 +88,7 @@ export function validateContentCollections(input: {
   const issues: string[] = [];
   const checkUnique = (values: readonly string[], label: string) => {
     const seen = new Set<string>();
-    values.forEach((value, index) => {
+    values.forEach((value) => {
       if (!value.trim()) return;
       if (seen.has(value)) issues.push(`Duplicate ${label}: ${value}.`);
       seen.add(value);
