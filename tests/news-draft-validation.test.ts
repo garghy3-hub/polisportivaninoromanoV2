@@ -23,6 +23,15 @@ describe('validateNewsDraft', () => {
     expect(issues.map((issue) => issue.field)).toEqual(['title', 'slug', 'category', 'excerpt', 'body'])
   })
 
+  it('rejects categories that are not configured', () => {
+    const issues = validateNewsDraft({ ...validDraft, category: 'not-configured' }, ['official', 'youth'])
+    expect(issues).toContainEqual({ field: 'category', message: 'Seleziona una categoria tra quelle configurate.' })
+  })
+
+  it('accepts a category present in the configured list', () => {
+    expect(validateNewsDraft({ ...validDraft, category: 'official' }, ['official', 'youth'])).toEqual([])
+  })
+
   it('rejects malformed slugs and overlong SEO fields', () => {
     const issues = validateNewsDraft({ ...validDraft, slug: 'Titolo non valido', seoTitle: 'x'.repeat(71), seoDescription: 'x'.repeat(161) })
     expect(issues.map((issue) => issue.field)).toEqual(['slug', 'seoTitle', 'seoDescription'])
