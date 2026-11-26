@@ -222,10 +222,13 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
     requiredText(page.seoDescription, `${pageName} SEO description`);
   });
 
+  Object.entries(settings.news.categoryLabels).forEach(([key, value]) => requiredText(value, `news category ${key}`));
   checkOrderedItems(settings.news.topics, "news topic");
   settings.news.topics.forEach((topic, index) => requiredText(topic.title, `news topic ${index + 1} title`));
+  requiredText(settings.teams.rosterCountLabel, "roster count label");
   checkOrderedItems(settings.teams.categories, "team page category");
   settings.teams.categories.forEach((category, index) => requiredText(category.title, `team category ${index + 1} title`));
+  Object.entries(settings.calendar.eventStatusLabels).forEach(([key, value]) => requiredText(value, `event status ${key}`));
   checkOrderedItems(settings.society.pillars, "society pillar");
   settings.society.pillars.forEach((pillar, index) => requiredText(pillar.title, `society pillar ${index + 1} title`));
 
