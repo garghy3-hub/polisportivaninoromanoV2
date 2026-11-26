@@ -71,6 +71,19 @@ describe("provider-neutral News editorial service", () => {
     expect(repository.createDraft).not.toHaveBeenCalled();
   });
 
+  it("normalizes unexpected repository errors without leaking adapter details", async () => {
+    vi.mocked(repository.createDraft).mockRejectedValueOnce(
+      new Error("database password and SQL internals"),
+    );
+    const result = await service.createDraft(editor, validContent);
+    expect(result).toEqual({
+      ok: false,
+      code: "internal",
+      message: "Operazione editoriale non riuscita. Riprova o contatta un amministratore.",
+    });
+    expect(JSON.stringify(result)).not.toContain("database password");
+  });
+
   it("validates the draft and configured category before persistence", async () => {
     const invalid = await service.createDraft(editor, {
       ...validContent,
@@ -198,6 +211,21 @@ describe("provider-neutral News editorial service", () => {
       ok: false,
       code: "invalid",
       message: "La nota di revisione non può superare 1000 caratteri.",
+    });
+    expect(repository.reviewDecision).not.toHaveBeenCalled();
+  });
+
+  it("rejects malformed review-note values at runtime", async () => {
+    const result = await service.reject(publisher, {
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 1,
+      reviewNote: 42 as unknown as string,
+    });
+    expect(result).toEqual({
+      ok: false,
+      code: "invalid",
+      message: "La nota di revisione deve essere un testo valido.",
     });
     expect(repository.reviewDecision).not.toHaveBeenCalled();
   });
