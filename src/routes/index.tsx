@@ -14,22 +14,6 @@ const navigation = [
 function Home() {
   return (
     <main className="min-h-screen overflow-hidden bg-[#090d18] text-white">
-      <header className="relative z-10 border-b border-white/10">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
-          <a href="/" className="flex items-center gap-3" aria-label="Polisportiva Nino Romano home">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#d92738] font-black tracking-tight">NR</div>
-            <div>
-              <p className="text-sm font-bold tracking-wide">NINO ROMANO</p>
-              <p className="text-xs text-slate-400">POLISPORTIVA · MILAZZO</p>
-            </div>
-          </a>
-          <nav className="hidden gap-8 md:flex">
-            {navigation.map((item) => <Link key={item.label} to={item.href} className="text-sm text-slate-300 transition hover:text-white">{item.label}</Link>)}
-          </nav>
-          <Link to="/news" className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#090d18] transition hover:bg-slate-200">News e aggiornamenti</Link>
-        </div>
-      </header>
-
       <section className="relative">
         <div className="absolute -right-36 -top-24 h-[34rem] w-[34rem] rounded-full bg-[#d92738]/20 blur-3xl" />
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-24 sm:px-8 lg:grid-cols-[1.2fr_0.8fr] lg:py-32">
@@ -94,10 +78,6 @@ function Home() {
         </div>
       </section>
 
-      <footer className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-8 text-sm text-slate-500 sm:px-8 md:flex-row md:justify-between">
-        <p>© Polisportiva Nino Romano · Milazzo</p>
-        <p>V2 · Nuovo progetto digitale</p>
-      </footer>
     </main>
   )
 }
