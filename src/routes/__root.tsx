@@ -48,10 +48,10 @@ function RootComponent() {
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#d92738] font-black tracking-tight">{localContentService.settings().brand.monogram}</div>
               <div><p className="text-sm font-bold tracking-wide">{localContentService.settings().brand.name}</p><p className="text-xs text-slate-400">{localContentService.settings().brand.descriptor}</p></div>
             </Link>
-            <button type="button" className="rounded-lg border border-white/15 px-3 py-2 text-sm font-semibold md:hidden" aria-expanded={menuOpen} aria-controls="primary-navigation" onClick={() => setMenuOpen((open) => !open)}>
-              {menuOpen ? 'Chiudi ✕' : 'Menu ☰'}
+            <button type="button" className="rounded-lg border border-white/15 px-3 py-2 text-sm font-semibold md:hidden" aria-expanded={menuOpen} aria-controls="primary-navigation" aria-label={menuOpen ? localContentService.settings().interface.closeMenu : localContentService.settings().interface.openMenu} onClick={() => setMenuOpen((open) => !open)}>
+              {menuOpen ? `${localContentService.settings().interface.closeMenu} ✕` : `${localContentService.settings().interface.openMenu} ☰`}
             </button>
-            <nav id="primary-navigation" aria-label="Navigazione principale" className={`${menuOpen ? 'flex' : 'hidden'} w-full flex-col gap-3 md:flex md:w-auto md:flex-row md:gap-x-5 md:gap-y-2`}>
+            <nav id="primary-navigation" aria-label={localContentService.settings().interface.navigationLabel} className={`${menuOpen ? 'flex' : 'hidden'} w-full flex-col gap-3 md:flex md:w-auto md:flex-row md:gap-x-5 md:gap-y-2`}>
               {navigation.map((item) => <a key={item.id} href={item.href} onClick={() => setMenuOpen(false)} className="text-sm text-slate-300 transition hover:text-white">{item.label}</a>)}
             </nav>
           </div>
