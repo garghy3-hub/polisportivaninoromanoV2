@@ -1,7 +1,7 @@
 # Area amministrativa V2 — stato e guida
 
 ## Accesso alla struttura
-La route `/admin` contiene una panoramica delle aree CMS previste. È una pagina informativa e non un sistema autenticato.
+La route `/admin` contiene una panoramica delle aree CMS previste. Le route `/admin/news`, `/admin/teams` e `/admin/calendar` sono workbench UI locali per preparare e verificare bozze, ma non salvano dati e non costituiscono un sistema autenticato.
 
 ## Stato attuale
 - [x] Route dashboard introdotta
@@ -11,7 +11,7 @@ La route `/admin` contiene una panoramica delle aree CMS previste. È una pagina
 - [ ] API server protette e autorizzazioni server-side
 - [ ] Persistenza di revisioni e contenuti
 - [ ] Media upload con storage sicuro
-- [ ] Editor News con preview e revisioni
+- [x] Prototipi UI locali News, squadre/roster e calendario/risultati (senza persistenza)\n- [ ] Editor News con preview e revisioni
 - [ ] Pubblicazione atomica e audit trail
 - [ ] Test d'integrazione e sicurezza
 
