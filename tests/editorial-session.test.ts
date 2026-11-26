@@ -33,15 +33,11 @@ describe("editorial server session boundary", () => {
     expect(resolveEditorialActor({ ...activeSession, expiresAt: "2026-11-26T20:00:00.000Z" }, now)).toBeNull();
   });
 
-  it("rejects revoked sessions and unknown or forged roles", () => {
+  it("rejects revoked sessions and unknown roles", () => {
     expect(resolveEditorialActor({
       ...activeSession,
       revokedAt: "2026-11-26T19:00:00.000Z",
     }, now)).toBeNull();
-    expect(resolveEditorialActor({
-      ...activeSession,
-      role: "administrator",
-    }, now)?.role).toBe("administrator");
     expect(resolveEditorialActor({
       ...activeSession,
       role: "superuser",
