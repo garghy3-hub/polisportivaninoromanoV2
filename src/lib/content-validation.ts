@@ -25,6 +25,16 @@ export function validateArticle(article: NewsArticle): string[] {
   if (!isValidDate(article.updatedAt)) issues.push("Invalid updatedAt date.");
   if (article.status === "published" && !isValidDate(article.publishedAt))
     issues.push("Published articles require a valid publishedAt date.");
+  if (article.coverImageUrl !== undefined &&
+    (!isSafePublicHref(article.coverImageUrl) || !nonEmpty(article.coverImageAlt)))
+    issues.push("Article cover images require a safe URL and alternative text.");
+  if (article.socialImageUrl !== undefined &&
+    (!isSafePublicHref(article.socialImageUrl) || !nonEmpty(article.socialImageAlt)))
+    issues.push("Article social images require a safe URL and alternative text.");
+  if (article.seoTitle !== undefined && !nonEmpty(article.seoTitle))
+    issues.push("Article SEO title must not be empty when provided.");
+  if (article.seoDescription !== undefined && !nonEmpty(article.seoDescription))
+    issues.push("Article SEO description must not be empty when provided.");
   return issues;
 }
 
@@ -311,6 +321,10 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
     ["news empty-state eyebrow", settings.news.emptyEyebrow],
     ["news empty-state title", settings.news.emptyTitle],
     ["news empty-state description", settings.news.emptyDescription],
+    ["news article back label", settings.news.articleBackLabel],
+    ["news published label", settings.news.publishedLabel],
+    ["news not-found title", settings.news.notFoundTitle],
+    ["news not-found description", settings.news.notFoundDescription],
   ].forEach(([label, value]) => requiredText(value, String(label)));
   Object.entries(settings.news.categoryLabels).forEach(([key, value]) =>
     requiredText(value, `news category label ${key}`),
