@@ -53,6 +53,7 @@ This inventory is based on the V2 route and content contracts. It is the field-l
 3. The news index links to a dedicated /news/$slug detail route. The route resolves published articles only, renders body as plain text (never raw HTML), supports cover-image alt text and article-level SEO/social metadata, and uses editable not-found and publication labels.
 4. Site-wide Open Graph/Twitter metadata now comes from SiteSettings.site. Page-level SEO/social metadata and optional canonical links are rendered through a shared helper; article details use article-specific SEO/social fields. Canonical and social-image values are validated before publication.
 5. The teams route now renders team identity, season, description, logo, visible roster entries, player numbers/roles/photos and visible staff entries with roles/photos. Team, roster and staff entries support order and visibility; display labels are editable in SiteSettings. Validation covers media alternative text and order/visibility fields.
+6. The calendar route now renders event type, date/time, status, season, competition, round, venue and notes; results can additionally show a verified score and optional outcome label. Event visibility and ordering are respected by public queries. Only completed events with valid, non-negative integer scores are listed as results; outcome values, when supplied, must agree with the score.
 6. No protected admin, authentication, server mutation API, persistent content store, upload workflow, revision history or audit log is implemented.
 
 ## Acceptance checks for future admin implementation
@@ -92,3 +93,12 @@ Canonical URLs are not synthesized: they are emitted only when an editor supplie
 The teams page now renders the available team-level details, team logo, season, description, roster and technical staff. Team and person collections can be ordered and hidden through their content fields; optional portraits/logos require safe URLs and alternative text. Roster count, section headings and jersey-number labels are editable in SiteSettings. Empty collections remain absent rather than displaying invented names or numbers.
 
 The local team collection remains empty until official club information is supplied. No roster or staff data has been fabricated.
+
+
+## Implementation progress — calendar and match results
+
+Match records now support optional type and round fields plus visibility and ordering. The public calendar displays the available date/time, status, season, competition, round, venue and notes. Completed results show a score only when the event is marked completed and both values are valid non-negative integers; an optional win/loss/draw value is validated against that score.
+
+The calendar's labels for event status, outcomes, season, competition, venue, round and notes are stored in SiteSettings and validated. Public queries hide events explicitly marked invisible, exclude cancelled events from upcoming fixtures, and keep chronological ordering.
+
+The events collection remains empty until official fixtures and results are supplied. No match, score, venue or competition has been invented.
