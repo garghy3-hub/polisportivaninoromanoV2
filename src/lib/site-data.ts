@@ -6,6 +6,7 @@ import type { SiteSettings } from "./content-types";
  * changing the page components. Keep public copy out of route components.
  */
 export const siteSettings: SiteSettings = {
+  brand: { monogram: "NR", name: "NINO ROMANO", descriptor: "POLISPORTIVA · MILAZZO", ariaLabel: "Polisportiva Nino Romano home" },
   site: { title: "Polisportiva Nino Romano | Milazzo", description: "Sito ufficiale della Polisportiva Nino Romano di Milazzo: pallavolo, squadre, news e calendario.", ogTitle: "Polisportiva Nino Romano | Milazzo", ogDescription: "Passione, squadra e territorio. Segui la pallavolo rossoblù a Milazzo." },
   navigation: [
     { id: "home", label: "Home", href: "/", visible: true, order: 0 },
