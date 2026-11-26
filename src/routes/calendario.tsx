@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { localContentService } from '../lib/content-service'
 
 export const Route = createFileRoute('/calendario')({ component: CalendarPage })
 
 const eventTypes = ['Partite', 'Attività societarie', 'Eventi']
 
 function CalendarPage() {
+  const upcoming = localContentService.upcoming()
+  const results = localContentService.results()
   return (
     <main className="min-h-screen bg-[#090d18] px-5 py-12 text-white sm:px-8">
       <div className="mx-auto max-w-7xl">
@@ -18,14 +21,12 @@ function CalendarPage() {
           {eventTypes.map((type, index) => <div key={type} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"><p className="text-xs font-bold uppercase tracking-widest text-red-300">0{index + 1}</p><h2 className="mt-3 text-lg font-bold">{type}</h2></div>)}
         </section>
         <section className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-7 sm:p-10">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div><p className="text-sm font-semibold uppercase tracking-widest text-red-300">Calendario ufficiale</p><h2 className="mt-3 text-2xl font-bold sm:text-3xl">Gli appuntamenti saranno pubblicati qui.</h2></div>
-            <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">In preparazione</span>
-          </div>
-          <p className="mt-4 max-w-2xl leading-7 text-slate-400">La struttura è pronta per riportare date, orari, avversarie, sede e aggiornamenti. I dati verranno inseriti solo dopo conferma delle fonti ufficiali.</p>
-          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {['Data e ora', 'Squadre', 'Impianto', 'Aggiornamenti'].map((field) => <div key={field} className="rounded-xl border border-white/10 bg-[#090d18]/60 px-4 py-3"><span className="text-sm text-slate-400">{field}</span></div>)}
-          </div>
+          <h2 className="text-2xl font-bold">Prossimi appuntamenti</h2>
+          {upcoming.length === 0 ? <p className="mt-4 leading-7 text-slate-400">Non ci sono appuntamenti confermati da mostrare al momento.</p> : <div className="mt-6 grid gap-4 sm:grid-cols-2">{upcoming.map(event => <article key={event.id} className="rounded-xl border border-white/10 p-5"><p className="text-sm text-red-300">{new Date(event.dateTime).toLocaleString('it-IT')}</p><h3 className="mt-2 font-bold">{event.homeTeam} · {event.awayTeam}</h3>{event.venue && <p className="mt-2 text-sm text-slate-400">{event.venue}</p>}<p className="mt-2 text-xs text-slate-500">{event.status}</p></article>)}</div>}
+        </section>
+        <section className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-7 sm:p-10">
+          <h2 className="text-2xl font-bold">Ultimi risultati</h2>
+          {results.length === 0 ? <p className="mt-4 leading-7 text-slate-400">I risultati saranno inseriti solo dopo la verifica ufficiale. Nessun risultato disponibile.</p> : <div className="mt-6 grid gap-4 sm:grid-cols-2">{results.map(event => <article key={event.id} className="rounded-xl border border-white/10 p-5"><p className="text-sm text-slate-400">{new Date(event.dateTime).toLocaleDateString('it-IT')}</p><h3 className="mt-2 font-bold">{event.homeTeam} <span className="text-red-300">{event.homeScore}–{event.awayScore}</span> {event.awayTeam}</h3></article>)}</div>}
         </section>
       </div>
     </main>
