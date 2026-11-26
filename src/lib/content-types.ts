@@ -219,6 +219,10 @@ export interface NewsPageContent extends StandardPageContent {
   emptyEyebrow: string;
   emptyTitle: string;
   emptyDescription: string;
+  articleBackLabel: string;
+  publishedLabel: string;
+  notFoundTitle: string;
+  notFoundDescription: string;
   topics: NewsTopic[];
   categoryLabels: Record<NewsCategory, string>;
 }
