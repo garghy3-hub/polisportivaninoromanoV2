@@ -38,7 +38,13 @@ function SocietyWorkbench() {
     people: (current.people ?? []).map((item, i) => i === index ? { ...item, ...patch } : item),
   }))
   const movePerson = (index: number, direction: -1 | 1) => setProfile(current => {
-    const people = [...(current.people ?? [])]\n    const target = index + direction\n    if (target < 0 || target >= people.length) return current\n    ;[people[index], people[target]] = [people[target], people[index]]\n    return { ...current, people: people.map((item, order) => ({ ...item, order })) }\n  })\n  const addPerson = () => setProfile(current => ({
+    const people = [...(current.people ?? [])]
+    const target = index + direction
+    if (target < 0 || target >= people.length) return current
+    ;[people[index], people[target]] = [people[target], people[index]]
+    return { ...current, people: people.map((item, order) => ({ ...item, order })) }
+  })
+  const addPerson = () => setProfile(current => ({
     ...current,
     people: [...(current.people ?? []), { id: `persona-bozza-${(current.people ?? []).length + 1}`, name: '', role: '', biography: '', visible: false, order: (current.people ?? []).length }],
   }))
@@ -50,7 +56,14 @@ function SocietyWorkbench() {
     ...current,
     partners: (current.partners ?? []).map((item, i) => i === index ? { ...item, ...patch } : item),
   }))
-  const movePartner = (index: number, direction: -1 | 1) => setProfile(current => {\n    const partners = [...(current.partners ?? [])]\n    const target = index + direction\n    if (target < 0 || target >= partners.length) return current\n    ;[partners[index], partners[target]] = [partners[target], partners[index]]\n    return { ...current, partners: partners.map((item, order) => ({ ...item, order })) }\n  })\n  const addPartner = (relationship: ClubPartner['relationship']) => setProfile(current => ({
+  const movePartner = (index: number, direction: -1 | 1) => setProfile(current => {
+    const partners = [...(current.partners ?? [])]
+    const target = index + direction
+    if (target < 0 || target >= partners.length) return current
+    ;[partners[index], partners[target]] = [partners[target], partners[index]]
+    return { ...current, partners: partners.map((item, order) => ({ ...item, order })) }
+  })
+  const addPartner = (relationship: ClubPartner['relationship']) => setProfile(current => ({
     ...current,
     partners: [...(current.partners ?? []), { id: `${relationship}-bozza-${(current.partners ?? []).length + 1}`, name: '', relationship, visible: false, order: (current.partners ?? []).length }],
   }))
