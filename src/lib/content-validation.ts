@@ -173,6 +173,9 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
   requiredText(settings.brand.name, "brand name");
   requiredText(settings.brand.descriptor, "brand descriptor");
   requiredText(settings.brand.ariaLabel, "brand accessible label");
+  requiredText(settings.brand.logoAlt, "brand logo alternative text");
+  if (settings.brand.logoUrl !== undefined && !isSafePublicHref(settings.brand.logoUrl)) issues.push("Brand logo URL must be a safe relative or HTTPS URL.");
+  if (!["rossoblu-classic", "rossoblu-dark"].includes(settings.brand.themePreset)) issues.push("Unknown brand theme preset.");
   requiredText(settings.site.title, "site title");
   requiredText(settings.site.description, "site description");
   requiredText(settings.site.ogTitle, "Open Graph title");
@@ -192,13 +195,15 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
     ["homepage hero accent", home.heroAccent], ["homepage hero description", home.heroDescription],
     ["homepage primary action label", home.primaryActionLabel], ["homepage secondary action label", home.secondaryActionLabel],
     ["homepage visual title", home.visualTitle], ["homepage visual top label", home.visualTopLabel],
-    ["homepage visual tag", home.visualTag], ["homepage visual monogram", home.visualMonogram],
+    ["homepage visual tag", home.visualTag], ["homepage visual image alternative text", home.visualImageAlt],
+    ["homepage visual monogram", home.visualMonogram],
     ["homepage visual counter", home.visualCounter], ["homepage social proof", home.heroSocialProof],
     ["homepage brand colors label", home.brandColorsLabel], ["homepage brand colors descriptor", home.brandColorsDescriptor],
     ["homepage artwork title", home.artworkTitle], ["homepage artwork description", home.artworkDescription],
     ["homepage project title", home.projectTitle],
     ["homepage closing title", home.closingTitle],
   ].forEach(([label, value]) => requiredText(value, String(label)));
+  if (home.visualImageUrl !== undefined && !isSafePublicHref(home.visualImageUrl)) issues.push("Homepage visual image URL must be a safe relative or HTTPS URL.");
   checkHref(home.primaryActionHref, "homepage primary action");
   checkHref(home.secondaryActionHref, "homepage secondary action");
   checkHref(home.projectActionHref, "homepage project action");
