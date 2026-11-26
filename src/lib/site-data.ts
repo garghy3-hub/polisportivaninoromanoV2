@@ -6,6 +6,12 @@ import type { SiteSettings } from "./content-types";
  * Keep public-facing copy here until the protected editorial adapter exists.
  */
 export const siteSettings: SiteSettings = {
+  interface: {
+    skipToContent: "Salta al contenuto principale",
+    navigationLabel: "Navigazione principale",
+    openMenu: "Apri menu",
+    closeMenu: "Chiudi menu",
+  },
   brand: {
     monogram: "NR",
     name: "NINO ROMANO",
@@ -37,6 +43,15 @@ export const siteSettings: SiteSettings = {
     visualEyebrow: "Nino Romano",
     visualTitle: "Dentro il gioco.",
     visualDescription: "Energia · Impegno · Comunità",
+    visualTopLabel: "Polisportiva · Milazzo",
+    visualTag: "Volley",
+    visualMonogram: "NR",
+    visualCounter: "01 / 03",
+    heroSocialProof: "Una squadra. Una città. Una passione.",
+    brandColorsLabel: "I nostri colori",
+    brandColorsDescriptor: "Orgoglio rossoblù",
+    artworkTitle: "Illustrazione stilizzata di un campo da pallavolo e di un pallone",
+    artworkDescription: "Campo visto in prospettiva con rete centrale e pallone rossoblù in primo piano.",
     features: [
       { id: "territorio", eyebrow: "01 · Territorio", title: "Milazzo, casa nostra", description: "Una realtà sportiva legata alla comunità e al territorio.", visible: true, order: 0 },
       { id: "squadra", eyebrow: "02 · Squadra", title: "Crescere insieme", description: "Lo sport come impegno condiviso, dentro e fuori dal campo.", visible: true, order: 1 },
