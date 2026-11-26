@@ -181,7 +181,9 @@ export interface SocietyPageContent extends StandardPageContent {
 }
 export interface FooterContent { copyright: string; projectLabel: string; }
 export interface SiteMetadata { title: string; description: string; ogTitle: string; ogDescription: string; }
+export interface BrandSettings { monogram: string; name: string; descriptor: string; ariaLabel: string; }
 export interface SiteSettings {
+  brand: BrandSettings;
   site: SiteMetadata;
   navigation: NavigationItem[];
   home: HomePageContent;
