@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { localContentService } from '../lib/content-service'
+import { getPageHead } from '../lib/page-seo'
 
-export const Route = createFileRoute('/calendario')({ head: () => { const seo = localContentService.settings().calendar; return { meta: [{ title: seo.seoTitle }, { name: 'description', content: seo.seoDescription }] } }, component: CalendarPage })
+export const Route = createFileRoute('/calendario')({ head: () => getPageHead(localContentService.settings().calendar), component: CalendarPage })
 
 function CalendarPage() {
   const upcoming = localContentService.upcoming()
