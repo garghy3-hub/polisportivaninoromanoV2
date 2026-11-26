@@ -1,4 +1,4 @@
-import type { MatchEvent, NewsArticle, SiteSettings, Team } from "./content-types";
+import type { MatchEvent, MediaAsset, NewsArticle, SiteSettings, Team } from "./content-types";
 import { isValidEventDate } from "./content-query";
 
 const nonEmpty = (value: unknown): value is string =>
@@ -215,6 +215,24 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
   checkOrderedItems(settings.society.pillars, "society pillar");
   settings.society.pillars.forEach((pillar, index) => requiredText(pillar.title, `society pillar ${index + 1} title`));
 
+  return issues;
+}
+
+/** Media metadata checks performed before an asset can be attached to public content. */
+export function validateMediaAsset(asset: MediaAsset): string[] {
+  const issues: string[] = [];
+  if (!nonEmpty(asset.id)) issues.push("Missing media asset id.");
+  if (!nonEmpty(asset.storageKey)) issues.push("Missing media storage key.");
+  if (!nonEmpty(asset.fileName)) issues.push("Missing media file name.");
+  if (!nonEmpty(asset.mimeType)) issues.push("Missing media MIME type.");
+  if (!Number.isInteger(asset.sizeBytes) || asset.sizeBytes <= 0)
+    issues.push("Media size must be a positive integer.");
+  if (!nonEmpty(asset.altText))
+    issues.push("Media assets require descriptive alternative text.");
+  if (!nonEmpty(asset.uploadedBy)) issues.push("Missing media uploader.");
+  if (!isValidDate(asset.uploadedAt)) issues.push("Invalid media upload date.");
+  if (asset.publicUrl !== undefined && !isSafePublicHref(asset.publicUrl))
+    issues.push("Media public URL must be a safe relative or HTTPS URL.");
   return issues;
 }
 
