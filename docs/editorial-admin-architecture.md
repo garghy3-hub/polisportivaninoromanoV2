@@ -99,3 +99,31 @@ Do not choose or connect a database, authentication provider or object-storage v
 The panel is not complete until an appropriately authorized editor can change every public-facing text, image, link, sport record and configurable block, save a draft, preview it, submit it for review and publish through the authorized workflow without a code change or developer intervention.
 
 A read-only inventory page, local form state, browser storage, hidden route or UI-only role selector does not satisfy this requirement.
+
+
+## Stage A — concrete form and component contracts
+
+The initial admin implementation should be decomposed into reusable, storage-agnostic components once server authorization is in place:
+
+- `AdminShell`: responsive navigation, page title, breadcrumbs and session-derived identity; no role selection widget.
+- `ResourceList`: searchable/filterable list, status, ordering and visibility; pagination for larger collections.
+- `ResourceEditor`: typed form composition, dirty-state indication, validation summary and save-state feedback.
+- `FieldHelp` / `FieldError`: consistent hints, required indicators and inline errors linked to inputs.
+- `AssetPicker`: managed library selection, preview, alt text and caption; uploads handled by server validation.
+- `RevisionPreview`: exact draft rendering using the public components, scoped and server-checked.
+- `RevisionDiff`: before/after comparison with changed fields clearly identified.
+- `ReviewActions`: submit, approve, reject and publish actions visible only when the server-derived permission permits; server still rechecks every action.
+
+### Form behavior acceptance
+
+- Every form field is keyboard operable, labelled and has errors associated programmatically.
+- Lists support explicit ordering controls and visibility toggles; order and visibility are saved as data.
+- Destructive operations require confirmation and are never represented by an ambiguous icon alone.
+- Saving reports success/failure, prevents duplicate submission and preserves entered values on failure.
+- Unsaved changes are detected and navigation-away warnings are provided where supported.
+- Content previews show image alt text context, responsive layout and metadata; validation cannot be bypassed by preview.
+- Empty states, help text, labels, warnings and confirmation messages are themselves managed localization/interface content where applicable.
+
+### Stage A exit gate
+
+Before implementation of any editing screen, confirm the content inventory against all public routes and document the typed form contracts. No local-only save/publish simulation, fake authentication, or browser storage persistence is acceptable as a substitute for secure server behavior.
