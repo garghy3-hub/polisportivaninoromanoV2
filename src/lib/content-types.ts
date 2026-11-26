@@ -196,6 +196,11 @@ export interface InterfaceCopy {
   navigationLabel: string;
   openMenu: string;
   closeMenu: string;
+  publishedArticlesLabel: string;
+  newsTopicsLabel: string;
+  teamSectionsLabel: string;
+  calendarTypesLabel: string;
+  societyInformationLabel: string;
 }
 export interface SiteSettings {
   interface: InterfaceCopy;
