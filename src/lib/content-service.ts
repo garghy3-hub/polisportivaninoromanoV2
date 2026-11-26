@@ -12,6 +12,7 @@ import { validateClubProfile, validateSiteSettings } from "./content-validation"
  */
 export interface ClubContentService {
   news(): NewsArticle[];
+  articleBySlug(slug: string): NewsArticle | undefined;
   upcoming(from?: Date): MatchEvent[];
   results(): MatchEvent[];
   teamsByCategory(category: Team["category"]): Team[];
@@ -23,6 +24,7 @@ export interface ClubContentService {
 
 export const localContentService: ClubContentService = {
   news: () => getPublishedNews(articles),
+  articleBySlug: (slug) => getPublishedNews(articles).find((article) => article.slug === slug),
   upcoming: (from) => getUpcomingEvents(events, from),
   results: () => getCompletedEvents(events),
   teamsByCategory: (category) => teams.filter((team) => team.category === category),
