@@ -263,6 +263,15 @@ export interface SocietyPageContent extends StandardPageContent {
   pillars: SocietyPillar[];
   asideTitle: string;
   asideDescription: string;
+  historyTitle: string;
+  missionTitle: string;
+  addressTitle: string;
+  contactsTitle: string;
+  socialLinksTitle: string;
+  peopleTitle: string;
+  partnersTitle: string;
+  sponsorsLabel: string;
+  partnersLabel: string;
 }
 
 export interface FooterContent {
