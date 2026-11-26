@@ -114,3 +114,9 @@ To make the editability boundary more complete, remaining public-facing labels h
 - Settings validation now checks these required labels alongside the existing navigation, homepage, SEO and section configuration.
 
 The public routes and shared layout read these labels through the content service. This remains a code-managed seed, not a browser editor. A complete audit of every visible fallback and any future media captions is still required before the full editability acceptance criterion can be claimed.
+Homepage and interface-copy audit continued:
+- Remaining homepage artwork captions, social-proof line, visual-panel labels, monogram and color captions are now settings-backed.
+- Shared skip-to-content text, mobile-menu labels and accessible navigation name are settings-backed.
+- Page-region accessible names are settings-backed.
+- News category and event-status internal values are rendered through editable Italian label maps; roster count label is configurable.
+- The settings validator checks these labels before a future save/publish operation.
