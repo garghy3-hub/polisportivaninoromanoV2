@@ -9,7 +9,7 @@ function TeamsPage() {
   const youth = localContentService.teamsByCategory('youth')
   const categories = [{title:'Prima squadra',eyebrow:'Campionati · attività agonistica',teams:senior},{title:'Settore giovanile',eyebrow:'Percorso · crescita · volley',teams:youth}]
   return (
-    <main className="min-h-screen bg-[#090d18] px-5 py-12 text-white sm:px-8">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-[#090d18] px-5 py-12 text-white sm:px-8">
       <div className="mx-auto max-w-7xl">
         <Link to="/" className="text-sm font-semibold text-red-300 transition hover:text-white">← Torna alla home</Link>
         <header className="mt-16 max-w-3xl">
