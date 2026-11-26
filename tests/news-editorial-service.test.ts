@@ -13,6 +13,12 @@ const editor: EditorialActor = {
   role: "editor",
 };
 
+const publisher: EditorialActor = {
+  sessionId: "session-2",
+  id: "publisher-1",
+  role: "publisher",
+};
+
 const validContent: NewsDraftContent = {
   title: "Una notizia di prova",
   slug: "una-notizia-di-prova",
@@ -47,6 +53,8 @@ describe("provider-neutral News editorial service", () => {
       createDraft: vi.fn().mockResolvedValue({ ok: true, value: record }),
       updateDraft: vi.fn().mockResolvedValue({ ok: true, value: record }),
       submitForReview: vi.fn().mockResolvedValue({ ok: true, value: record }),
+      reviewDecision: vi.fn().mockResolvedValue({ ok: true, value: record }),
+      publishApproved: vi.fn().mockResolvedValue({ ok: true, value: record }),
     };
     service = createNewsEditorialService(repository, ["official", "match-report"]);
   });
@@ -132,6 +140,64 @@ describe("provider-neutral News editorial service", () => {
       expectedVersion: 3,
       content: validContent,
       actor: editor,
+    });
+  });
+
+  it("does not allow an editor to approve or publish", async () => {
+    const input = {
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 1,
+    };
+    expect(await service.approve(editor, input)).toEqual({ ok: false, code: "forbidden" });
+    expect(await service.publish(editor, input)).toEqual({ ok: false, code: "forbidden" });
+    expect(repository.reviewDecision).not.toHaveBeenCalled();
+    expect(repository.publishApproved).not.toHaveBeenCalled();
+  });
+
+  it("requires a reason when rejecting a revision", async () => {
+    const result = await service.reject(publisher, {
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 1,
+      reviewNote: "   ",
+    });
+    expect(result).toEqual({
+      ok: false,
+      code: "invalid",
+      message: "Una motivazione è obbligatoria per rifiutare la revisione.",
+    });
+    expect(repository.reviewDecision).not.toHaveBeenCalled();
+  });
+
+  it("records publisher approval with the expected version", async () => {
+    await service.approve(publisher, {
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 4,
+      reviewNote: "Contenuto verificato.",
+    });
+    expect(repository.reviewDecision).toHaveBeenCalledWith({
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 4,
+      decision: "approved",
+      reviewNote: "Contenuto verificato.",
+      actor: publisher,
+    });
+  });
+
+  it("publishes only through the publisher service permission", async () => {
+    await service.publish(publisher, {
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 5,
+    });
+    expect(repository.publishApproved).toHaveBeenCalledWith({
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 5,
+      actor: publisher,
     });
   });
 
