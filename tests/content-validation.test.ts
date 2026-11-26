@@ -73,6 +73,20 @@ describe("editorial content validation", () => {
     expect(validateSiteSettings(siteSettings)).toEqual([]);
   });
 
+  it("rejects protocol-relative brand logos and unsupported theme presets", () => {
+    const unsafeLogo = {
+      ...siteSettings,
+      brand: { ...siteSettings.brand, logoUrl: "//external.example/logo.png" },
+    };
+    expect(validateSiteSettings(unsafeLogo).some(issue => issue.includes("Brand logo URL"))).toBe(true);
+
+    const unsupportedTheme = {
+      ...siteSettings,
+      brand: { ...siteSettings.brand, themePreset: "custom" as "rossoblu-classic" },
+    };
+    expect(validateSiteSettings(unsupportedTheme).some(issue => issue.includes("theme preset"))).toBe(true);
+  });
+
   it("rejects unsafe homepage links and duplicate ordered section IDs", () => {
     const invalid = {
       ...siteSettings,
