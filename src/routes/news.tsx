@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { localContentService } from '../lib/content-service'
+import { getPageHead } from '../lib/page-seo'
 
-export const Route = createFileRoute('/news')({ head: () => { const seo = localContentService.settings().news; return { meta: [{ title: seo.seoTitle }, { name: 'description', content: seo.seoDescription }] } }, component: NewsPage })
+export const Route = createFileRoute('/news')({ head: () => getPageHead(localContentService.settings().news), component: NewsPage })
 
 function NewsPage() {
   const published = localContentService.news()
