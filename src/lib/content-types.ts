@@ -50,6 +50,8 @@ export interface Team {
   logoAlt?: string;
   roster?: Player[];
   staff?: TeamStaff[];
+  visible?: boolean;
+  order?: number;
 }
 
 export interface Player {
@@ -60,6 +62,8 @@ export interface Player {
   biography?: string;
   photoUrl?: string;
   photoAlt?: string;
+  visible?: boolean;
+  order?: number;
 }
 
 export interface TeamStaff {
@@ -69,6 +73,8 @@ export interface TeamStaff {
   biography?: string;
   photoUrl?: string;
   photoAlt?: string;
+  visible?: boolean;
+  order?: number;
 }
 
 export type EventStatus = "scheduled" | "postponed" | "cancelled" | "completed";
@@ -244,6 +250,10 @@ export interface TeamsPageContent extends StandardPageContent {
   asideActionLabel: string;
   asideActionHref: string;
   rosterCountLabel: string;
+  teamDescriptionLabel: string;
+  rosterTitle: string;
+  staffTitle: string;
+  jerseyNumberLabel: string;
 }
 
 export interface CalendarPageContent extends StandardPageContent {
