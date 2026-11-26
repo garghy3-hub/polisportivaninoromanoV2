@@ -60,3 +60,13 @@ Build one complete resource first (news article): list, create/edit draft, valid
 
 ## Current repository status
 This specification is not implemented. Current V2 still has local seeded data, no authenticated server API, no admin UI, no persistent editorial storage and no preview security.
+
+## Media library: upload and asset rules
+
+The media library is a managed editorial resource, not a free-form URL field. Its first implementation must provide searchable/filterable assets, upload progress and failure recovery, preview, editable alternative text and caption, and explicit selection when attaching an asset to an article, team, player, staff member, sponsor or site setting.
+
+The current metadata validation contract accepts JPEG, PNG, WebP and AVIF images up to 10 MiB. File names are display metadata only; storage keys must be generated server-side as safe relative object keys. The browser-provided MIME type and size are untrusted: the upload service must inspect file bytes, verify actual format, enforce size limits again, reject malformed or decompression-bomb images, and apply safe image dimensions before making an asset public. SVG is excluded from the initial allowlist.
+
+The editor must never be able to set uploader identity, storage key, public URL or asset ownership directly. These values are assigned by the trusted server after authentication and authorization. Uploads require an Editor permission; asset deletion/replacement must check references and use a recoverable lifecycle rather than silently breaking published pages. Alt text is required for informative images; decorative use must be an explicit, accessible decision at the point of placement.
+
+This is a validation and UI contract only. There is no upload endpoint, object storage, media browser, or persisted asset library in the current prototype.
