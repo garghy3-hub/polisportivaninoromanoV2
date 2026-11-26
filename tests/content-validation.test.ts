@@ -34,6 +34,12 @@ describe("editorial content validation", () => {
     expect(validateEvent({ ...event, homeScore: -1 }).length).toBeGreaterThan(0);
   });
 
+  it("requires scores only for completed events and rejects scores for other statuses", () => {
+    expect(validateEvent({ ...event, status: "scheduled", homeScore: undefined, awayScore: undefined, outcome: undefined })).toEqual([]);
+    expect(validateEvent({ ...event, status: "scheduled" }).some(issue => issue.includes("only be set for completed"))).toBe(true);
+    expect(validateEvent({ ...event, status: "completed", homeScore: undefined, awayScore: undefined, outcome: undefined }).some(issue => issue.includes("require non-negative integer scores"))).toBe(true);
+  });
+
   it("detects duplicate IDs and slugs in collections", () => {
     const duplicate = { ...article, id: "ARTICLE-1", slug: "TEST-news" };
     expect(validateContentCollections({ articles: [article, duplicate] }).some(issue => issue.includes("Duplicate article"))).toBe(true);
