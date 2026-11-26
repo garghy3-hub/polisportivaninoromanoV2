@@ -1,0 +1,56 @@
+import { createFileRoute, Link } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/admin')({ component: AdminOverview })
+
+const areas = [
+  { title: 'News', description: 'Articoli, categorie, immagini, bozze e revisioni.', status: 'Prima area da implementare', icon: '✍️' },
+  { title: 'Squadre e roster', description: 'Schede squadra, atlete, staff, ruoli e foto.', status: 'Pianificata', icon: '🏐' },
+  { title: 'Calendario e risultati', description: 'Partite, date, campi, risultati e visibilità.', status: 'Pianificata', icon: '📅' },
+  { title: 'Pagine e homepage', description: 'Testi, sezioni, CTA, ordine e contenuti visuali.', status: 'Pianificata', icon: '🧩' },
+  { title: 'Media library', description: 'Immagini, metadati, alt text e riutilizzo degli asset.', status: 'Pianificata', icon: '🖼️' },
+  { title: 'Menu, footer e brand', description: 'Link, navigazione, logo, impostazioni visuali controllate.', status: 'Pianificata', icon: '🎨' },
+  { title: 'Società e contatti', description: 'Profilo societario, referenti e informazioni pubbliche.', status: 'Pianificata', icon: '🏛️' },
+  { title: 'Utenti e audit', description: 'Ruoli, autorizzazioni e registro delle modifiche.', status: 'Pianificata', icon: '🔐' },
+]
+
+function AdminOverview() {
+  return (
+    <main id="main-content" className="min-h-screen bg-[#090d18] px-5 py-12 text-white sm:px-8" tabIndex={-1}>
+      <div className="mx-auto max-w-7xl">
+        <Link to="/" className="text-sm font-semibold text-red-300 hover:text-white">← Torna al sito</Link>
+        <header className="mt-10">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-red-300">Area amministrativa · V2</p>
+          <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">Content management</h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-300">Struttura dell'area editoriale per gestire tutti i contenuti pubblici della Polisportiva Nino Romano.</p>
+        </header>
+
+        <section className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5 sm:p-7" aria-labelledby="prototype-notice">
+          <h2 id="prototype-notice" className="font-bold text-amber-200">Prototipo strutturale — non è ancora un pannello operativo</h2>
+          <p className="mt-2 leading-7 text-slate-300">Non è presente autenticazione, salvataggio, API o database. Questa pagina non consente modifiche e non deve essere usata per pubblicare contenuti. Le funzioni saranno attivate dopo aver definito e implementato i servizi server e i controlli di sicurezza.</p>
+        </section>
+
+        <section className="mt-10" aria-labelledby="content-areas">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div><h2 id="content-areas" className="text-2xl font-bold">Moduli editoriali</h2><p className="mt-2 text-slate-400">Obiettivo: rendere modificabile dal pannello ogni elemento del sito.</p></div>
+            <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">8 aree previste</span>
+          </div>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {areas.map((area) => <article key={area.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition hover:border-red-400/30">
+              <div className="flex items-start justify-between gap-4"><span className="text-2xl" aria-hidden="true">{area.icon}</span><span className="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-400">{area.status}</span></div>
+              <h3 className="mt-4 text-xl font-bold">{area.title}</h3>
+              <p className="mt-3 leading-7 text-slate-400">{area.description}</p>
+            </article>)}
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
+          <h2 className="text-xl font-bold">Flusso editoriale previsto</h2>
+          <ol className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {['Bozza: editor crea e modifica', 'Revisione: invio al publisher', 'Approvazione: controllo e preview', 'Pubblicazione: contenuto live'].map((step, index) => <li key={step} className="rounded-xl border border-white/10 p-4"><span className="text-sm font-bold text-red-300">0{index + 1}</span><p className="mt-2 font-semibold">{step}</p></li>)}
+          </ol>
+          <p className="mt-5 text-sm leading-6 text-slate-500">Le autorizzazioni dovranno essere verificate lato server, non affidate a controlli dell'interfaccia.</p>
+        </section>
+      </div>
+    </main>
+  )
+}
