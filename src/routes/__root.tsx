@@ -12,7 +12,7 @@ export const Route = createRootRoute({
       { property: 'og:title', content: site.ogTitle },
       { property: 'og:description', content: site.ogDescription },
       { property: 'og:type', content: 'website' },
-      { property: 'og:locale', content: 'it_IT' },
+      { property: 'og:locale', content: site.openGraphLocale },
       { name: 'twitter:card', content: site.ogImageUrl ? 'summary_large_image' : 'summary' },
       { name: 'twitter:title', content: site.twitterTitle || site.ogTitle },
       { name: 'twitter:description', content: site.twitterDescription || site.ogDescription },
@@ -25,6 +25,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const site = localContentService.settings().site
   const navigation = localContentService.settings().navigation
     .filter((item) => item.visible)
     .slice()
@@ -40,7 +41,7 @@ function RootComponent() {
   }, [menuOpen])
 
   return (
-    <html lang="it">
+    <html lang={site.language}>
       <head><HeadContent /></head>
       <body className="bg-[#090d18] text-white">
         <a href="#main-content" className="sr-only z-50 rounded-lg bg-white px-4 py-3 font-semibold text-slate-950 focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
