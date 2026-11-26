@@ -23,7 +23,7 @@ function NewsPage() {
             <p className="mt-4 max-w-2xl leading-7 text-slate-400">{content.emptyDescription}</p>
           </section>
         ) : (
-          <section className="mt-12 grid gap-5 md:grid-cols-2" aria-label="Articoli pubblicati">
+          <section className="mt-12 grid gap-5 md:grid-cols-2" aria-label={localContentService.settings().interface.publishedArticlesLabel}>
             {published.map((article) => <article key={article.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
               <p className="text-xs font-semibold uppercase tracking-widest text-red-300">{article.category}</p>
               <h2 className="mt-3 text-xl font-bold">{article.title}</h2>
@@ -32,7 +32,7 @@ function NewsPage() {
             </article>)}
           </section>
         )}
-        {topics.length > 0 && <section className="mt-12 grid gap-5 md:grid-cols-3" aria-label="Tipologie di notizie">
+        {topics.length > 0 && <section className="mt-12 grid gap-5 md:grid-cols-3" aria-label={localContentService.settings().interface.newsTopicsLabel}>
           {topics.map((topic) => <article key={topic.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <span className="text-xs font-semibold uppercase tracking-widest text-red-300">{topic.label}</span>
             <h2 className="mt-4 text-xl font-bold">{topic.title}</h2>
