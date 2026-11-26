@@ -219,6 +219,14 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
   requiredText(settings.site.description, "site description");
   requiredText(settings.site.ogTitle, "Open Graph title");
   requiredText(settings.site.ogDescription, "Open Graph description");
+  if (settings.site.canonicalUrl !== undefined && !/^https:\/\//i.test(settings.site.canonicalUrl)) issues.push("Site canonical URL must use HTTPS.");
+  if (settings.site.ogImageUrl !== undefined && (!isSafePublicHref(settings.site.ogImageUrl) || !nonEmpty(settings.site.ogImageAlt))) issues.push("Open Graph image requires a safe URL and alternative text.");
+  if (settings.site.twitterTitle !== undefined && !nonEmpty(settings.site.twitterTitle)) issues.push("Twitter title must not be empty.");
+  if (settings.site.twitterDescription !== undefined && !nonEmpty(settings.site.twitterDescription)) issues.push("Twitter description must not be empty.");
+  pages.forEach(([pageName, page]) => {
+    if (page.canonicalUrl !== undefined && !/^https:\/\//i.test(page.canonicalUrl)) issues.push(`${pageName} canonical URL must use HTTPS.`);
+    if (page.socialImageUrl !== undefined && (!isSafePublicHref(page.socialImageUrl) || !nonEmpty(page.socialImageAlt))) issues.push(`${pageName} social image requires a safe URL and alternative text.`);
+  });
   requiredText(settings.footer.copyright, "footer copyright");
   requiredText(settings.footer.projectLabel, "footer project label");
 
