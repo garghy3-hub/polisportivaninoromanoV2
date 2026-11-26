@@ -23,7 +23,7 @@ function Home() {
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-24 pt-20 sm:px-8 sm:pt-28 lg:grid-cols-[1.05fr_.95fr] lg:gap-8 lg:pb-32 lg:pt-32">
           <div className="relative z-10">
             <p className="mb-7 inline-flex items-center gap-2 rounded-full border border-red-400/30 bg-red-500/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em] text-red-200">
-              <span className="h-2 w-2 rounded-full bg-[#ed4050] shadow-[0_0_14px_#ed4050]" /> Milazzo · Pallavolo
+              <span className="h-2 w-2 rounded-full bg-[#ed4050] shadow-[0_0_14px_#ed4050]" /> {content.heroEyebrow}
             </p>
             <h1 className="max-w-3xl text-[clamp(3.4rem,8vw,6.8rem)] font-black leading-[.94] tracking-[-0.065em]">
               {content.heroTitle}<br /><span className="bg-gradient-to-r from-[#ff5968] to-[#d92738] bg-clip-text text-transparent">{content.heroAccent}</span>
