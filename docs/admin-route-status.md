@@ -1,17 +1,19 @@
 # Area amministrativa V2 — stato e guida
 
 ## Accesso alla struttura
-La route `/admin` contiene una panoramica delle aree CMS previste. Le route `/admin/news`, `/admin/teams`, `/admin/calendar`, `/admin/pages` e `/admin/society` sono workbench UI locali per preparare e verificare bozze/impostazioni, ma non salvano dati e non costituiscono un sistema autenticato.
+La route `/admin` contiene una panoramica delle aree CMS previste. Le route `/admin/news`, `/admin/teams`, `/admin/calendar`, `/admin/pages`, `/admin/society` e `/admin/brand` sono workbench UI locali per preparare e verificare contenuti e impostazioni, ma non salvano dati e non costituiscono un sistema autenticato. La route `/admin/media` espone per ora soltanto la struttura prevista per la libreria.
 
 ## Stato attuale
 - [x] Route dashboard introdotta
-- [x] Aree di gestione elencate: News, squadre/roster, calendario/risultati, pagine/home, media, brand/menu/footer, società/contatti, utenti/audit
+- [x] Aree di gestione elencate: News, squadre/roster, calendario/risultati, pagine/home, media, brand/footer, società/contatti, utenti/audit
 - [x] Flusso editoriale descritto
+- [x] Workbench locale brand/footer con anteprima e validazione (senza persistenza)
 - [ ] Autenticazione reale e sessioni verificate
 - [ ] API server protette e autorizzazioni server-side
 - [ ] Persistenza di revisioni e contenuti
 - [ ] Media upload con storage sicuro
-- [x] Prototipi UI locali News, squadre/roster e calendario/risultati (senza persistenza)\n- [ ] Editor News con preview e revisioni
+- [x] Prototipi UI locali News, squadre/roster, calendario/risultati, pagine/home e società (senza persistenza)
+- [ ] Flusso News con revisioni e pubblicazione effettive
 - [ ] Pubblicazione atomica e audit trail
 - [ ] Test d'integrazione e sicurezza
 
