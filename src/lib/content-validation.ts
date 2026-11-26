@@ -132,6 +132,20 @@ export function validateEvent(event: MatchEvent): string[] {
     (!Number.isInteger(event.homeScore) || !Number.isInteger(event.awayScore) ||
       (event.homeScore ?? -1) < 0 || (event.awayScore ?? -1) < 0))
     issues.push("Completed events require non-negative integer scores.");
+  if (event.status !== "completed" && (event.homeScore !== undefined || event.awayScore !== undefined))
+    issues.push("Scores may only be set for completed events.");
+  if (event.order !== undefined && !Number.isInteger(event.order))
+    issues.push("Event order must be an integer.");
+  if (event.visible !== undefined && typeof event.visible !== "boolean")
+    issues.push("Event visibility must be boolean.");
+  if (event.outcome !== undefined && !["win", "loss", "draw"].includes(event.outcome))
+    issues.push("Unknown match outcome.");
+  if (event.outcome !== undefined && event.status === "completed" &&
+    Number.isInteger(event.homeScore) && Number.isInteger(event.awayScore)) {
+    const expected = event.homeScore! > event.awayScore! ? "win" :
+      event.homeScore! < event.awayScore! ? "loss" : "draw";
+    if (event.outcome !== expected) issues.push("Match outcome does not match the recorded score.");
+  }
   return issues;
 }
 
@@ -305,6 +319,12 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
   checkOrderedItems(settings.teams.categories, "team page category");
   settings.teams.categories.forEach((category, index) => requiredText(category.title, `team category ${index + 1} title`));
   Object.entries(settings.calendar.eventStatusLabels).forEach(([key, value]) => requiredText(value, `event status ${key}`));
+  Object.entries(settings.calendar.outcomeLabels).forEach(([key, value]) => requiredText(value, `match outcome ${key}`));
+  requiredText(settings.calendar.seasonLabel, "calendar season label");
+  requiredText(settings.calendar.competitionLabel, "calendar competition label");
+  requiredText(settings.calendar.venueLabel, "calendar venue label");
+  requiredText(settings.calendar.roundLabel, "calendar round label");
+  requiredText(settings.calendar.notesLabel, "calendar notes label");
   checkOrderedItems(settings.society.pillars, "society pillar");
   settings.society.pillars.forEach((pillar, index) => requiredText(pillar.title, `society pillar ${index + 1} title`));
 
