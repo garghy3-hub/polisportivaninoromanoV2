@@ -52,7 +52,7 @@ This inventory is based on the V2 route and content contracts. It is the field-l
 2. ClubProfile is still seeded only with the verified club name. No addresses, contacts, biographies, sponsor names or partner data should be added until supplied and checked.
 3. The news index links to a dedicated /news/$slug detail route. The route resolves published articles only, renders body as plain text (never raw HTML), supports cover-image alt text and article-level SEO/social metadata, and uses editable not-found and publication labels.
 4. Site-wide Open Graph/Twitter metadata now comes from SiteSettings.site. Page-level SEO/social metadata and optional canonical links are rendered through a shared helper; article details use article-specific SEO/social fields. Canonical and social-image values are validated before publication.
-5. The team contracts support roster and staff records, but the public route should be audited against all desired player/staff fields before the admin forms are finalized.
+5. The teams route now renders team identity, season, description, logo, visible roster entries, player numbers/roles/photos and visible staff entries with roles/photos. Team, roster and staff entries support order and visibility; display labels are editable in SiteSettings. Validation covers media alternative text and order/visibility fields.
 6. No protected admin, authentication, server mutation API, persistent content store, upload workflow, revision history or audit log is implemented.
 
 ## Acceptance checks for future admin implementation
@@ -85,3 +85,10 @@ The route file is discovered by the TanStack file-route plugin; generated route 
 The shared document head now renders editable site title/description, Open Graph title/description/image/alt text and Twitter title/description/card settings. Secondary pages use a shared page-head helper for their SEO title/description, Open Graph and Twitter metadata, optional social preview image and optional canonical URL. The homepage supports the site canonical URL, and article detail pages use article-specific SEO/social metadata with settings-based fallbacks.
 
 Canonical URLs are not synthesized: they are emitted only when an editor supplies a validated HTTPS URL. The application still has no browser-based settings editor.
+
+
+## Implementation progress — teams, roster and staff
+
+The teams page now renders the available team-level details, team logo, season, description, roster and technical staff. Team and person collections can be ordered and hidden through their content fields; optional portraits/logos require safe URLs and alternative text. Roster count, section headings and jersey-number labels are editable in SiteSettings. Empty collections remain absent rather than displaying invented names or numbers.
+
+The local team collection remains empty until official club information is supplied. No roster or staff data has been fabricated.
