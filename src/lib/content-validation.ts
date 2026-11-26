@@ -273,6 +273,16 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
     requiredText(topic.description, `news topic ${index + 1} description`);
   });
 
+  home.features.forEach((feature, index) => {
+    requiredText(feature.eyebrow, `homepage feature ${index + 1} eyebrow`);
+    requiredText(feature.title, `homepage feature ${index + 1} title`);
+    requiredText(feature.description, `homepage feature ${index + 1} description`);
+  });
+  settings.teams.categories.forEach((category, index) => {
+    if (!["senior", "youth"].includes(category.category))
+      issues.push(`team category ${index + 1}: unknown team category.`);
+  });
+
   settings.teams.categories.forEach((category, index) => {
     requiredText(category.eyebrow, `team category ${index + 1} eyebrow`);
     requiredText(category.emptyDescription, `team category ${index + 1} empty-state description`);
