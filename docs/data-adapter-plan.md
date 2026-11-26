@@ -120,3 +120,4 @@ Homepage and interface-copy audit continued:
 - Page-region accessible names are settings-backed.
 - News category and event-status internal values are rendered through editable Italian label maps; roster count label is configurable.
 - The settings validator checks these labels before a future save/publish operation.
+The `ClubContentService` also exposes `validateSettings()` so a future editor can obtain configuration validation feedback through the same content boundary instead of importing implementation details from route components.
