@@ -89,6 +89,10 @@ export const siteSettings: SiteSettings = {
     emptyEyebrow: "Archivio editoriale",
     emptyTitle: "Nessun articolo pubblicato al momento.",
     emptyDescription: "Le notizie ufficiali saranno pubblicate qui. I contenuti in bozza non vengono mostrati.",
+    articleBackLabel: "← Torna alle news",
+    publishedLabel: "Pubblicato il",
+    notFoundTitle: "Articolo non disponibile",
+    notFoundDescription: "La notizia richiesta non è disponibile oppure non è stata pubblicata.",
     categoryLabels: { official: "Società", "match-report": "Match report", interview: "Interviste", youth: "Settore giovanile", "club-life": "Vita societaria" },
     topics: [
       { id: "comunicati", title: "Comunicati ufficiali", label: "Società", description: "Comunicazioni, avvisi e informazioni condivise dalla Polisportiva.", visible: true, order: 0 },
