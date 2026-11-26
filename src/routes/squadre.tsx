@@ -44,7 +44,7 @@ function TeamsPage() {
                               {team.season && <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-red-300">{team.season}</p>}
                             </div>
                           </div>
-                          {team.description && <p className="mt-4 leading-7 text-slate-400">{team.description}</p>}
+                          {team.description && <p className="mt-4 leading-7 text-slate-400"><span className="font-semibold text-slate-300">{content.teamDescriptionLabel}: </span>{team.description}</p>}
                           {roster.length > 0 && (
                             <section className="mt-6">
                               <div className="flex items-baseline justify-between gap-3">
@@ -58,6 +58,7 @@ function TeamsPage() {
                                     <span className="min-w-0">
                                       <span className="block truncate font-semibold">{player.name}</span>
                                       {player.role && <span className="block text-xs text-slate-400">{player.role}</span>}
+                                      {player.biography && <span className="mt-1 block whitespace-pre-line text-xs leading-5 text-slate-500">{player.biography}</span>}
                                     </span>
                                     {player.jerseyNumber !== undefined && <span className="ml-auto shrink-0 text-sm font-bold text-red-300">{content.jerseyNumberLabel} {player.jerseyNumber}</span>}
                                   </li>
@@ -75,6 +76,7 @@ function TeamsPage() {
                                     <span className="min-w-0">
                                       <span className="block truncate font-semibold">{member.name}</span>
                                       <span className="block text-xs text-red-300">{member.role}</span>
+                                      {member.biography && <span className="mt-1 block whitespace-pre-line text-xs leading-5 text-slate-500">{member.biography}</span>}
                                     </span>
                                   </li>
                                 ))}
