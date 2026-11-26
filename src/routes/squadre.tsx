@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { localContentService } from '../lib/content-service'
+import { getPageHead } from '../lib/page-seo'
 
-export const Route = createFileRoute('/squadre')({ head: () => { const seo = localContentService.settings().teams; return { meta: [{ title: seo.seoTitle }, { name: 'description', content: seo.seoDescription }] } }, component: TeamsPage })
+export const Route = createFileRoute('/squadre')({ head: () => getPageHead(localContentService.settings().teams), component: TeamsPage })
 
 function TeamsPage() {
   const content = localContentService.settings().teams
