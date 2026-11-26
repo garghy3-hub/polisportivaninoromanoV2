@@ -25,7 +25,7 @@ function NewsPage() {
         ) : (
           <section className="mt-12 grid gap-5 md:grid-cols-2" aria-label={localContentService.settings().interface.publishedArticlesLabel}>
             {published.map((article) => <article key={article.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <p className="text-xs font-semibold uppercase tracking-widest text-red-300">{article.category}</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-red-300">{content.categoryLabels[article.category]}</p>
               <h2 className="mt-3 text-xl font-bold">{article.title}</h2>
               {article.excerpt && <p className="mt-3 leading-7 text-slate-400">{article.excerpt}</p>}
               {article.publishedAt && <p className="mt-4 text-xs text-slate-500">{new Date(article.publishedAt).toLocaleDateString('it-IT')}</p>}
