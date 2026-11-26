@@ -16,7 +16,7 @@ function CalendarPage() {
           <h1 className="mt-4 text-5xl font-black tracking-tight sm:text-7xl">{content.title}<br /><span className="text-[#e53949]">{content.accent}</span></h1>
           <p className="mt-8 text-lg leading-8 text-slate-300">{content.description}</p>
         </header>
-        {content.eventTypes.length > 0 && <section className="mt-14 grid gap-4 sm:grid-cols-3" aria-label="Tipologie di appuntamenti">
+        {content.eventTypes.length > 0 && <section className="mt-14 grid gap-4 sm:grid-cols-3" aria-label={localContentService.settings().interface.calendarTypesLabel}>
           {content.eventTypes.map((type, index) => <div key={type} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"><p className="text-xs font-bold uppercase tracking-widest text-red-300">{String(index + 1).padStart(2, '0')}</p><h2 className="mt-3 text-lg font-bold">{type}</h2></div>)}
         </section>}
         <section className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-7 sm:p-10">
