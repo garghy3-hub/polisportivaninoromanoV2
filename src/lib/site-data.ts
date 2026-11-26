@@ -22,6 +22,8 @@ export const siteSettings: SiteSettings = {
     name: "NINO ROMANO",
     descriptor: "POLISPORTIVA · MILAZZO",
     ariaLabel: "Polisportiva Nino Romano home",
+    logoAlt: "Logo Polisportiva Nino Romano",
+    themePreset: "rossoblu-classic",
   },
   site: {
     title: "Polisportiva Nino Romano | Milazzo",
@@ -48,6 +50,7 @@ export const siteSettings: SiteSettings = {
     visualEyebrow: "Nino Romano",
     visualTitle: "Dentro il gioco.",
     visualDescription: "Energia · Impegno · Comunità",
+    visualImageAlt: "Immagine principale della pallavolo della Polisportiva Nino Romano",
     visualTopLabel: "Polisportiva · Milazzo",
     visualTag: "Volley",
     visualMonogram: "NR",
