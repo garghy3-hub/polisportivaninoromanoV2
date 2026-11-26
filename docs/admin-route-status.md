@@ -1,7 +1,7 @@
 # Area amministrativa V2 — stato e guida
 
 ## Accesso alla struttura
-La route `/admin` contiene una panoramica delle aree CMS previste. Le route `/admin/news`, `/admin/teams`, `/admin/calendar` e `/admin/pages` sono workbench UI locali per preparare e verificare bozze/impostazioni, ma non salvano dati e non costituiscono un sistema autenticato.
+La route `/admin` contiene una panoramica delle aree CMS previste. Le route `/admin/news`, `/admin/teams`, `/admin/calendar`, `/admin/pages` e `/admin/society` sono workbench UI locali per preparare e verificare bozze/impostazioni, ma non salvano dati e non costituiscono un sistema autenticato.
 
 ## Stato attuale
 - [x] Route dashboard introdotta
