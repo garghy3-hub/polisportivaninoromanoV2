@@ -58,6 +58,7 @@ function Home() {
               </div>
               <div className="relative aspect-[1/1.03] overflow-hidden rounded-[1.4rem] border border-white/10 bg-[linear-gradient(145deg,#173b65,#102541_58%,#0d1a2e)]">
                 <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(255,255,255,.12),transparent_48%)]" />
+{content.visualImageUrl ? <img src={content.visualImageUrl} alt={content.visualImageAlt} className="absolute inset-0 h-full w-full object-cover" /> : (
                 <svg viewBox="0 0 520 520" role="img" aria-labelledby="volley-art-title volley-art-desc" className="absolute inset-0 h-full w-full">
                   <title id="volley-art-title">{content.artworkTitle}</title>
                   <desc id="volley-art-desc">{content.artworkDescription}</desc>
@@ -88,6 +89,7 @@ function Home() {
                   <circle cx="348" cy="205" r="91" fill="none" stroke="#fff" strokeWidth="5"/>
                   <path d="M288 115 L408 295" stroke="#fff" strokeWidth="2" opacity=".16"/>
                 </svg>
+                )}
                 <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
                   <div><p className="text-[10px] font-bold uppercase tracking-[0.25em] text-red-200">{content.visualEyebrow}</p><p className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">{content.visualTitle}</p></div>
                   <span className="text-5xl font-black tracking-tighter text-white/15">{content.visualMonogram}</span>
