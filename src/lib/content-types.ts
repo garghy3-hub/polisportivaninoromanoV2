@@ -273,7 +273,6 @@ export interface SocietyPageContent extends StandardPageContent {
   contactsTitle: string;
   socialLinksTitle: string;
   peopleTitle: string;
-  partnersTitle: string;
   sponsorsLabel: string;
   partnersLabel: string;
 }
