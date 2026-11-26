@@ -1,7 +1,8 @@
-import type { NewsCategory, EditorialRevision } from "../content-types";
+import type { NewsCategory, EditorialRevision, RevisionStatus } from "../content-types";
 import type { EditorialActor } from "../editorial-session";
 import type { NewsDraftInput, NewsDraftIssue } from "../news-draft-validation";
 import { validateNewsDraft } from "../news-draft-validation";
+import { canTransitionRevision, hasEditorialPermission } from "../editorial-permissions";
 
 export type NewsDraftContent = Pick<
   NewsDraftInput,
@@ -56,6 +57,31 @@ export interface NewsEditorialRepository {
     expectedVersion: number;
     actor: EditorialActor;
   }): Promise<NewsRepositoryResult<NewsRevisionRecord>>;
+
+  /**
+   * Must verify the current state/version, write reviewer metadata and audit
+   * atomically. A rejection note is mandatory; the repository never trusts a
+   * target state supplied outside this constrained decision.
+   */
+  reviewDecision(input: {
+    articleId: string;
+    revisionId: string;
+    expectedVersion: number;
+    decision: "approved" | "rejected";
+    reviewNote?: string;
+    actor: EditorialActor;
+  }): Promise<NewsRepositoryResult<NewsRevisionRecord>>;
+
+  /**
+   * Must publish only the approved revision, generate publication timestamps
+   * server-side, update the public projection and append audit atomically.
+   */
+  publishApproved(input: {
+    articleId: string;
+    revisionId: string;
+    expectedVersion: number;
+    actor: EditorialActor;
+  }): Promise<NewsRepositoryResult<NewsRevisionRecord>>;
 }
 
 export type NewsEditorialFailureCode =
@@ -88,6 +114,32 @@ export interface NewsEditorialService {
     },
   ): Promise<NewsEditorialResult<NewsRevisionRecord>>;
   submitForReview(
+    actor: EditorialActor | null,
+    input: {
+      articleId: string;
+      revisionId: string;
+      expectedVersion: number;
+    },
+  ): Promise<NewsEditorialResult<NewsRevisionRecord>>;
+  approve(
+    actor: EditorialActor | null,
+    input: {
+      articleId: string;
+      revisionId: string;
+      expectedVersion: number;
+      reviewNote?: string;
+    },
+  ): Promise<NewsEditorialResult<NewsRevisionRecord>>;
+  reject(
+    actor: EditorialActor | null,
+    input: {
+      articleId: string;
+      revisionId: string;
+      expectedVersion: number;
+      reviewNote: string;
+    },
+  ): Promise<NewsEditorialResult<NewsRevisionRecord>>;
+  publish(
     actor: EditorialActor | null,
     input: {
       articleId: string;
@@ -165,18 +217,102 @@ export function createNewsEditorialService(
       }
       return repository.submitForReview({ ...input, actor: actor! });
     },
+
+    async approve(actor, input) {
+      return review(actor, input, "approved");
+    },
+
+    async reject(actor, input) {
+      return review(actor, input, "rejected");
+    },
+
+    async publish(actor, input) {
+      const denied = authorize(actor, "publish-content");
+      if (denied) return denied;
+      const invalid = validateRevisionCommand(input);
+      if (invalid) return invalid;
+      if (!canTransitionRevision(actor!.role, "approved", "published")) {
+        return { ok: false, code: "forbidden" };
+      }
+      return repository.publishApproved({ ...input, actor: actor! });
+    },
   };
+
+  function review(
+    actor: EditorialActor | null,
+    input: {
+      articleId: string;
+      revisionId: string;
+      expectedVersion: number;
+      reviewNote?: string;
+    },
+    decision: "approved" | "rejected",
+  ): Promise<NewsEditorialResult<NewsRevisionRecord>> {
+    const permission = decision === "approved" ? "approve-content" : "reject-content";
+    const denied = authorize(actor, permission);
+    if (denied) return Promise.resolve(denied);
+    const invalid = validateRevisionCommand(input);
+    if (invalid) return Promise.resolve(invalid);
+    const note = input.reviewNote?.trim();
+    if (decision === "rejected" && !note) {
+      return Promise.resolve({
+        ok: false,
+        code: "invalid",
+        message: "Una motivazione è obbligatoria per rifiutare la revisione.",
+      });
+    }
+    if (input.reviewNote !== undefined && input.reviewNote.length > 1000) {
+      return Promise.resolve({
+        ok: false,
+        code: "invalid",
+        message: "La nota di revisione non può superare 1000 caratteri.",
+      });
+    }
+    if (!canTransitionRevision(actor!.role, "in-review", decision)) {
+      return Promise.resolve({ ok: false, code: "forbidden" });
+    }
+    return repository.reviewDecision({
+      articleId: input.articleId,
+      revisionId: input.revisionId,
+      expectedVersion: input.expectedVersion,
+      decision,
+      ...(note ? { reviewNote: note } : {}),
+      actor: actor!,
+    });
+  }
+}
+
+function validateRevisionCommand(input: {
+  articleId: string;
+  revisionId: string;
+  expectedVersion: number;
+}): NewsEditorialResult<never> | null {
+  if (
+    !isValidRevisionTarget(input.articleId, input.revisionId) ||
+    !Number.isInteger(input.expectedVersion) ||
+    input.expectedVersion < 1
+  ) {
+    return {
+      ok: false,
+      code: "invalid",
+      message: "Identificativi di articolo e revisione validi e versione attesa positiva sono obbligatori.",
+    };
+  }
+  return null;
 }
 
 function actorHasPermission(
   actor: EditorialActor,
-  permission: "create-content" | "edit-content" | "submit-for-review",
+  permission:
+    | "create-content"
+    | "edit-content"
+    | "submit-for-review"
+    | "approve-content"
+    | "reject-content"
+    | "publish-content",
 ): boolean {
-  // Importing the shared pure policy keeps this service fail-closed.
   return hasEditorialPermission(actor.role, permission);
 }
-
-import { hasEditorialPermission } from "../editorial-permissions";
 
 function isValidRevisionTarget(articleId: string, revisionId: string): boolean {
   return [articleId, revisionId].every(
