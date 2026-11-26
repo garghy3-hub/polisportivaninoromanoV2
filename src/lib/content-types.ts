@@ -193,3 +193,51 @@ export interface SiteSettings {
   society: SocietyPageContent;
   footer: FooterContent;
 }
+
+
+export type EditorialRole = "reader" | "editor" | "publisher" | "administrator";
+export type RevisionStatus = "draft" | "in-review" | "approved" | "published" | "rejected";
+
+/** Metadata for managed media; binary files belong in private/public object storage. */
+export interface MediaAsset {
+  id: string;
+  storageKey: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  publicUrl?: string;
+  altText: string;
+  caption?: string;
+  uploadedAt: string;
+  uploadedBy: string;
+}
+
+/** Revision envelope for draft, review, approval and publication workflows. */
+export interface EditorialRevision<T> {
+  id: string;
+  entityType: "article" | "team" | "event" | "club-profile" | "site-settings" | "media";
+  entityId: string;
+  status: RevisionStatus;
+  content: T;
+  createdAt: string;
+  createdBy: string;
+  updatedAt: string;
+  updatedBy: string;
+  reviewerId?: string;
+  reviewedAt?: string;
+  reviewNote?: string;
+  publishedAt?: string;
+}
+
+/** Append-only audit metadata; the server must author and protect these fields. */
+export interface EditorialAuditEntry {
+  id: string;
+  actorId: string;
+  actorRole: EditorialRole;
+  action: "create" | "update" | "submit" | "approve" | "reject" | "publish" | "unpublish" | "archive" | "restore" | "delete";
+  entityType: EditorialRevision<unknown>["entityType"];
+  entityId: string;
+  revisionId?: string;
+  occurredAt: string;
+  summary: string;
+}
