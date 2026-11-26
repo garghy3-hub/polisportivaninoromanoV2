@@ -15,7 +15,7 @@ function TeamsPage() {
           <h1 className="mt-4 text-5xl font-black tracking-tight sm:text-7xl">{content.title}<br /><span className="text-[#e53949]">{content.accent}</span></h1>
           <p className="mt-8 text-lg leading-8 text-slate-300">{content.description}</p>
         </header>
-        <section className="mt-14 grid gap-6 lg:grid-cols-2" aria-label="Sezioni delle squadre">
+        <section className="mt-14 grid gap-6 lg:grid-cols-2" aria-label={localContentService.settings().interface.teamSectionsLabel}>
           {categories.map((category) => {
             const categoryTeams = localContentService.teamsByCategory(category.category)
             return <article key={category.id} className="rounded-3xl border border-white/10 bg-white/[0.03] p-7 sm:p-9">
