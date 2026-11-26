@@ -58,11 +58,11 @@ A provider-neutral server service boundary now exists at `src/lib/server/news-ed
 - approve or reject a submitted revision (a rejection requires a reason)
 - publish an approved revision with a version precondition
 
-The service checks the session-derived actor's permissions, validates required News fields and configured categories, checks explicit workflow transitions and delegates to a repository port. The repository contract requires server-generated identity/timestamps, atomic revision plus audit writes, slug uniqueness, editability/ownership checks, optimistic concurrency, reviewer metadata and atomic publication projection updates. Unit tests cover denied editor actions, publisher review/publication permissions, rejection rationale, invalid content and version preconditions.
+The service checks the session-derived actor's permissions, validates required News fields and configured categories, checks explicit workflow transitions and delegates to a repository port. Unexpected repository exceptions are normalized to a generic internal failure so storage/SQL details are not returned to callers; malformed review-note values are rejected. The repository contract requires server-generated identity/timestamps, atomic revision plus audit writes, slug uniqueness, editability/ownership checks, optimistic concurrency, reviewer metadata and atomic publication projection updates. Unit tests cover denied editor actions, publisher review/publication permissions, rejection rationale, invalid content and version preconditions.
 
 This is not yet a running API or persistence adapter. No route calls the service, no repository implementation exists, and the session actor must be created only after a trusted server-side authentication adapter verifies the credential and loads the session. The helper does not verify cookies or credentials itself.
 
-Still planned: list revisions, approve/reject with rationale, publish approved revisions, archive/unpublish, and authorized short-lived preview. Do not expose mutations through client code until authentication, session verification, persistence and server-side authorization exist. Keep public routes restricted to published data.
+Still planned: list revisions, archive/unpublish, and authorized short-lived preview. Do not expose mutations through client code until authentication, session verification, persistence and server-side authorization exist. Keep public routes restricted to published data.
 
 ## Test acceptance
 
