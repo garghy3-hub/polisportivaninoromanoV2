@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { localContentService } from '../lib/content-service'
 
 export const Route = createFileRoute('/')({
   head: () => ({
@@ -11,6 +12,9 @@ export const Route = createFileRoute('/')({
 })
 
 function Home() {
+  const content = localContentService.settings().home
+  const features = content.features.filter((feature) => feature.visible).slice().sort((a, b) => a.order - b.order)
+
   return (
     <main id="main-content" tabIndex={-1} className="min-h-screen overflow-hidden bg-[#080d1b] text-white">
       <section className="relative isolate">
@@ -22,17 +26,17 @@ function Home() {
               <span className="h-2 w-2 rounded-full bg-[#ed4050] shadow-[0_0_14px_#ed4050]" /> Milazzo · Pallavolo
             </p>
             <h1 className="max-w-3xl text-[clamp(3.4rem,8vw,6.8rem)] font-black leading-[.94] tracking-[-0.065em]">
-              Il cuore<br />è <span className="bg-gradient-to-r from-[#ff5968] to-[#d92738] bg-clip-text text-transparent">rossoblù.</span>
+              {content.heroTitle}<br /><span className="bg-gradient-to-r from-[#ff5968] to-[#d92738] bg-clip-text text-transparent">{content.heroAccent}</span>
             </h1>
             <p className="mt-8 max-w-xl text-base leading-8 text-slate-300 sm:text-lg">
-              Passione, squadra e territorio. La casa digitale della Polisportiva Nino Romano, nel cuore di Milazzo.
+              {content.heroDescription}
             </p>
             <div className="mt-10 flex flex-wrap gap-3">
               <Link to="/squadre" className="inline-flex items-center gap-3 rounded-full bg-[#d92738] px-6 py-3.5 text-sm font-bold shadow-lg shadow-red-950/40 transition hover:-translate-y-0.5 hover:bg-[#ef3d4d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-300">
-                Scopri le squadre <span aria-hidden="true">↗</span>
+                {content.primaryActionLabel} <span aria-hidden="true">↗</span>
               </Link>
               <Link to="/news" className="inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/[0.04] px-6 py-3.5 text-sm font-bold transition hover:border-white/40 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-                Tutte le news
+                {content.secondaryActionLabel}
               </Link>
             </div>
             <div className="mt-14 flex items-center gap-4 border-t border-white/10 pt-6">
@@ -85,12 +89,12 @@ function Home() {
                   <path d="M288 115 L408 295" stroke="#fff" strokeWidth="2" opacity=".16"/>
                 </svg>
                 <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
-                  <div><p className="text-[10px] font-bold uppercase tracking-[0.25em] text-red-200">Nino Romano</p><p className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">Dentro il gioco.</p></div>
+                  <div><p className="text-[10px] font-bold uppercase tracking-[0.25em] text-red-200">{content.visualEyebrow}</p><p className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">{content.visualTitle}</p></div>
                   <span className="text-5xl font-black tracking-tighter text-white/15">NR</span>
                 </div>
               </div>
               <div className="flex items-center justify-between px-2 pt-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                <span>Energia · Impegno · Comunità</span><span>01 / 03</span>
+                <span>{content.visualDescription}</span><span>01 / 03</span>
               </div>
             </div>
             <div className="absolute -bottom-5 -left-3 rounded-2xl border border-white/10 bg-[#111c30] px-5 py-4 shadow-xl sm:-left-7">
@@ -103,24 +107,24 @@ function Home() {
 
       <section className="border-y border-white/10 bg-white/[0.025]">
         <div className="mx-auto grid max-w-7xl gap-8 px-5 py-14 sm:px-8 md:grid-cols-3 md:gap-10">
-          <article><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-300">01 · Territorio</p><h2 className="mt-3 text-xl font-bold">Milazzo, casa nostra</h2><p className="mt-3 text-sm leading-7 text-slate-400">Una realtà sportiva legata alla comunità e al territorio.</p></article>
-          <article><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-300">02 · Squadra</p><h2 className="mt-3 text-xl font-bold">Crescere insieme</h2><p className="mt-3 text-sm leading-7 text-slate-400">Lo sport come impegno condiviso, dentro e fuori dal campo.</p></article>
-          <article><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-300">03 · Passione</p><h2 className="mt-3 text-xl font-bold">Sempre rossoblù</h2><p className="mt-3 text-sm leading-7 text-slate-400">Il senso di appartenenza che accompagna ogni stagione.</p></article>
+          <article><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-300">{features[0]?.eyebrow}</p><h2 className="mt-3 text-xl font-bold">{features[0]?.title}</h2><p className="mt-3 text-sm leading-7 text-slate-400">{features[0]?.description}</p></article>
+          <article><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-300">{features[1]?.eyebrow}</p><h2 className="mt-3 text-xl font-bold">{features[1]?.title}</h2><p className="mt-3 text-sm leading-7 text-slate-400">{features[1]?.description}</p></article>
+          <article><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-300">{features[2]?.eyebrow}</p><h2 className="mt-3 text-xl font-bold">{features[2]?.title}</h2><p className="mt-3 text-sm leading-7 text-slate-400">{features[2]?.description}</p></article>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:py-24">
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-2xl"><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-300">La società · Il progetto</p><h2 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">Non solo pallavolo.<br />Una comunità.</h2><p className="mt-6 text-base leading-8 text-slate-300">Uno spazio per raccontare la società, le persone, le attività e le novità con un'esperienza semplice, moderna e pensata anche per smartphone.</p></div>
-          <Link to="/societa" className="inline-flex shrink-0 items-center gap-3 self-start rounded-full border border-white/20 px-5 py-3 text-sm font-bold transition hover:bg-white/10 md:self-auto">Conosci la società <span aria-hidden="true">↗</span></Link>
+          <div className="max-w-2xl"><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-300">{content.projectEyebrow}</p><h2 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">{content.projectTitle}</h2><p className="mt-6 text-base leading-8 text-slate-300">{content.projectDescription}</p></div>
+          <Link to="/societa" className="inline-flex shrink-0 items-center gap-3 self-start rounded-full border border-white/20 px-5 py-3 text-sm font-bold transition hover:bg-white/10 md:self-auto">{content.projectActionLabel} <span aria-hidden="true">↗</span></Link>
         </div>
       </section>
 
       <section className="relative overflow-hidden bg-gradient-to-r from-[#9f1d32] to-[#d92738]">
         <div aria-hidden="true" className="absolute -right-20 -top-32 h-80 w-80 rounded-full border-[48px] border-white/[0.07]" />
         <div className="relative mx-auto flex max-w-7xl flex-col gap-7 px-5 py-14 sm:px-8 md:flex-row md:items-center md:justify-between md:py-16">
-          <div><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-100">News · Risultati · Calendario</p><h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">La stagione, da seguire.</h2><p className="mt-3 max-w-xl text-sm leading-7 text-red-100">Gli aggiornamenti sportivi saranno pubblicati qui dopo il collegamento alle fonti ufficiali.</p></div>
-          <div className="flex flex-wrap gap-3"><Link to="/news" className="rounded-full bg-white px-5 py-3 text-sm font-bold text-[#9f1d32] transition hover:bg-red-50">Vai alle news ↗</Link><Link to="/calendario" className="rounded-full border border-white/40 px-5 py-3 text-sm font-bold transition hover:bg-white/10">Calendario</Link></div>
+          <div><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-100">{content.closingEyebrow}</p><h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">{content.closingTitle}</h2><p className="mt-3 max-w-xl text-sm leading-7 text-red-100">{content.closingDescription}</p></div>
+          <div className="flex flex-wrap gap-3"><Link to="/news" className="rounded-full bg-white px-5 py-3 text-sm font-bold text-[#9f1d32] transition hover:bg-red-50">{content.closingPrimaryLabel} ↗</Link><Link to="/calendario" className="rounded-full border border-white/40 px-5 py-3 text-sm font-bold transition hover:bg-white/10">{content.closingSecondaryLabel}</Link></div>
         </div>
       </section>
     </main>
