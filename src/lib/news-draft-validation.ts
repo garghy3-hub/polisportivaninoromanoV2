@@ -20,7 +20,7 @@ export interface NewsDraftIssue {
 }
 
 /** Client-side convenience checks only; the future server must validate again. */
-export function validateNewsDraft(input: NewsDraftInput): NewsDraftIssue[] {
+export function validateNewsDraft(input: NewsDraftInput, allowedCategories?: readonly string[]): NewsDraftIssue[] {
   const issues: NewsDraftIssue[] = []
   const required: Array<[NewsDraftField, string, number]> = [
     ['title', 'Inserisci il titolo.', 140],
@@ -34,6 +34,10 @@ export function validateNewsDraft(input: NewsDraftInput): NewsDraftIssue[] {
     const value = input[field]
     if (!value.trim()) issues.push({ field, message })
     if (value.length > max) issues.push({ field, message: `Massimo ${max} caratteri.` })
+  }
+
+  if (allowedCategories && input.category.trim() && !allowedCategories.includes(input.category)) {
+    issues.push({ field: 'category', message: 'Seleziona una categoria tra quelle configurate.' })
   }
 
   if (input.slug && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(input.slug)) {
