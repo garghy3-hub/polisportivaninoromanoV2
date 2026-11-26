@@ -21,7 +21,7 @@ function TeamsPage() {
             return <article key={category.id} className="rounded-3xl border border-white/10 bg-white/[0.03] p-7 sm:p-9">
               <span className="rounded-full border border-red-400/30 bg-red-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-red-200">{category.eyebrow}</span>
               <h2 className="mt-8 text-3xl font-black">{category.title}</h2>
-              {categoryTeams.length === 0 ? <p className="mt-4 leading-7 text-slate-400">{category.emptyDescription}</p> : <div className="mt-5 space-y-4">{categoryTeams.map((team) => <div key={team.id} className="rounded-xl border border-white/10 p-4"><h3 className="font-bold">{team.name}</h3>{team.description && <p className="mt-2 text-slate-400">{team.description}</p>}{team.roster && team.roster.length > 0 && <p className="mt-2 text-sm text-slate-500">Atlete: {team.roster.length}</p>}</div>)}</div>}
+              {categoryTeams.length === 0 ? <p className="mt-4 leading-7 text-slate-400">{category.emptyDescription}</p> : <div className="mt-5 space-y-4">{categoryTeams.map((team) => <div key={team.id} className="rounded-xl border border-white/10 p-4"><h3 className="font-bold">{team.name}</h3>{team.description && <p className="mt-2 text-slate-400">{team.description}</p>}{team.roster && team.roster.length > 0 && <p className="mt-2 text-sm text-slate-500">{content.rosterCountLabel}: {team.roster.length}</p>}</div>)}</div>}
             </article>
           })}
         </section>
