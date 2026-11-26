@@ -47,6 +47,7 @@ This plan is a prerequisite for implementing authenticated editorial mutations. 
 - Pure permission and workflow transition rules are tested.
 - Content, query and News draft validation have unit coverage.
 - `editorial-session.test.ts` covers the fail-closed resolution of a server-loaded session record, expiry, revocation, unknown roles and permission checks.
+- `news-editorial-service.test.ts` covers server-service permission gates, category/field validation, expected-version checks and repository delegation for create, update and submit operations.
 
 The session helper is not an authentication implementation: it does not verify cookies, signatures, passwords, session storage or the source of the supplied record. Its input must come from a future trusted server-side authentication adapter.
 
