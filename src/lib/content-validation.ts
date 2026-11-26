@@ -164,6 +164,11 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
   requiredText(settings.interface.navigationLabel, "navigation accessible label");
   requiredText(settings.interface.openMenu, "open-menu label");
   requiredText(settings.interface.closeMenu, "close-menu label");
+  requiredText(settings.interface.publishedArticlesLabel, "published articles accessible label");
+  requiredText(settings.interface.newsTopicsLabel, "news topics accessible label");
+  requiredText(settings.interface.teamSectionsLabel, "team sections accessible label");
+  requiredText(settings.interface.calendarTypesLabel, "calendar types accessible label");
+  requiredText(settings.interface.societyInformationLabel, "society information accessible label");
   requiredText(settings.brand.monogram, "brand monogram");
   requiredText(settings.brand.name, "brand name");
   requiredText(settings.brand.descriptor, "brand descriptor");
