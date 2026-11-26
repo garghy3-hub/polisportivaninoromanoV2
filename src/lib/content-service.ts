@@ -3,7 +3,7 @@ import { getCompletedEvents, getPublishedNews, getUpcomingEvents } from "./conte
 import { articles, events, teams } from "./content-data";
 import { clubProfile } from "./club-data";
 import { siteSettings } from "./site-data";
-import { validateSiteSettings } from "./content-validation";
+import { validateClubProfile, validateSiteSettings } from "./content-validation";
 
 /**
  * Lightweight, UI-independent content service.
@@ -18,6 +18,7 @@ export interface ClubContentService {
   profile(): ClubProfile;
   settings(): SiteSettings;
   validateSettings(): string[];
+  validateProfile(): string[];
 }
 
 export const localContentService: ClubContentService = {
@@ -28,4 +29,5 @@ export const localContentService: ClubContentService = {
   profile: () => clubProfile,
   settings: () => siteSettings,
   validateSettings: () => validateSiteSettings(siteSettings),
+  validateProfile: () => validateClubProfile(clubProfile),
 };
