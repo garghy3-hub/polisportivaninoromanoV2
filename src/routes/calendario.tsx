@@ -51,7 +51,7 @@ function CalendarPage() {
                     {event.round && <div><dt className="inline">{content.roundLabel}: </dt><dd className="inline text-slate-200">{event.round}</dd></div>}
                     {event.venue && <div><dt className="inline">{content.venueLabel}: </dt><dd className="inline text-slate-200">{event.venue}</dd></div>}
                   </dl>
-                  {event.notes && <p className="mt-4 border-t border-white/10 pt-4 text-sm leading-6 text-slate-400">{event.notes}</p>}
+                  {event.notes && <p className="mt-4 border-t border-white/10 pt-4 text-sm leading-6 text-slate-400"><span className="font-semibold text-slate-300">{content.notesLabel}: </span>{event.notes}</p>}
                 </article>
               ))}
             </div>
