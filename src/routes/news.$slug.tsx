@@ -23,6 +23,9 @@ export const Route = createFileRoute('/news/$slug')({
         { name: 'description', content: description },
         { property: 'og:title', content: title },
         { property: 'og:description', content: description },
+        { name: 'twitter:title', content: title },
+        { name: 'twitter:description', content: description },
+        { name: 'twitter:card', content: image ? 'summary_large_image' : 'summary' },
         ...(image ? [{ property: 'og:image', content: image }] : []),
         ...(article.socialImageAlt || article.coverImageAlt
           ? [{ property: 'og:image:alt', content: article.socialImageAlt || article.coverImageAlt || '' }]
