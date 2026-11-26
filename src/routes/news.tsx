@@ -3,7 +3,6 @@ import { localContentService } from '../lib/content-service'
 
 export const Route = createFileRoute('/news')({ head: () => ({ meta: [{ title: 'News | Polisportiva Nino Romano' }, { name: 'description', content: 'Comunicati ufficiali, cronache, storie e aggiornamenti della Polisportiva Nino Romano di Milazzo.' }] }), component: NewsPage })
 
-export const Route = createFileRoute('/news')({ component: NewsPage })
 
 const editorialTopics = [
   { title: 'Comunicati ufficiali', label: 'Società', text: 'Comunicazioni, avvisi e informazioni condivise dalla Polisportiva.' },
