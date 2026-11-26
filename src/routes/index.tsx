@@ -10,7 +10,6 @@ export const Route = createFileRoute('/')({
         { name: 'description', content: site.description },
         { property: 'og:title', content: site.ogTitle },
         { property: 'og:description', content: site.ogDescription },
-        ...(site.canonicalUrl ? [] : []),
       ],
       links: site.canonicalUrl ? [{ rel: 'canonical', href: site.canonicalUrl }] : [],
     }
