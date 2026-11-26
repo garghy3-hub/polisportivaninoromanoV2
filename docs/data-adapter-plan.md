@@ -104,3 +104,13 @@ Typed contracts now describe the records the future protected panel will need:
 - `validateMediaAsset()` for required metadata, positive file size, valid upload date, safe public URL and non-empty alternative text.
 
 These are contracts and validation helpers, not an implemented security boundary. The future server must derive actor IDs and roles from a verified session, enforce permissions on every mutation, prevent clients from writing audit fields, and store revision/audit records transactionally. A browser-only role selector or hidden admin route is not authorization. Do not expose an admin editor until server-side authentication and authorization are in place.
+## Further implementation progress — public interface copy and accessibility
+
+To make the editability boundary more complete, remaining public-facing labels have been moved into typed site settings as well:
+- Homepage social-proof line, visual-panel labels, volleyball artwork title/description, visual monogram/counter and brand-color captions.
+- Shared skip-link text, mobile-menu labels and navigation accessible name.
+- Accessible names for news, team, calendar and society content regions.
+- Italian display labels for news categories, event statuses and roster counts; raw internal enum values are no longer shown to visitors.
+- Settings validation now checks these required labels alongside the existing navigation, homepage, SEO and section configuration.
+
+The public routes and shared layout read these labels through the content service. This remains a code-managed seed, not a browser editor. A complete audit of every visible fallback and any future media captions is still required before the full editability acceptance criterion can be claimed.
