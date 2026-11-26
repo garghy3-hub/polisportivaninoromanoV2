@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { localContentService } from '../lib/content-service'
 
-export const Route = createFileRoute('/calendario')({ head: () => ({ meta: [{ title: 'Calendario e risultati | Polisportiva Nino Romano' }, { name: 'description', content: 'Calendario delle partite, appuntamenti e risultati ufficiali della Polisportiva Nino Romano.' }] }), component: CalendarPage })
+export const Route = createFileRoute('/calendario')({ head: () => { const seo = localContentService.settings().calendar; return { meta: [{ title: seo.seoTitle }, { name: 'description', content: seo.seoDescription }] } }, component: CalendarPage })
 
 function CalendarPage() {
   const upcoming = localContentService.upcoming()
