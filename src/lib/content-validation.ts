@@ -88,6 +88,9 @@ export function validateContentCollections(input: {
   checkUnique(teams.map(item => item.id), "team id");
   checkUnique(teams.map(item => item.slug), "team slug");
   checkUnique(events.map(item => item.id), "event id");
+  articles.forEach((article, index) => validateArticle(article).forEach(issue => issues.push(`Article ${index + 1}: ${issue}`)));
+  teams.forEach((team, index) => validateTeam(team).forEach(issue => issues.push(`Team ${index + 1}: ${issue}`)));
+  events.forEach((event, index) => validateEvent(event).forEach(issue => issues.push(`Event ${index + 1}: ${issue}`)));
   for (const team of teams) {
     if (team.roster) checkUnique(team.roster.map(player => player.id), `player id in team ${team.slug}`);
     if (team.staff) checkUnique(team.staff.map(member => member.id), `staff id in team ${team.slug}`);
