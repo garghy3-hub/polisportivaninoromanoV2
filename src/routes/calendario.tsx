@@ -21,7 +21,7 @@ function CalendarPage() {
         </section>}
         <section className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-7 sm:p-10">
           <h2 className="text-2xl font-bold">{content.upcomingTitle}</h2>
-          {upcoming.length === 0 ? <p className="mt-4 leading-7 text-slate-400">{content.upcomingEmpty}</p> : <div className="mt-6 grid gap-4 sm:grid-cols-2">{upcoming.map(event => <article key={event.id} className="rounded-xl border border-white/10 p-5"><p className="text-sm text-red-300">{new Date(event.dateTime).toLocaleString('it-IT')}</p><h3 className="mt-2 font-bold">{event.homeTeam} · {event.awayTeam}</h3>{event.venue && <p className="mt-2 text-sm text-slate-400">{event.venue}</p>}<p className="mt-2 text-xs text-slate-500">{event.status}</p></article>)}</div>}
+          {upcoming.length === 0 ? <p className="mt-4 leading-7 text-slate-400">{content.upcomingEmpty}</p> : <div className="mt-6 grid gap-4 sm:grid-cols-2">{upcoming.map(event => <article key={event.id} className="rounded-xl border border-white/10 p-5"><p className="text-sm text-red-300">{new Date(event.dateTime).toLocaleString('it-IT')}</p><h3 className="mt-2 font-bold">{event.homeTeam} · {event.awayTeam}</h3>{event.venue && <p className="mt-2 text-sm text-slate-400">{event.venue}</p>}<p className="mt-2 text-xs text-slate-500">{content.eventStatusLabels[event.status]}</p></article>)}</div>}
         </section>
         <section className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-7 sm:p-10">
           <h2 className="text-2xl font-bold">{content.resultsTitle}</h2>
