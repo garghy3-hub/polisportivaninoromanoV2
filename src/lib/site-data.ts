@@ -11,6 +11,11 @@ export const siteSettings: SiteSettings = {
     navigationLabel: "Navigazione principale",
     openMenu: "Apri menu",
     closeMenu: "Chiudi menu",
+    publishedArticlesLabel: "Articoli pubblicati",
+    newsTopicsLabel: "Tipologie di notizie",
+    teamSectionsLabel: "Sezioni delle squadre",
+    calendarTypesLabel: "Tipologie di appuntamenti",
+    societyInformationLabel: "Informazioni societarie",
   },
   brand: {
     monogram: "NR",
