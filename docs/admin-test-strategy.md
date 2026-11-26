@@ -40,13 +40,23 @@ This plan is a prerequisite for implementing authenticated editorial mutations. 
 - Backup restore, rollback and audit-retention procedures are exercised.
 - Production deployment remains a separate approved action.
 
-## CI introduction order
+## Implemented unit coverage
 
-1. Add a test runner and deterministic unit tests for the existing pure permission/validation/query modules.
-2. Keep the existing build/type-check job and make tests a required CI job.
-3. When server services exist, add boundary and transaction integration tests using an isolated test environment.
-4. Add end-to-end editorial/public rendering tests only after authentication and persistence are implemented.
+- Vitest is installed and `npm run test` runs the unit suite.
+- CI runs unit tests before build/type-check.
+- Pure permission and workflow transition rules are tested.
+- Content, query and News draft validation have unit coverage.
+- `editorial-session.test.ts` covers the fail-closed resolution of a server-loaded session record, expiry, revocation, unknown roles and permission checks.
+
+The session helper is not an authentication implementation: it does not verify cookies, signatures, passwords, session storage or the source of the supplied record. Its input must come from a future trusted server-side authentication adapter.
+
+## Remaining CI and security work
+
+1. Keep unit tests and build/type-check as required CI gates.
+2. When server services exist, add boundary and transaction integration tests using an isolated test environment.
+3. Add end-to-end editorial/public rendering tests only after authentication and persistence are implemented.
+4. Verify denied direct API requests, CSRF, rate limits, session revocation and role spoofing at the actual server request boundary.
 
 ## Current status
 
-The repository has a build/type-check workflow only. This plan has not been executed; no test runner, authenticated server API, persistence or editorial interface exists yet.
+The repository has a Vitest unit suite and CI runs tests before build/type-check. It still has no authenticated server API, production session verification or persistence. Existing admin routes remain non-persisting prototypes.
