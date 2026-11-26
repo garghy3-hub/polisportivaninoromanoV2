@@ -135,11 +135,15 @@ export function createNewsEditorialService(
       if (denied) return denied;
       const issues = validate(input.content);
       if (issues.length) return { ok: false, code: "invalid", issues };
-      if (!Number.isInteger(input.expectedVersion) || input.expectedVersion < 1) {
+      if (
+        !isValidRevisionTarget(input.articleId, input.revisionId) ||
+        !Number.isInteger(input.expectedVersion) ||
+        input.expectedVersion < 1
+      ) {
         return {
           ok: false,
           code: "invalid",
-          message: "A positive expected revision version is required.",
+          message: "Valid article and revision IDs plus a positive expected version are required.",
         };
       }
       return repository.updateDraft({ ...input, actor: actor! });
@@ -148,11 +152,15 @@ export function createNewsEditorialService(
     async submitForReview(actor, input) {
       const denied = authorize(actor, "submit-for-review");
       if (denied) return denied;
-      if (!Number.isInteger(input.expectedVersion) || input.expectedVersion < 1) {
+      if (
+        !isValidRevisionTarget(input.articleId, input.revisionId) ||
+        !Number.isInteger(input.expectedVersion) ||
+        input.expectedVersion < 1
+      ) {
         return {
           ok: false,
           code: "invalid",
-          message: "A positive expected revision version is required.",
+          message: "Valid article and revision IDs plus a positive expected version are required.",
         };
       }
       return repository.submitForReview({ ...input, actor: actor! });
@@ -169,3 +177,9 @@ function actorHasPermission(
 }
 
 import { hasEditorialPermission } from "../editorial-permissions";
+
+function isValidRevisionTarget(articleId: string, revisionId: string): boolean {
+  return [articleId, revisionId].every(
+    value => typeof value === "string" && value.trim().length > 0 && value.length <= 128,
+  );
+}
