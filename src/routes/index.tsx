@@ -8,6 +8,7 @@ const navigation = [
   { label: 'La società', href: '/societa' },
   { label: 'Le squadre', href: '/squadre' },
   { label: 'News', href: '/news' },
+  { label: 'Calendario', href: '/calendario' },
 ]
 
 function Home() {
