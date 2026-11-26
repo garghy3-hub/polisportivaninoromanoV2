@@ -160,6 +160,10 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
     });
   };
 
+  requiredText(settings.interface.skipToContent, "skip-to-content label");
+  requiredText(settings.interface.navigationLabel, "navigation accessible label");
+  requiredText(settings.interface.openMenu, "open-menu label");
+  requiredText(settings.interface.closeMenu, "close-menu label");
   requiredText(settings.brand.monogram, "brand monogram");
   requiredText(settings.brand.name, "brand name");
   requiredText(settings.brand.descriptor, "brand descriptor");
@@ -182,7 +186,12 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
     ["homepage hero eyebrow", home.heroEyebrow], ["homepage hero title", home.heroTitle],
     ["homepage hero accent", home.heroAccent], ["homepage hero description", home.heroDescription],
     ["homepage primary action label", home.primaryActionLabel], ["homepage secondary action label", home.secondaryActionLabel],
-    ["homepage visual title", home.visualTitle], ["homepage project title", home.projectTitle],
+    ["homepage visual title", home.visualTitle], ["homepage visual top label", home.visualTopLabel],
+    ["homepage visual tag", home.visualTag], ["homepage visual monogram", home.visualMonogram],
+    ["homepage visual counter", home.visualCounter], ["homepage social proof", home.heroSocialProof],
+    ["homepage brand colors label", home.brandColorsLabel], ["homepage brand colors descriptor", home.brandColorsDescriptor],
+    ["homepage artwork title", home.artworkTitle], ["homepage artwork description", home.artworkDescription],
+    ["homepage project title", home.projectTitle],
     ["homepage closing title", home.closingTitle],
   ].forEach(([label, value]) => requiredText(value, String(label)));
   checkHref(home.primaryActionHref, "homepage primary action");
