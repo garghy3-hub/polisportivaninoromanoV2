@@ -62,3 +62,16 @@ The public website must not depend on developers for ordinary editorial updates.
 A club editor with the appropriate permissions must be able to update any public-facing text, image, link, sport record or configurable homepage/navigation element from the administration interface, then preview and publish it, without a code change or developer intervention. Any intentional exception must be documented and approved before launch.
 
 This is a product requirement, not an implemented feature. The current V2 still uses local content scaffolding; no administration panel, authentication or database has been connected.
+## Implementation progress — local content boundary
+
+The following first step is now present in the V2 codebase:
+
+- `SiteSettings` and typed homepage/navigation content contracts.
+- A local seed module (`src/lib/site-data.ts`) that holds editable homepage copy, feature cards, CTA labels/links and navigation labels/links/order/visibility.
+- `ClubContentService.settings()` exposes those settings to the shared layout and homepage.
+- The homepage feature cards are rendered from the content collection, rather than being individually hard-coded in the route.
+- The shared navigation reads its entries from the settings module.
+
+This is an architectural foundation only. It is **not** yet a visual admin panel: content is still edited in the local seed module by a developer. The next implementation stages are to move the remaining public copy (including secondary pages, footer, branding and metadata) behind the same content boundary, then build authenticated editor screens with draft/preview/publish, media management, permissions and audit history. Only after those foundations are reviewed should a persistent storage adapter be introduced.
+
+Do not describe the site as fully editable until the protected editor can manage every public-facing field end-to-end without source-code changes.
