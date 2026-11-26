@@ -46,6 +46,10 @@ export function validateTeam(team: Team): string[] {
   if (nonEmpty(team.slug) && team.slug !== team.slug.trim())
     issues.push("Team slug must not have surrounding whitespace.");
   if (!["senior", "youth"].includes(team.category)) issues.push("Unknown team category.");
+  if (team.order !== undefined && !Number.isInteger(team.order)) issues.push("Team order must be an integer.");
+  if (team.visible !== undefined && typeof team.visible !== "boolean") issues.push("Team visibility must be boolean.");
+  if (team.logoUrl !== undefined && (!isSafePublicHref(team.logoUrl) || !nonEmpty(team.logoAlt)))
+    issues.push("Team logos require a safe URL and alternative text.");
   const numbers = team.roster?.flatMap((player) =>
     player.jerseyNumber === undefined ? [] : [player.jerseyNumber],
   ) ?? [];
@@ -58,6 +62,9 @@ export function validateTeam(team: Team): string[] {
     checkRosterIds(team.roster.map((player) => player.id), issues, "player");
     team.roster.forEach((player, index) => {
       if (!nonEmpty(player.name)) issues.push(`Roster entry ${index + 1}: missing player name.`);
+      if (player.order !== undefined && !Number.isInteger(player.order)) issues.push(`Roster entry ${index + 1}: order must be an integer.`);
+      if (player.visible !== undefined && typeof player.visible !== "boolean") issues.push(`Roster entry ${index + 1}: visibility must be boolean.`);
+      if (player.photoUrl !== undefined && (!isSafePublicHref(player.photoUrl) || !nonEmpty(player.photoAlt))) issues.push(`Roster entry ${index + 1}: photo URL and alternative text must be valid.`);
     });
   }
   if (team.staff) {
@@ -65,6 +72,9 @@ export function validateTeam(team: Team): string[] {
     team.staff.forEach((member, index) => {
       if (!nonEmpty(member.name)) issues.push(`Staff entry ${index + 1}: missing name.`);
       if (!nonEmpty(member.role)) issues.push(`Staff entry ${index + 1}: missing role.`);
+      if (member.order !== undefined && !Number.isInteger(member.order)) issues.push(`Staff entry ${index + 1}: order must be an integer.`);
+      if (member.visible !== undefined && typeof member.visible !== "boolean") issues.push(`Staff entry ${index + 1}: visibility must be boolean.`);
+      if (member.photoUrl !== undefined && (!isSafePublicHref(member.photoUrl) || !nonEmpty(member.photoAlt))) issues.push(`Staff entry ${index + 1}: photo URL and alternative text must be valid.`);
     });
   }
   return issues;
