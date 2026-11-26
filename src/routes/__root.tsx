@@ -58,7 +58,7 @@ function RootComponent() {
         <Outlet />
         <footer className="border-t border-white/10 px-5 py-8 text-sm text-slate-500 sm:px-8">
           <div className="mx-auto flex max-w-7xl flex-col gap-3 md:flex-row md:justify-between">
-            <p>© Polisportiva Nino Romano · Milazzo</p><p>V2 · Nuovo progetto digitale</p>
+            <p>{localContentService.settings().footer.copyright}</p><p>{localContentService.settings().footer.projectLabel}</p>
           </div>
         </footer>
         <Scripts />
