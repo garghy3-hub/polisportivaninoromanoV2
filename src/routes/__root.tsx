@@ -51,7 +51,7 @@ function RootComponent() {
               {menuOpen ? 'Chiudi ✕' : 'Menu ☰'}
             </button>
             <nav id="primary-navigation" aria-label="Navigazione principale" className={`${menuOpen ? 'flex' : 'hidden'} w-full flex-col gap-3 md:flex md:w-auto md:flex-row md:gap-x-5 md:gap-y-2`}>
-              {navigation.map((item) => <Link key={item.href} to={item.href} onClick={() => setMenuOpen(false)} className="text-sm text-slate-300 transition hover:text-white" activeProps={{ className: 'text-red-300 font-semibold' }}>{item.label}</Link>)}
+              {navigation.map((item) => <a key={item.id} href={item.href} onClick={() => setMenuOpen(false)} className="text-sm text-slate-300 transition hover:text-white">{item.label}</a>)}
             </nav>
           </div>
         </header>
