@@ -6,7 +6,8 @@ export const Route = createFileRoute('/news')({ head: () => getPageHead(localCon
 
 function NewsPage() {
   const published = localContentService.news()
-  const content = localContentService.settings().news
+  const settings = localContentService.settings()
+  const content = settings.news
   const topics = content.topics.filter((topic) => topic.visible).slice().sort((a, b) => a.order - b.order)
   return (
     <main id="main-content" tabIndex={-1} className="min-h-screen bg-[#090d18] px-5 py-12 text-white sm:px-8">
@@ -29,7 +30,7 @@ function NewsPage() {
               <p className="text-xs font-semibold uppercase tracking-widest text-red-300">{content.categoryLabels[article.category]}</p>
               <h2 className="mt-3 text-xl font-bold"><Link to="/news/$slug" params={{ slug: article.slug }} className="transition hover:text-red-200">{article.title}</Link></h2>
               {article.excerpt && <p className="mt-3 leading-7 text-slate-400">{article.excerpt}</p>}
-              {article.publishedAt && <p className="mt-4 text-xs text-slate-500">{new Date(article.publishedAt).toLocaleDateString('it-IT')}</p>}
+              {article.publishedAt && <p className="mt-4 text-xs text-slate-500">{new Date(article.publishedAt).toLocaleDateString(settings.site.locale)}</p>}
             </article>)}
           </section>
         )}
