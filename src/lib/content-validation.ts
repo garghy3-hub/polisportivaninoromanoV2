@@ -1,4 +1,4 @@
-import type { MatchEvent, NewsArticle, Team } from "./content-types";
+import type { MatchEvent, NewsArticle, SiteSettings, Team } from "./content-types";
 import { isValidEventDate } from "./content-query";
 
 const nonEmpty = (value: unknown): value is string =>
@@ -122,3 +122,99 @@ export function validateContentCollections(input: {
   }
   return issues;
 }
+
+const isSafePublicHref = (value: unknown): value is string =>
+  typeof value === "string" &&
+  (value.startsWith("/") && !value.startsWith("//") ||
+    /^https:\/\//i.test(value));
+
+/** Validate public site configuration before it is saved or published. */
+export function validateSiteSettings(settings: SiteSettings): string[] {
+  const issues: string[] = [];
+  const requiredText = (value: unknown, label: string) => {
+    if (!nonEmpty(value)) issues.push(`Missing required setting: ${label}.`);
+  };
+  const checkHref = (value: unknown, label: string) => {
+    if (!isSafePublicHref(value)) issues.push(`Unsafe or invalid public link: ${label}.`);
+  };
+  const checkOrderedItems = (
+    items: readonly { id: string; visible: boolean; order: number }[],
+    label: string,
+  ) => {
+    checkUnique(items.map((item) => item.id), `${label} id`);
+    items.forEach((item, index) => {
+      if (!Number.isInteger(item.order)) issues.push(`${label} ${index + 1}: order must be an integer.`);
+      if (typeof item.visible !== "boolean") issues.push(`${label} ${index + 1}: visibility must be boolean.`);
+    });
+  };
+  const checkUnique = (values: readonly unknown[], label: string) => {
+    const seen = new Set<string>();
+    values.forEach((value) => {
+      if (typeof value !== "string" || !value.trim()) {
+        issues.push(`${label} must not be empty.`);
+        return;
+      }
+      const key = normalizedKey(value);
+      if (seen.has(key)) issues.push(`Duplicate ${label} (case-insensitive): ${value}.`);
+      seen.add(key);
+    });
+  };
+
+  requiredText(settings.brand.monogram, "brand monogram");
+  requiredText(settings.brand.name, "brand name");
+  requiredText(settings.brand.descriptor, "brand descriptor");
+  requiredText(settings.brand.ariaLabel, "brand accessible label");
+  requiredText(settings.site.title, "site title");
+  requiredText(settings.site.description, "site description");
+  requiredText(settings.site.ogTitle, "Open Graph title");
+  requiredText(settings.site.ogDescription, "Open Graph description");
+  requiredText(settings.footer.copyright, "footer copyright");
+  requiredText(settings.footer.projectLabel, "footer project label");
+
+  checkOrderedItems(settings.navigation, "navigation item");
+  settings.navigation.forEach((item, index) => {
+    requiredText(item.label, `navigation item ${index + 1} label`);
+    checkHref(item.href, `navigation item ${index + 1}`);
+  });
+
+  const home = settings.home;
+  [
+    ["homepage hero eyebrow", home.heroEyebrow], ["homepage hero title", home.heroTitle],
+    ["homepage hero accent", home.heroAccent], ["homepage hero description", home.heroDescription],
+    ["homepage primary action label", home.primaryActionLabel], ["homepage secondary action label", home.secondaryActionLabel],
+    ["homepage visual title", home.visualTitle], ["homepage project title", home.projectTitle],
+    ["homepage closing title", home.closingTitle],
+  ].forEach(([label, value]) => requiredText(value, String(label)));
+  checkHref(home.primaryActionHref, "homepage primary action");
+  checkHref(home.secondaryActionHref, "homepage secondary action");
+  checkHref(home.projectActionHref, "homepage project action");
+  checkHref(home.closingPrimaryHref, "homepage closing primary action");
+  checkHref(home.closingSecondaryHref, "homepage closing secondary action");
+  checkOrderedItems(home.features, "homepage feature");
+  home.features.forEach((feature, index) => {
+    requiredText(feature.title, `homepage feature ${index + 1} title`);
+    requiredText(feature.description, `homepage feature ${index + 1} description`);
+  });
+
+  const pages = [
+    ["news", settings.news], ["teams", settings.teams],
+    ["calendar", settings.calendar], ["society", settings.society],
+  ] as const;
+  pages.forEach(([pageName, page]) => {
+    requiredText(page.title, `${pageName} page title`);
+    requiredText(page.accent, `${pageName} page accent`);
+    requiredText(page.description, `${pageName} page description`);
+    requiredText(page.seoTitle, `${pageName} SEO title`);
+    requiredText(page.seoDescription, `${pageName} SEO description`);
+  });
+
+  checkOrderedItems(settings.news.topics, "news topic");
+  settings.news.topics.forEach((topic, index) => requiredText(topic.title, `news topic ${index + 1} title`));
+  checkOrderedItems(settings.teams.categories, "team page category");
+  settings.teams.categories.forEach((category, index) => requiredText(category.title, `team category ${index + 1} title`));
+  checkOrderedItems(settings.society.pillars, "society pillar");
+  settings.society.pillars.forEach((pillar, index) => requiredText(pillar.title, `society pillar ${index + 1} title`));
+
+  return issues;
+}
+
