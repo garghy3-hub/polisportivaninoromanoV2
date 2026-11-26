@@ -50,13 +50,15 @@ Each mutation revalidates the session, derives actor from session, checks permis
 
 ## API/service boundary
 
-A provider-neutral server service boundary now exists at `src/lib/server/news-editorial-service.ts` for the first three editor operations:
+A provider-neutral server service boundary now exists at `src/lib/server/news-editorial-service.ts` for these operations:
 
 - create draft
 - update draft with an expected revision version
 - submit for review with an expected revision version
+- approve or reject a submitted revision (a rejection requires a reason)
+- publish an approved revision with a version precondition
 
-The service checks the session-derived actor's permissions, validates required News fields and configured categories, and delegates to a repository port. The repository contract explicitly requires server-generated identity/timestamps, atomic revision plus audit writes, slug uniqueness, editability/ownership checks and optimistic concurrency. Unit tests cover denied actors, invalid content and version preconditions.
+The service checks the session-derived actor's permissions, validates required News fields and configured categories, checks explicit workflow transitions and delegates to a repository port. The repository contract requires server-generated identity/timestamps, atomic revision plus audit writes, slug uniqueness, editability/ownership checks, optimistic concurrency, reviewer metadata and atomic publication projection updates. Unit tests cover denied editor actions, publisher review/publication permissions, rejection rationale, invalid content and version preconditions.
 
 This is not yet a running API or persistence adapter. No route calls the service, no repository implementation exists, and the session actor must be created only after a trusted server-side authentication adapter verifies the credential and loads the session. The helper does not verify cookies or credentials itself.
 
