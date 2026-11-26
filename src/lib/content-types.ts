@@ -168,7 +168,7 @@ export interface NewsTopic {
   visible: boolean; order: number;
 }
 export interface NewsPageContent extends StandardPageContent {
-  emptyEyebrow: string; emptyTitle: string; emptyDescription: string; topics: NewsTopic[];
+  emptyEyebrow: string; emptyTitle: string; emptyDescription: string; topics: NewsTopic[]; categoryLabels: Record<NewsCategory, string>;
 }
 export interface TeamPageCategory {
   id: string; title: string; eyebrow: string; emptyDescription: string;
@@ -176,10 +176,10 @@ export interface TeamPageCategory {
 }
 export interface TeamsPageContent extends StandardPageContent {
   categories: TeamPageCategory[];
-  asideTitle: string; asideDescription: string; asideActionLabel: string; asideActionHref: string;
+  asideTitle: string; asideDescription: string; asideActionLabel: string; asideActionHref: string; rosterCountLabel: string;
 }
 export interface CalendarPageContent extends StandardPageContent {
-  eventTypes: string[]; upcomingTitle: string; upcomingEmpty: string;
+  eventTypes: string[]; eventStatusLabels: Record<EventStatus, string>; upcomingTitle: string; upcomingEmpty: string;
   resultsTitle: string; resultsEmpty: string;
 }
 export interface SocietyPillar {
