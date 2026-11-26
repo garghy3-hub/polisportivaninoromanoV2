@@ -123,6 +123,17 @@ export function validateEvent(event: MatchEvent): string[] {
   const issues: string[] = [];
   if (!nonEmpty(event.id)) issues.push("Missing event id.");
   if (!isValidEventDate(event.dateTime)) issues.push("Invalid event date/time.");
+  for (const [field, value] of Object.entries({
+    season: event.season,
+    type: event.type,
+    round: event.round,
+    venue: event.venue,
+    competition: event.competition,
+    notes: event.notes,
+  })) {
+    if (value !== undefined && !nonEmpty(value))
+      issues.push(`Event ${field} must not be empty when provided.`);
+  }
   if (!nonEmpty(event.homeTeam)) issues.push("Missing home team.");
   if (!nonEmpty(event.awayTeam)) issues.push("Missing away team.");
   if (nonEmpty(event.homeTeam) && nonEmpty(event.awayTeam) && normalizedKey(event.homeTeam) === normalizedKey(event.awayTeam)) issues.push("Home and away teams must differ.");
