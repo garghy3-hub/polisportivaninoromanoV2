@@ -93,3 +93,14 @@ The shared layout and public routes now read these values through the content se
 **Important limitation:** this is still local seed data, not a working editor. The settings are not yet editable through a browser-based panel, and no authentication, roles, draft workflow, media library, audit log or persistent storage has been implemented. Brand assets and some identity details in the shared header remain to be moved into settings. The acceptance criterion remains that an authorized editor can change every public-facing field without source-code changes.
 
 Header monogram, club name, descriptor and accessible brand label are also now stored in the local site settings and rendered by the shared layout. This still does not replace the eventual managed brand-asset library or controlled visual-identity settings.
+## Editorial administration contracts — groundwork
+
+Typed contracts now describe the records the future protected panel will need:
+- `EditorialRole` and `RevisionStatus` for role-aware editorial workflow states.
+- `EditorialRevision<T>` to retain draft content, creator/updater metadata, review decisions and publication metadata.
+- `EditorialAuditEntry` for server-authored, append-only change history.
+- `MediaAsset` for storage key, file metadata, alternative text, caption and uploader metadata.
+- `validateSiteSettings()` for required public copy, safe links, unique IDs and ordered/visible configurable collections.
+- `validateMediaAsset()` for required metadata, positive file size, valid upload date, safe public URL and non-empty alternative text.
+
+These are contracts and validation helpers, not an implemented security boundary. The future server must derive actor IDs and roles from a verified session, enforce permissions on every mutation, prevent clients from writing audit fields, and store revision/audit records transactionally. A browser-only role selector or hidden admin route is not authorization. Do not expose an admin editor until server-side authentication and authorization are in place.
