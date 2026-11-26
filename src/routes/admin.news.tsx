@@ -1,11 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
+import { slugifyEditorialTitle } from '../lib/editorial-slug'
 
 export const Route = createFileRoute('/admin/news')({ component: NewsDraftWorkbench })
-
-function slugify(value: string) {
-  return value.toLocaleLowerCase('it').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-}
 
 function NewsDraftWorkbench() {
   const [title, setTitle] = useState('')
@@ -18,7 +15,7 @@ function NewsDraftWorkbench() {
   const [seoDescription, setSeoDescription] = useState('')
 
   const missing = [!title.trim() && 'Titolo', !slug.trim() && 'Slug', !category.trim() && 'Categoria', !excerpt.trim() && 'Sommario', !body.trim() && 'Testo'].filter(Boolean)
-  const updateTitle = (value: string) => { setTitle(value); if (!slugEdited) setSlug(slugify(value)) }
+  const updateTitle = (value: string) => { setTitle(value); if (!slugEdited) setSlug(slugifyEditorialTitle(value)) }
 
   return (
     <main id="main-content" tabIndex={-1} className="min-h-screen bg-[#090d18] px-5 py-12 text-white sm:px-8">
@@ -30,7 +27,7 @@ function NewsDraftWorkbench() {
           <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6" aria-labelledby="fields-heading">
             <h2 id="fields-heading" className="text-xl font-bold">Contenuto</h2><div className="mt-6 grid gap-5">
               <div><label htmlFor="news-title" className="mb-2 block text-sm font-semibold">Titolo</label><input id="news-title" value={title} onChange={(e) => updateTitle(e.target.value)} maxLength={140} className="w-full rounded-xl border border-white/15 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-400" placeholder="Titolo dell'articolo" /></div>
-              <div><label htmlFor="news-slug" className="mb-2 block text-sm font-semibold">Slug (URL)</label><input id="news-slug" value={slug} onChange={(e) => { setSlug(slugify(e.target.value)); setSlugEdited(true) }} maxLength={160} className="w-full rounded-xl border border-white/15 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-400" placeholder="titolo-articolo" /><p className="mt-1 break-all text-xs text-slate-500">/news/{slug || 'slug-articolo'}</p><button type="button" className="mt-2 text-xs font-semibold text-red-300 underline" onClick={() => {setSlug(slugify(title));setSlugEdited(false)}}>Rigenera dallo titolo</button></div>
+              <div><label htmlFor="news-slug" className="mb-2 block text-sm font-semibold">Slug (URL)</label><input id="news-slug" value={slug} onChange={(e) => { setSlug(slugifyEditorialTitle(e.target.value)); setSlugEdited(true) }} maxLength={160} className="w-full rounded-xl border border-white/15 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-400" placeholder="titolo-articolo" /><p className="mt-1 break-all text-xs text-slate-500">/news/{slug || 'slug-articolo'}</p><button type="button" className="mt-2 text-xs font-semibold text-red-300 underline" onClick={() => {setSlug(slugifyEditorialTitle(title));setSlugEdited(false)}}>Rigenera dallo titolo</button></div>
               <div><label htmlFor="news-category" className="mb-2 block text-sm font-semibold">Categoria</label><input id="news-category" value={category} onChange={(e) => setCategory(e.target.value)} maxLength={60} className="w-full rounded-xl border border-white/15 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-400" placeholder="Es. Prima squadra" /></div>
               <div><label htmlFor="news-excerpt" className="mb-2 block text-sm font-semibold">Sommario</label><textarea id="news-excerpt" value={excerpt} onChange={(e) => setExcerpt(e.target.value)} maxLength={300} rows={3} className="w-full rounded-xl border border-white/15 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-400" placeholder="Breve introduzione" /><p className="mt-1 text-right text-xs text-slate-500">{excerpt.length}/300</p></div>
               <div><label htmlFor="news-body" className="mb-2 block text-sm font-semibold">Testo</label><textarea id="news-body" value={body} onChange={(e) => setBody(e.target.value)} rows={10} className="w-full rounded-xl border border-white/15 bg-slate-950 px-4 py-3 text-white outline-none focus:border-red-400" placeholder="Corpo dell'articolo..." /></div>
