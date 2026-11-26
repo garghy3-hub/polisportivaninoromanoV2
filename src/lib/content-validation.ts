@@ -237,6 +237,67 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
   checkOrderedItems(settings.society.pillars, "society pillar");
   settings.society.pillars.forEach((pillar, index) => requiredText(pillar.title, `society pillar ${index + 1} title`));
 
+  // Complete public-copy coverage: every rendered editorial field must be present.
+  [
+    ["homepage visual eyebrow", home.visualEyebrow],
+    ["homepage visual description", home.visualDescription],
+    ["homepage project eyebrow", home.projectEyebrow],
+    ["homepage project description", home.projectDescription],
+    ["homepage project action label", home.projectActionLabel],
+    ["homepage closing eyebrow", home.closingEyebrow],
+    ["homepage closing description", home.closingDescription],
+    ["homepage closing primary action label", home.closingPrimaryLabel],
+    ["homepage closing secondary action label", home.closingSecondaryLabel],
+  ].forEach(([label, value]) => requiredText(value, String(label)));
+
+  requiredText(home.secondaryActionLabel, "homepage secondary action label");
+  requiredText(home.projectActionLabel, "homepage project action label");
+  requiredText(home.closingPrimaryLabel, "homepage closing primary action label");
+  requiredText(home.closingSecondaryLabel, "homepage closing secondary action label");
+
+  pages.forEach(([pageName, page]) => {
+    requiredText(page.backLabel, `${pageName} back navigation label`);
+    requiredText(page.eyebrow, `${pageName} eyebrow`);
+  });
+
+  [
+    ["news empty-state eyebrow", settings.news.emptyEyebrow],
+    ["news empty-state title", settings.news.emptyTitle],
+    ["news empty-state description", settings.news.emptyDescription],
+  ].forEach(([label, value]) => requiredText(value, String(label)));
+  Object.entries(settings.news.categoryLabels).forEach(([key, value]) =>
+    requiredText(value, `news category label ${key}`),
+  );
+  settings.news.topics.forEach((topic, index) => {
+    requiredText(topic.label, `news topic ${index + 1} label`);
+    requiredText(topic.description, `news topic ${index + 1} description`);
+  });
+
+  settings.teams.categories.forEach((category, index) => {
+    requiredText(category.eyebrow, `team category ${index + 1} eyebrow`);
+    requiredText(category.emptyDescription, `team category ${index + 1} empty-state description`);
+  });
+  requiredText(settings.teams.asideTitle, "teams aside title");
+  requiredText(settings.teams.asideDescription, "teams aside description");
+  requiredText(settings.teams.asideActionLabel, "teams aside action label");
+  checkHref(settings.teams.asideActionHref, "teams aside action");
+
+  settings.calendar.eventTypes.forEach((type, index) =>
+    requiredText(type, `calendar event type ${index + 1}`),
+  );
+  if (settings.calendar.eventTypes.length === 0)
+    issues.push("Calendar must define at least one event type.");
+  requiredText(settings.calendar.upcomingTitle, "calendar upcoming section title");
+  requiredText(settings.calendar.upcomingEmpty, "calendar upcoming empty-state text");
+  requiredText(settings.calendar.resultsTitle, "calendar results section title");
+  requiredText(settings.calendar.resultsEmpty, "calendar results empty-state text");
+
+  settings.society.pillars.forEach((pillar, index) =>
+    requiredText(pillar.description, `society pillar ${index + 1} description`),
+  );
+  requiredText(settings.society.asideTitle, "society aside title");
+  requiredText(settings.society.asideDescription, "society aside description");
+
   return issues;
 }
 
