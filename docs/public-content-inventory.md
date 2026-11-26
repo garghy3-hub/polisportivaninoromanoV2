@@ -102,3 +102,6 @@ Match records now support optional type and round fields plus visibility and ord
 The calendar's labels for event status, outcomes, season, competition, venue, round and notes are stored in SiteSettings and validated. Public queries hide events explicitly marked invisible, exclude cancelled events from upcoming fixtures, and keep chronological ordering.
 
 The events collection remains empty until official fixtures and results are supplied. No match, score, venue or competition has been invented.
+
+
+The local content service now exposes collection-level validation alongside the existing settings and club-profile checks. This provides one QA entry point for checking articles, teams, roster/staff identifiers and match events before a future import or publication workflow. It remains validation-only: no admin save operation or persistent store is present.
