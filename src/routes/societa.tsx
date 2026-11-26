@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 
+export const Route = createFileRoute('/societa')({ head: () => ({ meta: [{ title: 'La società | Polisportiva Nino Romano' }, { name: 'description', content: 'Identità, valori, organizzazione e legame con Milazzo della Polisportiva Nino Romano.' }] }), component: SocietyPage })
 export const Route = createFileRoute('/societa')({ component: SocietyPage })
 
 const pillars = [
