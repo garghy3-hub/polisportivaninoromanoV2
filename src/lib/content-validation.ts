@@ -223,10 +223,6 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
   if (settings.site.ogImageUrl !== undefined && (!isSafePublicHref(settings.site.ogImageUrl) || !nonEmpty(settings.site.ogImageAlt))) issues.push("Open Graph image requires a safe URL and alternative text.");
   if (settings.site.twitterTitle !== undefined && !nonEmpty(settings.site.twitterTitle)) issues.push("Twitter title must not be empty.");
   if (settings.site.twitterDescription !== undefined && !nonEmpty(settings.site.twitterDescription)) issues.push("Twitter description must not be empty.");
-  pages.forEach(([pageName, page]) => {
-    if (page.canonicalUrl !== undefined && !/^https:\/\//i.test(page.canonicalUrl)) issues.push(`${pageName} canonical URL must use HTTPS.`);
-    if (page.socialImageUrl !== undefined && (!isSafePublicHref(page.socialImageUrl) || !nonEmpty(page.socialImageAlt))) issues.push(`${pageName} social image requires a safe URL and alternative text.`);
-  });
   requiredText(settings.footer.copyright, "footer copyright");
   requiredText(settings.footer.projectLabel, "footer project label");
 
@@ -266,6 +262,10 @@ export function validateSiteSettings(settings: SiteSettings): string[] {
     ["news", settings.news], ["teams", settings.teams],
     ["calendar", settings.calendar], ["society", settings.society],
   ] as const;
+  pages.forEach(([pageName, page]) => {
+    if (page.canonicalUrl !== undefined && !/^https:\/\//i.test(page.canonicalUrl)) issues.push(`${pageName} canonical URL must use HTTPS.`);
+    if (page.socialImageUrl !== undefined && (!isSafePublicHref(page.socialImageUrl) || !nonEmpty(page.socialImageAlt))) issues.push(`${pageName} social image requires a safe URL and alternative text.`);
+  });
   pages.forEach(([pageName, page]) => {
     requiredText(page.title, `${pageName} page title`);
     requiredText(page.accent, `${pageName} page accent`);
