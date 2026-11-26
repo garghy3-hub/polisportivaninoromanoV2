@@ -32,12 +32,12 @@ function Home() {
               {content.heroDescription}
             </p>
             <div className="mt-10 flex flex-wrap gap-3">
-              <Link to="/squadre" className="inline-flex items-center gap-3 rounded-full bg-[#d92738] px-6 py-3.5 text-sm font-bold shadow-lg shadow-red-950/40 transition hover:-translate-y-0.5 hover:bg-[#ef3d4d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-300">
+              <a href={content.primaryActionHref} className="inline-flex items-center gap-3 rounded-full bg-[#d92738] px-6 py-3.5 text-sm font-bold shadow-lg shadow-red-950/40 transition hover:-translate-y-0.5 hover:bg-[#ef3d4d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-300">
                 {content.primaryActionLabel} <span aria-hidden="true">↗</span>
-              </Link>
-              <Link to="/news" className="inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/[0.04] px-6 py-3.5 text-sm font-bold transition hover:border-white/40 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+              </a>
+              <a href={content.secondaryActionHref} className="inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/[0.04] px-6 py-3.5 text-sm font-bold transition hover:border-white/40 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
                 {content.secondaryActionLabel}
-              </Link>
+              </a>
             </div>
             <div className="mt-14 flex items-center gap-4 border-t border-white/10 pt-6">
               <div className="flex -space-x-2" aria-hidden="true">
@@ -107,16 +107,14 @@ function Home() {
 
       <section className="border-y border-white/10 bg-white/[0.025]">
         <div className="mx-auto grid max-w-7xl gap-8 px-5 py-14 sm:px-8 md:grid-cols-3 md:gap-10">
-          <article><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-300">{features[0]?.eyebrow}</p><h2 className="mt-3 text-xl font-bold">{features[0]?.title}</h2><p className="mt-3 text-sm leading-7 text-slate-400">{features[0]?.description}</p></article>
-          <article><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-300">{features[1]?.eyebrow}</p><h2 className="mt-3 text-xl font-bold">{features[1]?.title}</h2><p className="mt-3 text-sm leading-7 text-slate-400">{features[1]?.description}</p></article>
-          <article><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-300">{features[2]?.eyebrow}</p><h2 className="mt-3 text-xl font-bold">{features[2]?.title}</h2><p className="mt-3 text-sm leading-7 text-slate-400">{features[2]?.description}</p></article>
+          {features.map((feature) => <article key={feature.id}><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-300">{feature.eyebrow}</p><h2 className="mt-3 text-xl font-bold">{feature.title}</h2><p className="mt-3 text-sm leading-7 text-slate-400">{feature.description}</p></article>)}
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:py-24">
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl"><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-300">{content.projectEyebrow}</p><h2 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">{content.projectTitle}</h2><p className="mt-6 text-base leading-8 text-slate-300">{content.projectDescription}</p></div>
-          <Link to="/societa" className="inline-flex shrink-0 items-center gap-3 self-start rounded-full border border-white/20 px-5 py-3 text-sm font-bold transition hover:bg-white/10 md:self-auto">{content.projectActionLabel} <span aria-hidden="true">↗</span></Link>
+          <a href={content.projectActionHref} className="inline-flex shrink-0 items-center gap-3 self-start rounded-full border border-white/20 px-5 py-3 text-sm font-bold transition hover:bg-white/10 md:self-auto">{content.projectActionLabel} <span aria-hidden="true">↗</span></a>
         </div>
       </section>
 
@@ -124,7 +122,7 @@ function Home() {
         <div aria-hidden="true" className="absolute -right-20 -top-32 h-80 w-80 rounded-full border-[48px] border-white/[0.07]" />
         <div className="relative mx-auto flex max-w-7xl flex-col gap-7 px-5 py-14 sm:px-8 md:flex-row md:items-center md:justify-between md:py-16">
           <div><p className="text-xs font-bold uppercase tracking-[0.22em] text-red-100">{content.closingEyebrow}</p><h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">{content.closingTitle}</h2><p className="mt-3 max-w-xl text-sm leading-7 text-red-100">{content.closingDescription}</p></div>
-          <div className="flex flex-wrap gap-3"><Link to="/news" className="rounded-full bg-white px-5 py-3 text-sm font-bold text-[#9f1d32] transition hover:bg-red-50">{content.closingPrimaryLabel} ↗</Link><Link to="/calendario" className="rounded-full border border-white/40 px-5 py-3 text-sm font-bold transition hover:bg-white/10">{content.closingSecondaryLabel}</Link></div>
+          <div className="flex flex-wrap gap-3"><a href={content.closingPrimaryHref} className="rounded-full bg-white px-5 py-3 text-sm font-bold text-[#9f1d32] transition hover:bg-red-50">{content.closingPrimaryLabel} ↗</a><a href={content.closingSecondaryHref} className="rounded-full border border-white/40 px-5 py-3 text-sm font-bold transition hover:bg-white/10">{content.closingSecondaryLabel}</a></div>
         </div>
       </section>
     </main>
