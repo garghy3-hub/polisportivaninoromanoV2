@@ -57,7 +57,7 @@ language sql
 immutable
 set search_path = ''
 as $function$
-  select
+  select coalesce((
     pg_catalog.jsonb_typeof(p_payload) = 'object'
     and p_payload ?& array[
       'title', 'slug', 'category', 'excerpt', 'body',
@@ -97,7 +97,7 @@ as $function$
     and (
       pg_catalog.btrim(p_payload->>'imageUrl') = ''
       or pg_catalog.length(pg_catalog.btrim(p_payload->>'imageAlt')) > 0
-    );
+    )), false);
 $function$;
 
 revoke all on function private.is_valid_news_editorial_payload(jsonb)
@@ -124,6 +124,7 @@ declare
   v_decision text;
   v_review_note text;
   v_audit_action text;
+  v_status text;
 begin
   v_actor := auth.uid();
   if v_actor is null then
@@ -293,13 +294,14 @@ begin
        or exists (
          select 1 from pg_catalog.jsonb_object_keys(p_payload) as supplied(key)
          where supplied.key <> all (array['decision', 'reviewNote']::text[])
-       ) then
+       )
+       or (p_payload ? 'reviewNote' and pg_catalog.jsonb_typeof(p_payload->'reviewNote') <> 'string') then
       raise exception 'invalid_request' using errcode = '22023';
     end if;
 
     v_decision := p_payload->>'decision';
     v_review_note := pg_catalog.btrim(coalesce(p_payload->>'reviewNote', ''));
-    if v_decision not in ('approved', 'rejected')
+    if v_decision is null or v_decision not in ('approved', 'rejected')
        or (v_decision = 'rejected' and pg_catalog.length(v_review_note) = 0)
        or pg_catalog.length(v_review_note) > 1000 then
       raise exception 'invalid_review_decision' using errcode = '22023';
