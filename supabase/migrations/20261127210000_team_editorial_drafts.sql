@@ -38,11 +38,11 @@ begin
     return pg_catalog.jsonb_build_object('ok', false, 'code', 'forbidden');
   end if;
 
-  if p_action <> 'save_draft' then
+  if p_action is distinct from 'save_draft' then
     return pg_catalog.jsonb_build_object('ok', false, 'code', 'invalid_action');
   end if;
 
-  if pg_catalog.jsonb_typeof(p_payload) <> 'object'
+  if coalesce(pg_catalog.jsonb_typeof(p_payload), '') <> 'object'
     or not (p_payload ?& array['name','slug','category','seasonLabel','description','roster','staff']::text[])
     or exists (
       select 1 from pg_catalog.jsonb_object_keys(p_payload) as supplied(key)
@@ -69,18 +69,18 @@ begin
 
   for v_member in select value from pg_catalog.jsonb_array_elements(p_payload->'roster')
   loop
-    if pg_catalog.jsonb_typeof(v_member) <> 'object'
+    if coalesce(pg_catalog.jsonb_typeof(v_member), '') <> 'object'
       or not (v_member ?& array['name','jerseyNumber','role']::text[])
       or exists (select 1 from pg_catalog.jsonb_object_keys(v_member) supplied(key)
         where supplied.key <> all (array['name','jerseyNumber','role']::text[]))
-      or pg_catalog.jsonb_typeof(v_member->'name') <> 'string'
+      or coalesce(pg_catalog.jsonb_typeof(v_member->'name'), '') <> 'string'
       or pg_catalog.length(pg_catalog.btrim(v_member->>'name')) not between 1 and 120
-      or pg_catalog.jsonb_typeof(v_member->'role') <> 'string'
+      or coalesce(pg_catalog.jsonb_typeof(v_member->'role'), '') <> 'string'
       or pg_catalog.length(v_member->>'role') > 120
-      or not (pg_catalog.jsonb_typeof(v_member->'jerseyNumber') = 'null'
-        or (pg_catalog.jsonb_typeof(v_member->'jerseyNumber') = 'number'
+      or not (coalesce(pg_catalog.jsonb_typeof(v_member->'jerseyNumber'), '') = 'null'
+        or (coalesce(pg_catalog.jsonb_typeof(v_member->'jerseyNumber'), '') = 'number'
           and (v_member->>'jerseyNumber')::numeric between 0 and 99
-          and trunc((v_member->>'jerseyNumber')::numeric) = (v_member->>'jerseyNumber')::numeric))
+          and pg_catalog.trunc((v_member->>'jerseyNumber')::numeric) = (v_member->>'jerseyNumber')::numeric))
     then
       return pg_catalog.jsonb_build_object('ok', false, 'code', 'invalid_roster');
     end if;
@@ -88,13 +88,13 @@ begin
 
   for v_staff in select value from pg_catalog.jsonb_array_elements(p_payload->'staff')
   loop
-    if pg_catalog.jsonb_typeof(v_staff) <> 'object'
+    if coalesce(pg_catalog.jsonb_typeof(v_staff), '') <> 'object'
       or not (v_staff ?& array['name','role']::text[])
       or exists (select 1 from pg_catalog.jsonb_object_keys(v_staff) supplied(key)
         where supplied.key <> all (array['name','role']::text[]))
-      or pg_catalog.jsonb_typeof(v_staff->'name') <> 'string'
+      or coalesce(pg_catalog.jsonb_typeof(v_staff->'name'), '') <> 'string'
       or pg_catalog.length(pg_catalog.btrim(v_staff->>'name')) not between 1 and 120
-      or pg_catalog.jsonb_typeof(v_staff->'role') <> 'string'
+      or coalesce(pg_catalog.jsonb_typeof(v_staff->'role'), '') <> 'string'
       or pg_catalog.length(pg_catalog.btrim(v_staff->>'role')) not between 1 and 120
     then
       return pg_catalog.jsonb_build_object('ok', false, 'code', 'invalid_staff');
@@ -171,7 +171,7 @@ begin
     ) values (
       v_team.id,
       pg_catalog.btrim(v_member->>'name'),
-      case when pg_catalog.jsonb_typeof(v_member->'jerseyNumber') = 'number'
+      case when coalesce(pg_catalog.jsonb_typeof(v_member->'jerseyNumber'), '') = 'number'
         then (v_member->>'jerseyNumber')::smallint else null end,
       nullif(pg_catalog.btrim(v_member->>'role'), ''),
       false, v_index
