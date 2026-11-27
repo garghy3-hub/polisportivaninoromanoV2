@@ -95,6 +95,6 @@ export const newsAuditFn = createServerFn({ method: "GET" })
         return { ok: false as const, code: "forbidden" as const, message: "Permesso insufficiente." };
       }
       const { articleId, ...query } = input;
-      return service.listAudit(articleId, query);
+      return service.listAudit(articleId as string, query);
     });
   });
