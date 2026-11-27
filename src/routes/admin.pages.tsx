@@ -5,7 +5,7 @@ import { localContentService } from '../lib/content-service'
 import { validateSiteSettings } from '../lib/content-validation'
 import type { HomeFeature, HomePageContent, SiteSettings, StandardPageContent } from '../lib/content-types'
 
-export const Route = createFileRoute('/admin/pages')({ component: PagesWorkbench })
+export const Route = createFileRoute('/admin/pages')({ headers: () => ({ 'Cache-Control': 'private, no-store' }), component: PagesWorkbench })
 
 type HomeTextKey = Exclude<keyof HomePageContent, 'features'>
 const homeFields: { key: HomeTextKey; label: string; multiline?: boolean }[] = [
