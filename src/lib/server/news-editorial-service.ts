@@ -337,7 +337,7 @@ export function createNewsEditorialService(
     const permission = decision === "approved" ? "approve-content" : "reject-content";
     const denied = authorize(actor, permission);
     if (denied) return Promise.resolve(denied);
-    const invalid = validateRevisionCommand(input);
+    const invalid = validateRevisionCommand(input, true);
     if (invalid) return Promise.resolve(invalid);
     if (input.reviewNote !== undefined && typeof input.reviewNote !== "string") {
       return Promise.resolve({
