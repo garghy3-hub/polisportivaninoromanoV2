@@ -29,6 +29,6 @@
 - No user self-registration, invitation or password-reset UI yet.
 - No role-management screen.
 - The login flow has Supabase Auth's configured rate limits; application-level throttling/CAPTCHA has not been added.
-- The News editor can save a shared draft and submit it for review. The remote draft library/reopen flow is not yet implemented; its revision reference is currently kept in memory during the editing session. Other admin editors still use local browser storage and demo data.
+- The News editor can save a shared draft and submit it for review. The remote draft library/reopen flow is not yet implemented; its current revision reference is stored locally on the same device so it can be restored after a reload; a remote draft library is still missing. Other admin editors still use local browser storage and demo data.
 - News revision and audit table writes remain disabled for browser clients. The authenticated public RPC wrapper delegates to a private SECURITY DEFINER implementation with explicit role checks and transactional audit writes.
 - No deployment, publication or PR merge was performed.
