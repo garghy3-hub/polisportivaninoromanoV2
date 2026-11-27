@@ -129,8 +129,8 @@ function PagesWorkbench() {
         </header>
 
         <section className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5" aria-labelledby="pages-prototype-notice">
-          <h2 id="pages-prototype-notice" className="font-bold text-amber-200">Prototipo locale — nessun salvataggio</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-300">Le modifiche possono essere salvate solo nel browser corrente. Non sono collegate ad autenticazione, API, revisioni o database e non cambiano il sito pubblico. La validazione è un controllo preliminare lato interfaccia.</p>
+          <h2 id="pages-prototype-notice" className="font-bold text-amber-200">Prototipo locale — salvataggio solo su questo dispositivo</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-300">Puoi salvare e ripristinare le impostazioni in questo browser. I dati non sono condivisi tra dispositivi, non sono collegati ad autenticazione, API, revisioni o database e non modificano il sito pubblico. La validazione è un controllo preliminare lato interfaccia.</p>
         </section>
 
         <div className="mt-6 flex flex-wrap items-center gap-3"><button type="button" onClick={saveSettings} className="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold hover:bg-emerald-600">Salva impostazioni sul dispositivo</button><button type="button" onClick={resetSettings} className="rounded-xl border border-white/20 px-4 py-3 text-sm font-semibold hover:bg-white/10">Ripristina iniziali</button>{saveMessage && <p role="status" aria-live="polite" className="text-sm text-slate-300">{saveMessage}</p>}</div>
