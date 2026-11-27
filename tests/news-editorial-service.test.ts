@@ -495,4 +495,30 @@ describe("provider-neutral News editorial service", () => {
     });
   });
 
+  it("rejects malformed success payloads from repository adapters", async () => {
+    vi.mocked(repository.createDraft).mockResolvedValueOnce({
+      ok: true,
+      value: { version: 1 },
+    } as never);
+    await expect(service.createDraft(editor, validContent)).resolves.toEqual({
+      ok: false,
+      code: "internal",
+      message: "Operazione editoriale non riuscita. Riprova o contatta un amministratore.",
+    });
+  });
+
+  it("rejects repository records with malformed revision content", async () => {
+    vi.mocked(repository.createDraft).mockResolvedValueOnce({
+      ok: true,
+      value: {
+        ...record,
+        revision: { ...record.revision, content: { ...validContent, unexpected: "field" } },
+      },
+    } as never);
+    await expect(service.createDraft(editor, validContent)).resolves.toMatchObject({
+      ok: false,
+      code: "internal",
+    });
+  });
+
 });
