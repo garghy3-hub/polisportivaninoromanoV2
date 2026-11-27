@@ -486,4 +486,13 @@ describe("provider-neutral News editorial service", () => {
       actor: editor,
     });
   });
+  it("normalizes malformed repository success envelopes without exposing them", async () => {
+    vi.mocked(repository.createDraft).mockResolvedValueOnce(null as never);
+    await expect(service.createDraft(editor, validContent)).resolves.toEqual({
+      ok: false,
+      code: "internal",
+      message: "Operazione editoriale non riuscita. Riprova o contatta un amministratore.",
+    });
+  });
+
 });
