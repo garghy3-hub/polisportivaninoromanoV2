@@ -8,7 +8,9 @@ export const Route = createRootRoute({
   beforeLoad: async ({ location }) => {
     // Protect every /admin route, including routes that are not rendered as
     // children of the dashboard file route. Keep the login page public.
-    if (location.pathname.startsWith('/admin') && location.pathname !== '/admin/login') {
+    const pathname = location.pathname.replace(/\/+$/, '') || '/'
+    const isAdminRoute = pathname === '/admin' || pathname.startsWith('/admin/')
+    if (isAdminRoute && pathname !== '/admin/login') {
       const user = await getCurrentEditorialUserFn()
       if (!user) throw redirect({ to: '/admin/login' })
     }
