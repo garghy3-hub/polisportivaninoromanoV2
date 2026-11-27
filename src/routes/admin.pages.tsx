@@ -76,17 +76,18 @@ function PagesWorkbench() {
         setSaveMessage('Nessuna bozza condivisa: puoi creare la prima revisione.')
         return
       }
-      if (result.payload && typeof result.payload === 'object' && !Array.isArray(result.payload)) {
-        const restored = result.payload as SiteSettings
+      setExpectedUpdatedAt(result.updatedAt)
+      setEditorialStatus(result.editorialStatus)
+      const serverContent = result.payload ?? result.publishedContent
+      if (serverContent && typeof serverContent === 'object' && !Array.isArray(serverContent)) {
+        const restored = serverContent as SiteSettings
         if (validateSiteSettings(restored).length === 0) {
           setSettings(restored)
-          setExpectedUpdatedAt(result.updatedAt)
-          setEditorialStatus(result.editorialStatus)
-          setSaveMessage('Bozza condivisa caricata dal server.')
+          setSaveMessage(result.payload ? 'Bozza condivisa caricata dal server.' : 'Contenuto pubblicato caricato come base per una nuova bozza.')
           return
         }
       }
-      setSaveMessage('Bozza server non valida: contenuti iniziali mantenuti. Nessun dato è stato sovrascritto.')
+      setSaveMessage('Nessuna revisione valida sul server: contenuti iniziali mantenuti. La versione server è comunque caricata per il controllo delle modifiche.')
     }).catch(() => {
       if (active) setSaveMessage('Errore di rete durante il caricamento della bozza condivisa.')
     })
