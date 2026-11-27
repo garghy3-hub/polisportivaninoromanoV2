@@ -25,12 +25,15 @@ export interface EditorialMetadata {
   tags?: string[];
 }
 
-export type NewsCategory =
-  | "official"
-  | "match-report"
-  | "interview"
-  | "youth"
-  | "club-life";
+export const NEWS_CATEGORIES = [
+  "official",
+  "match-report",
+  "interview",
+  "youth",
+  "club-life",
+] as const;
+
+export type NewsCategory = (typeof NEWS_CATEGORIES)[number];
 
 export interface NewsArticle extends EditorialMetadata {
   category: NewsCategory;
