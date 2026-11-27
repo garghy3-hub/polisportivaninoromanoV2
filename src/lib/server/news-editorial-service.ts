@@ -229,6 +229,9 @@ export function createNewsEditorialService(
     async createDraft(actor, content) {
       const denied = authorize(actor, "create-content");
       if (denied) return denied;
+      if (!hasExactKeys(content, ["title", "slug", "category", "excerpt", "body", "seoTitle", "seoDescription", "imageUrl", "imageAlt"])) {
+        return { ok: false, code: "invalid", message: "Il contenuto contiene campi mancanti o non riconosciuti." };
+      }
       const issues = validate(content);
       if (issues.length) return { ok: false, code: "invalid", issues };
       return callRepository(() => repository.createDraft({ actor: actor!, content }));
@@ -237,8 +240,12 @@ export function createNewsEditorialService(
     async updateDraft(actor, input) {
       const denied = authorize(actor, "edit-content");
       if (denied) return denied;
-      if (!input || typeof input !== "object" || Array.isArray(input)) {
-        return { ok: false, code: "invalid", message: "Dati della revisione non validi." };
+      if (!input || typeof input !== "object" || Array.isArray(input)
+        || !hasExactKeys(input, ["articleId", "revisionId", "expectedVersion", "content"])) {
+        return { ok: false, code: "invalid", message: "Dati della revisione non validi o contenenti campi non riconosciuti." };
+      }
+      if (!hasExactKeys(input.content, ["title", "slug", "category", "excerpt", "body", "seoTitle", "seoDescription", "imageUrl", "imageAlt"])) {
+        return { ok: false, code: "invalid", message: "Il contenuto contiene campi mancanti o non riconosciuti." };
       }
       const issues = validate(input.content);
       if (issues.length) return { ok: false, code: "invalid", issues };
@@ -368,7 +375,7 @@ export function createNewsEditorialService(
   }
 }
 
-function validateRevisionCommand(input: unknown): NewsEditorialResult<never> | null {
+function validateRevisionCommand(input: unknown, allowReviewNote = false): NewsEditorialResult<never> | null {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
     return {
       ok: false,
@@ -377,6 +384,16 @@ function validateRevisionCommand(input: unknown): NewsEditorialResult<never> | n
     };
   }
   const command = input as { articleId?: unknown; revisionId?: unknown; expectedVersion?: unknown };
+  const expectedKeys = allowReviewNote
+    ? ["articleId", "revisionId", "expectedVersion", "reviewNote"]
+    : ["articleId", "revisionId", "expectedVersion"];
+  if (!hasExactKeys(input, expectedKeys)) {
+    return {
+      ok: false,
+      code: "invalid",
+      message: "Il comando contiene campi non riconosciuti.",
+    };
+  }
   if (
     !isValidRevisionTarget(command.articleId as string, command.revisionId as string) ||
     !Number.isInteger(command.expectedVersion) ||
@@ -430,4 +447,11 @@ async function callRepository<T>(
       message: "Operazione editoriale non riuscita. Riprova o contatta un amministratore.",
     };
   }
+}
+
+function hasExactKeys(value: unknown, keys: readonly string[]): boolean {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const actual = Object.keys(value).sort();
+  const expected = [...keys].sort();
+  return actual.length === expected.length && actual.every((key, index) => key === expected[index]);
 }
