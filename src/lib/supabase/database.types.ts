@@ -103,16 +103,22 @@ export type Database = {
           created_at: string
           created_by: string | null
           display_order: number
+          editorial_status: string
           event_type: string
           home_score: number | null
           home_team: string
           id: string
           is_published: boolean
           notes: string | null
+          published_at: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewer_id: string | null
           round_label: string | null
           season_id: string | null
           starts_at: string
           status: string
+          submitted_at: string | null
           updated_at: string
           updated_by: string | null
           venue: string | null
@@ -124,16 +130,22 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           display_order?: number
+          editorial_status?: string
           event_type?: string
           home_score?: number | null
           home_team: string
           id?: string
           is_published?: boolean
           notes?: string | null
+          published_at?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
           round_label?: string | null
           season_id?: string | null
           starts_at: string
           status?: string
+          submitted_at?: string | null
           updated_at?: string
           updated_by?: string | null
           venue?: string | null
@@ -145,16 +157,22 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           display_order?: number
+          editorial_status?: string
           event_type?: string
           home_score?: number | null
           home_team?: string
           id?: string
           is_published?: boolean
           notes?: string | null
+          published_at?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
           round_label?: string | null
           season_id?: string | null
           starts_at?: string
           status?: string
+          submitted_at?: string | null
           updated_at?: string
           updated_by?: string | null
           venue?: string | null
@@ -165,6 +183,13 @@ export type Database = {
             columns: ["season_id"]
             isOneToOne: false
             referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -649,6 +674,14 @@ export type Database = {
       }
     }
     Functions: {
+      calendar_editorial_command: {
+        Args: { p_action: string; p_event_id?: string | null; p_expected_updated_at?: string | null; p_payload?: Json }
+        Returns: Json
+      }
+      calendar_editorial_workflow_command: {
+        Args: { p_action: string; p_event_id: string; p_expected_updated_at: string; p_payload?: Json }
+        Returns: Json
+      }
       team_editorial_command: {
         Args: {
           p_action: string
