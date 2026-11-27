@@ -26,7 +26,8 @@ function makeRepository(overrides: Partial<NewsReadRepository> = {}): NewsReadRe
     getRevision: vi.fn().mockResolvedValue(null),
     listRevisionHistory: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
     listAudit: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
-    listPublished: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),\n    getPublishedBySlug: vi.fn().mockResolvedValue(null),
+    listPublished: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
+    getPublishedBySlug: vi.fn().mockResolvedValue(null),
     ...overrides,
   };
 }
