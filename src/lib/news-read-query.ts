@@ -101,3 +101,34 @@ export function validateNewsReadQuery(input: unknown): NewsReadQueryValidation {
       ...(createdAfter ? { createdAfter } : {}), ...(createdBefore ? { createdBefore } : {}) },
   };
 }
+
+
+/** Anonymous public-list filters: deliberately excludes editorial status and actor fields. */
+export type ValidNewsPublicListQuery = Pick<ValidNewsReadQuery, "pageSize" | "cursor" | "category" | "search">;
+export type NewsPublicListQueryValidation =
+  | { ok: true; value: ValidNewsPublicListQuery }
+  | { ok: false; issues: string[] };
+
+const publicListKeys = new Set(["pageSize", "cursor", "category", "search"]);
+
+export function validateNewsPublicListQuery(input: unknown): NewsPublicListQueryValidation {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return { ok: false, issues: ["query must be an object."] };
+  }
+  const unexpected = Object.keys(input).filter(key => !publicListKeys.has(key));
+  if (unexpected.length) {
+    return { ok: false, issues: unexpected.map(key => `unexpected public query field: ${key}.`) };
+  }
+  const parsed = validateNewsReadQuery(input);
+  if (!parsed.ok) return parsed;
+  const { pageSize, cursor, category, search } = parsed.value;
+  return {
+    ok: true,
+    value: {
+      pageSize,
+      ...(cursor ? { cursor } : {}),
+      ...(category ? { category } : {}),
+      ...(search ? { search } : {}),
+    },
+  };
+}
