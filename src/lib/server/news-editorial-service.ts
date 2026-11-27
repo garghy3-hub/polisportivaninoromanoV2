@@ -439,7 +439,18 @@ async function callRepository<T>(
   operation: () => Promise<NewsRepositoryResult<T>>,
 ): Promise<NewsEditorialResult<T>> {
   try {
-    return await operation();
+    const result = await operation();
+    if (result.ok) return result;
+    // Repository adapters are trusted server code, but their failure messages
+    // may contain provider/SQL details. Expose only stable codes and safe copy.
+    const messages: Record<NewsRepositoryFailureCode, string> = {
+      "not-found": "Contenuto non trovato.",
+      conflict: "Il contenuto è stato modificato. Ricarica e riprova.",
+      "slug-taken": "Questo slug è già utilizzato.",
+      "invalid-transition": "L'operazione non è consentita nello stato corrente.",
+      internal: "Operazione editoriale non riuscita. Riprova o contatta un amministratore.",
+    };
+    return { ok: false, code: result.code, message: messages[result.code] };
   } catch {
     return {
       ok: false,
