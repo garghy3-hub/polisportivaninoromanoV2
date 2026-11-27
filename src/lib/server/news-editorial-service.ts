@@ -6,7 +6,7 @@ import { canTransitionRevision, hasEditorialPermission } from "../editorial-perm
 
 export type NewsDraftContent = Pick<
   NewsDraftInput,
-  "title" | "slug" | "category" | "excerpt" | "body" | "seoTitle" | "seoDescription"
+  "title" | "slug" | "category" | "excerpt" | "body" | "seoTitle" | "seoDescription" | "imageUrl" | "imageAlt"
 >;
 
 export interface NewsRevisionRecord {
@@ -189,8 +189,6 @@ export interface NewsEditorialService {
 
 const toDraftInput = (content: NewsDraftContent): NewsDraftInput => ({
   ...content,
-  imageUrl: "",
-  imageAlt: "",
 });
 
 /**
