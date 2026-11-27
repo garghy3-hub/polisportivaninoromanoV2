@@ -5,7 +5,7 @@ import { localContentService } from '../lib/content-service'
 import type { EventStatus, MatchEvent } from '../lib/content-types'
 import { validateEvent } from '../lib/content-validation'
 
-export const Route = createFileRoute('/admin/calendar')({ component: CalendarWorkbench })
+export const Route = createFileRoute('/admin/calendar')({ headers: () => ({ 'Cache-Control': 'private, no-store' }), component: CalendarWorkbench })
 
 const calendarDraftKey = 'nino-romano-v2-calendar-draft'
 
