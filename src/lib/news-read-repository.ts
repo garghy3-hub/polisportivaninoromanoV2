@@ -1,6 +1,6 @@
 /** Provider-neutral contracts for the future News read repository. No adapter is implemented here. */
 import { NEWS_CATEGORIES, type EditorialRevision, type NewsCategory } from "./content-types";
-import { NEWS_READ_PAGE_SIZE_MAX, NEWS_READ_CURSOR_MAX_LENGTH, type ValidNewsReadQuery } from "./news-read-query";
+import { NEWS_READ_PAGE_SIZE_MAX, NEWS_READ_CURSOR_MAX_LENGTH, type ValidNewsReadQuery, type ValidNewsPublicListQuery } from "./news-read-query";
 import type { NewsDraftContent } from "./server/news-editorial-service";
 import { isValidNewsReadOrderRecord } from "./news-read-order";
 import { isSafeEditorialImageUrl } from "./editorial-media";
@@ -43,6 +43,8 @@ export interface NewsReadRepository {
   listRevisionHistory(articleId: string, query: Pick<ValidNewsReadQuery, "pageSize" | "cursor">): Promise<NewsReadPage<NewsRevisionDetail>>;
   /** Audit reads must be restricted to authorized publisher/admin actors. */
   listAudit(articleId: string, query: Pick<ValidNewsReadQuery, "pageSize" | "cursor">): Promise<NewsReadPage<unknown>>;
+  /** Must return only current published projections in stable, bounded order. */
+  listPublished(query: ValidNewsPublicListQuery): Promise<NewsReadPage<NewsPublishedArticle>>;
   /** Must read only the current published projection, never editorial revisions. */
   getPublishedBySlug(slug: string): Promise<NewsPublishedArticle | null>;
 }
