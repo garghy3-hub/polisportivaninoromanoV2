@@ -20,6 +20,9 @@ export type NewsReadQueryValidation =
   | { ok: false; issues: string[] };
 
 const statuses: NewsReadStatus[] = ["draft", "in-review", "approved", "rejected", "published", "archived"];
+const allowedQueryKeys = new Set([
+  "pageSize", "cursor", "status", "category", "search", "creatorId", "createdAfter", "createdBefore",
+]);
 
 export function validateNewsReadQuery(input: unknown): NewsReadQueryValidation {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
@@ -27,6 +30,9 @@ export function validateNewsReadQuery(input: unknown): NewsReadQueryValidation {
   }
   const query = input as NewsReadQueryInput;
   const issues: string[] = [];
+  for (const key of Object.keys(input)) {
+    if (!allowedQueryKeys.has(key)) issues.push(`unexpected query field: ${key}.`);
+  }
   let pageSize = NEWS_READ_PAGE_SIZE_DEFAULT;
   if (query.pageSize !== undefined) {
     if (typeof query.pageSize !== "number" || !Number.isInteger(query.pageSize) || query.pageSize < 1 || query.pageSize > NEWS_READ_PAGE_SIZE_MAX) {
