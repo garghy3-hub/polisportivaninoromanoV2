@@ -21,7 +21,7 @@ const saveTeamDraft = createServerOnlyFn(async (request: {
     p_action: "save_draft",
     p_team_id: request.teamId,
     p_expected_updated_at: request.expectedUpdatedAt,
-    p_payload: request.payload,
+    p_payload: request.payload as unknown as import("../supabase/database.types").Json,
   });
   if (error || !data || typeof data !== "object" || Array.isArray(data)) {
     return { ok: false as const, code: "internal" as const };
