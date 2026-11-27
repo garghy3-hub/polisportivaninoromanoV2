@@ -70,7 +70,7 @@ export function isValidNewsReadPageEnvelope(value: unknown, requestedPageSize: n
   return true;
 }
 
-function isValidNewsDraftContent(value: unknown): value is NewsDraftContent {
+export function isValidNewsDraftContent(value: unknown): value is NewsDraftContent {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   if (!hasExactKeys(value, ["title", "slug", "category", "excerpt", "body", "seoTitle", "seoDescription", "imageUrl", "imageAlt"])) return false;
   const content = value as Partial<NewsDraftContent>;
