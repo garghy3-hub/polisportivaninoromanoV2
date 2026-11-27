@@ -1,11 +1,14 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { AdminNav } from '../components/AdminNav'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { localContentService } from '../lib/content-service'
 import { validateClubProfile, validateSiteSettings } from '../lib/content-validation'
 import type { ClubContact, ClubPartner, ClubPerson, ClubProfile, SocietyPillar, SocietyPageContent } from '../lib/content-types'
 
 export const Route = createFileRoute('/admin/society')({ component: SocietyWorkbench })
+
+const SOCIETY_DRAFT_KEY = 'nino-romano-v2-society-draft'
+const SOCIETY_DRAFT_VERSION = 1
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
@@ -19,7 +22,61 @@ function SocietyWorkbench() {
   const initialSettings = localContentService.settings()
   const [profile, setProfile] = useState<ClubProfile>(() => clone(initialProfile))
   const [page, setPage] = useState<SocietyPageContent>(() => clone(initialSettings.society))
+  const [draftMessage, setDraftMessage] = useState('')
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(SOCIETY_DRAFT_KEY)
+      if (!raw) return
+      const parsed: unknown = JSON.parse(raw)
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return
+      const envelope = parsed as Record<string, unknown>
+      if (envelope.version !== SOCIETY_DRAFT_VERSION || !envelope.profile || typeof envelope.profile !== 'object' ||
+        Array.isArray(envelope.profile) || !envelope.page || typeof envelope.page !== 'object' || Array.isArray(envelope.page)) {
+        setDraftMessage('Bozza locale non riconosciuta: caricati i contenuti iniziali.')
+        return
+      }
+      const restoredProfile = envelope.profile as ClubProfile
+      const restoredPage = envelope.page as SocietyPageContent
+      if (typeof restoredProfile.name !== 'string' || !Array.isArray(restoredPage.pillars) ||
+        validateClubProfile(restoredProfile).length > 0 ||
+        validateSiteSettings({ ...initialSettings, society: restoredPage }).length > 0) {
+        setDraftMessage('Bozza locale non valida: caricati i contenuti iniziali.')
+        return
+      }
+      setProfile(restoredProfile)
+      setPage(restoredPage)
+      setDraftMessage('Bozza societaria ripristinata da questo browser.')
+    } catch {
+      setDraftMessage('Impossibile leggere la bozza locale.')
+    }
+  }, [])
   const issues = useMemo(() => [...validateClubProfile(profile), ...validateSiteSettings({ ...initialSettings, society: page })], [profile, page, initialSettings])
+  const saveDraft = () => {
+    if (issues.length > 0) {
+      setDraftMessage('Correggi gli avvisi di validazione prima di salvare.')
+      return
+    }
+    try {
+      window.localStorage.setItem(SOCIETY_DRAFT_KEY, JSON.stringify({
+        version: SOCIETY_DRAFT_VERSION,
+        savedAt: new Date().toISOString(),
+        profile,
+        page,
+      }))
+      setDraftMessage('Bozza societaria salvata in questo browser.')
+    } catch {
+      setDraftMessage('Salvataggio non riuscito: spazio locale non disponibile.')
+    }
+  }
+  const clearDraft = () => {
+    if (!window.confirm('Eliminare la bozza societaria salvata in questo browser?')) return
+    try {
+      window.localStorage.removeItem(SOCIETY_DRAFT_KEY)
+      setDraftMessage('Bozza locale eliminata.')
+    } catch {
+      setDraftMessage('Impossibile eliminare la bozza locale.')
+    }
+  }
   const patchProfile = (key: ProfileTextKey, value: string) => setProfile(current => ({ ...current, [key]: value }))
   const patchPage = (key: SocietyTextKey, value: string) => setPage(current => ({ ...current, [key]: value }))
   const patchContact = (group: 'contacts' | 'socialLinks', index: number, patch: Partial<ClubContact>) => setProfile(current => ({
@@ -112,9 +169,15 @@ function SocietyWorkbench() {
           <p className="mt-4 max-w-3xl leading-7 text-slate-300">Gestisci presentazione, storia, missione, recapiti, collegamenti social, persone, sponsor e partner. Le schede nuove sono nascoste per impostazione iniziale finché non vengono completate e verificate.</p>
         </header>
         <section className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5" aria-labelledby="society-prototype-notice">
-          <h2 id="society-prototype-notice" className="font-bold text-amber-200">Prototipo locale — nessun salvataggio</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-300">Le modifiche restano temporanee nello stato della schermata. Non sono collegate ad autenticazione, API, revisioni o database e non cambiano la pagina pubblica. I dati iniziali provengono dal profilo locale già presente nel progetto.</p>
+          <h2 id="society-prototype-notice" className="font-bold text-amber-200">Prototipo locale — bozza salvata solo su questo browser</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-300">Puoi salvare e ripristinare profilo, contatti, persone, sponsor, partner e testi della pagina su questo dispositivo. La bozza non modifica la pagina pubblica e non è condivisa con altri dispositivi. Autenticazione, API, revisioni e database non sono collegati. I dati iniziali provengono dal progetto.</p>
         </section>
+
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <button type="button" onClick={saveDraft} disabled={issues.length > 0} className="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40">Salva bozza sul dispositivo</button>
+          <button type="button" onClick={clearDraft} className="rounded-xl border border-white/20 px-4 py-3 text-sm font-semibold hover:bg-white/10">Elimina bozza salvata</button>
+          {draftMessage && <p role="status" aria-live="polite" className="text-sm text-slate-300">{draftMessage}</p>}
+        </div>
 
         <div className="mt-8 flex flex-wrap gap-2" role="tablist" aria-label="Sezioni profilo societario">
           {tabs.map(tab => <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => setActiveTab(tab.id)} className={`rounded-full border px-4 py-2 text-sm font-semibold ${activeTab === tab.id ? 'border-red-400 bg-red-500/15 text-white' : 'border-white/15 text-slate-400 hover:text-white'}`}>{tab.label}</button>)}
