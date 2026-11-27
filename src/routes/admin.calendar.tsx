@@ -175,7 +175,7 @@ function CalendarWorkbench() {
         </section>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <button type="button" onClick={() => void saveDraft()} disabled={!canSaveDraft || editorialStatus === 'in-review' || editorialStatus === 'approved' || editorialStatus === 'published' className="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40">Salva bozza</button>
+          <button type="button" onClick={() => void saveDraft()} disabled={!canSaveDraft || editorialStatus === 'in-review' || editorialStatus === 'approved' || editorialStatus === 'published'} className="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40">Salva bozza</button>
           <button type="button" onClick={clearDraft} className="rounded-xl border border-white/20 px-4 py-3 text-sm font-semibold hover:bg-white/10">Nuovo appuntamento</button>
           <button type="button" onClick={() => void submitForReview()} disabled={!canSaveDraft || editorialStatus === 'in-review' || editorialStatus === 'approved' || editorialStatus === 'published'} className="rounded-xl bg-red-600 px-4 py-3 text-sm font-bold hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-40">Invia in revisione</button>
           <span className="rounded-full border border-white/10 px-3 py-2 text-xs text-slate-300">Stato: {editorialStatus}</span>{draftMessage && <p role="status" aria-live="polite" className="text-sm text-slate-300">{draftMessage}</p>}
