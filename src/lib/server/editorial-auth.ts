@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { EditorialRole } from "../content-types";
+import type { EditorialActor } from "../editorial-session";
 import { getSupabaseServerClient } from "../supabase/server";
 
 export interface AuthenticatedEditorialUser {
@@ -14,7 +15,7 @@ const allowedRoles: readonly EditorialRole[] = [
   "administrator",
 ];
 
-async function getActiveEditorialUser(): Promise<AuthenticatedEditorialUser | null> {
+export async function getActiveEditorialActor(): Promise<EditorialActor | null> {
   const supabase = getSupabaseServerClient();
   if (!supabase) return null;
 
@@ -23,7 +24,11 @@ async function getActiveEditorialUser(): Promise<AuthenticatedEditorialUser | nu
   if (error || !data?.claims) return null;
 
   const userId = data.claims.sub;
-  if (typeof userId !== "string" || !userId.trim()) return null;
+  const sessionId = data.claims.session_id;
+  if (
+    typeof userId !== "string" || !userId.trim() ||
+    typeof sessionId !== "string" || !sessionId.trim()
+  ) return null;
 
   const { data: admin, error: adminError } = await supabase
     .from("admin_users")
@@ -41,7 +46,12 @@ async function getActiveEditorialUser(): Promise<AuthenticatedEditorialUser | nu
     return null;
   }
 
-  return { id: userId, role: admin.role as EditorialRole };
+  return { id: userId, sessionId, role: admin.role as EditorialRole };
+}
+
+async function getActiveEditorialUser(): Promise<AuthenticatedEditorialUser | null> {
+  const actor = await getActiveEditorialActor();
+  return actor ? { id: actor.id, role: actor.role } : null;
 }
 
 /** Safe session projection for route guards and the admin navigation. */
