@@ -6,7 +6,7 @@ import {
 } from "../src/lib/news-read-query";
 
 describe("validateNewsReadQuery", () => {
-  it("uses safe default page size", () => {
+  it("rejects malformed top-level payloads", () => {\n    for (const payload of [null, undefined, [], "query", 42]) {\n      expect(validateNewsReadQuery(payload).ok).toBe(false);\n    }\n  });\n\n  it("uses safe default page size", () => {
     expect(validateNewsReadQuery({})).toEqual({ ok: true, value: { pageSize: 20 } });
   });
 
