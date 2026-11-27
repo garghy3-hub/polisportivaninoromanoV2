@@ -6,6 +6,10 @@ describe("News read ordering", () => {
     expect(isValidNewsReadOrderRecord({ id: "x", createdAt: "2026-01-01T00:00:00Z" })).toBe(true);
     expect(isValidNewsReadOrderRecord({ id: " ", createdAt: "2026-01-01T00:00:00Z" })).toBe(false);
     expect(isValidNewsReadOrderRecord({ id: "x", createdAt: "invalid" })).toBe(false);
+    expect(isValidNewsReadOrderRecord({ id: "x", createdAt: "2026-02-31T12:00:00Z" })).toBe(false);
+    expect(isValidNewsReadOrderRecord({ id: "x", createdAt: "2026-01-01" })).toBe(false);
+    expect(isValidNewsReadOrderRecord({ id: "x", createdAt: "2026-01-01T12:00:00" })).toBe(false);
+    expect(isValidNewsReadOrderRecord({ id: "x", createdAt: "2024-02-29T12:00:00Z" })).toBe(true);
     expect(isValidNewsReadOrderRecord(null)).toBe(false);
     expect(isValidNewsReadOrderRecord([])).toBe(false);
     expect(isValidNewsReadOrderRecord({ id: "x".repeat(129), createdAt: "2026-01-01T00:00:00Z" })).toBe(false);
