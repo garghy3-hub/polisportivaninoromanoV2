@@ -142,7 +142,7 @@ const runWorkflow = createServerOnlyFn(async (request: {
     };
   }
   const allowed = ["forbidden", "invalid_resource", "invalid_request", "invalid_note",
-    "not_found", "conflict", "invalid_transition", "separation_of_duties"];
+    "not_found", "conflict", "invalid_transition", "separation_of_duties", "public_projection_not_ready"];
   return {
     ok: false as const,
     code: typeof data.code === "string" && allowed.includes(data.code)
