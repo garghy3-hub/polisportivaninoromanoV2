@@ -31,7 +31,7 @@ const queue=createServerOnlyFn(async()=>{
  const actor=await getActiveEditorialActor(); if(!actor)return {ok:false as const,code:"unauthenticated" as const};
  if(!["publisher","administrator"].includes(actor.role))return {ok:false as const,code:"forbidden" as const};
  const supabase=getSupabaseServerClient(); if(!supabase)return {ok:false as const,code:"not-configured" as const};
- const {data,error}=await supabase.from("teams").select("id,name,slug,category,description,editorial_status,updated_at,is_published").in("editorial_status",["in-review","approved"]).order("updated_at",{ascending:true});
+ const {data,error}=await supabase.from("teams").select("id,name,slug,category,description,editorial_status,updated_at,is_published").in("editorial_status",["in-review","approved","published"]).order("updated_at",{ascending:true});
  if(error)return {ok:false as const,code:"internal" as const};
  return {ok:true as const,items:data??[]};
 });
