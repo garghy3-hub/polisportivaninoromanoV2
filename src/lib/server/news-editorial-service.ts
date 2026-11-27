@@ -513,7 +513,8 @@ function isValidNewsRevisionRecord(value: unknown): value is NewsRevisionRecord 
 function isValidTimestamp(value: unknown): value is string {
   if (typeof value !== "string" || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?(?:Z|[+-]\\d{2}:\\d{2})$/.test(value)) return false;
   const timestamp = Date.parse(value);
-  return Number.isFinite(timestamp) && new Date(timestamp).toISOString().slice(0, 10) === value.slice(0, 10);
+  const calendarDate = new Date(Date.UTC(Number(value.slice(0, 4)), Number(value.slice(5, 7)) - 1, Number(value.slice(8, 10)))).toISOString().slice(0, 10);
+  return Number.isFinite(timestamp) && calendarDate === value.slice(0, 10);
 }
 
 function internalFailure(): NewsEditorialResult<never> {
