@@ -1,7 +1,7 @@
 # Area amministrativa V2 — stato e guida
 
 ## Accesso alla struttura
-La route `/admin` contiene una panoramica delle aree CMS previste. Le route `/admin/news`, `/admin/teams`, `/admin/calendar`, `/admin/pages`, `/admin/society` e `/admin/brand` sono workbench UI locali per preparare e verificare contenuti e impostazioni, ma non salvano dati e non costituiscono un sistema autenticato. La route `/admin/media` espone per ora soltanto la struttura prevista per la libreria.
+La route `/admin` contiene una panoramica delle aree CMS previste. Le route `/admin/news`, `/admin/teams`, `/admin/calendar`, `/admin/pages`, `/admin/society` e `/admin/brand` sono workbench UI locali e non costituiscono un sistema autenticato. News mantiene bozze locali; Media Library salva file nel browser tramite IndexedDB; l’editor Pagine salva impostazioni nel LocalStorage dopo validazione. Nessuno di questi dati viene sincronizzato o pubblicato sul sito.
 
 ## Stato attuale
 - [x] Route dashboard introdotta
@@ -12,13 +12,15 @@ La route `/admin` contiene una panoramica delle aree CMS previste. Le route `/ad
 - [ ] API server protette e autorizzazioni server-side
 - [ ] Persistenza di revisioni e contenuti
 - [ ] Media upload con storage sicuro
-- [x] Prototipi UI locali News, squadre/roster, calendario/risultati, pagine/home e società (senza persistenza)
+- [x] Prototipi UI locali News, squadre/roster, calendario/risultati, pagine/home e società
+- [x] Persistenza locale delle impostazioni pagine/home/menu/SEO in LocalStorage, con validazione e ripristino
+- [x] Bozze News locali e file Media Library in IndexedDB (solo browser/dispositivo)
 - [ ] Flusso News con revisioni e pubblicazione effettive
 - [ ] Pubblicazione atomica e audit trail
 - [ ] Test d'integrazione e sicurezza
 
 ## Vincoli
-Non aggiungere form che fingano di salvare o pubblicare contenuti. Le UI interattive per la gestione devono essere collegate a servizi server e mostrare chiaramente gli stati di errore, loading e conferma. La route dashboard informativa non è un gate di sicurezza: prima dell'attivazione, il server dovrà verificare sessione e autorizzazioni su ogni richiesta.
+Non aggiungere form che fingano di salvare o pubblicare contenuti. Le persistenze locali sono esclusivamente prototipi e non devono essere confuse con un salvataggio CMS. Le UI interattive per la gestione devono essere collegate a servizi server e mostrare chiaramente gli stati di errore, loading e conferma. La route dashboard informativa non è un gate di sicurezza: prima dell'attivazione, il server dovrà verificare sessione e autorizzazioni su ogni richiesta.
 
 ## Primo vertical slice
 Implementare News come primo modulo, rispettando `docs/news-admin-contract.md`, `docs/news-revision-data-contract.md` e `docs/editorial-server-boundary.md`. Prima di scegliere provider per sessioni, database e storage, risolvere le decisioni aperte in `docs/editorial-panel-decision-register.md`.
