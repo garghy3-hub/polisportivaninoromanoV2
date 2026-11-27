@@ -3,6 +3,7 @@ import { AdminNav } from '../components/AdminNav'
 import { getCurrentEditorialUserFn } from '../lib/server/editorial-auth'
 
 export const Route = createFileRoute('/admin')({
+  headers: () => ({ 'Cache-Control': 'private, no-store' }),
   beforeLoad: async ({ location }) => {
     // The login screen shares this route prefix but must remain reachable
     // without an authenticated parent route.
@@ -33,13 +34,13 @@ function AdminOverview() {
         <header className="mt-10">
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-red-300">Area amministrativa · V2</p>
           <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">Content management</h1>
-          <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-300">Area editoriale riservata. Accesso verificato dal server tramite Supabase Auth e ruolo attivo.</p>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-300">Area editoriale riservata. L'accesso viene verificato sul server tramite Supabase Auth e ruolo attivo.</p>
         </header>
         <AdminNav />
 
         <section className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5 sm:p-7" aria-labelledby="prototype-notice">
           <h2 id="prototype-notice" className="font-bold text-amber-200">Accesso protetto · moduli ancora in modalità prototipo</h2>
-          <p className="mt-2 leading-7 text-slate-300">L'autenticazione è attiva, ma gli editor dei contenuti non sono ancora collegati al database. Le bozze presenti nei moduli esistenti restano locali al browser e non vengono pubblicate.</p>
+          <p className="mt-2 leading-7 text-slate-300">Il flusso di autenticazione è implementato, ma richiede la configurazione delle variabili pubbliche Supabase e almeno un account attivo in admin_users. Gli editor dei contenuti non sono ancora collegati al database: le bozze esistenti restano locali al browser.</p>
         </section>
 
         <div className="mt-5 flex flex-wrap gap-3"><Link to="/admin/news-library" className="rounded-xl bg-red-600 px-4 py-2 font-semibold">Apri archivio bozze News</Link><Link to="/admin/news" className="rounded-xl border border-white/20 px-4 py-2 font-semibold">Scrivi una News</Link></div>\n\n        <section className="mt-10" aria-labelledby="content-areas">
