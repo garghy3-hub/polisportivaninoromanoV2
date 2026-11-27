@@ -119,7 +119,7 @@ function pageFromRows<T extends { id: string; created_at: string }>(
 
 export function createSupabaseNewsReadRepository(
   supabase: SupabaseClient<Database>,
-  actor: { id: string; role: EditorialRole },
+  actor: { id: string; role: EditorialRole } = { id: "", role: "reader" },
 ): NewsReadRepository {
   const canReadAllEditorial = actor.role === "publisher" || actor.role === "administrator";
 
