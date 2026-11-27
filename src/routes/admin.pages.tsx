@@ -3,6 +3,7 @@ import { AdminNav } from '../components/AdminNav'
 import { useEffect, useMemo, useState } from 'react'
 import { localContentService } from '../lib/content-service'
 import { validateSiteSettings } from '../lib/content-validation'
+import { getSiteEditorialDraftFn, saveSiteEditorialDraftFn, siteEditorialWorkflowFn } from '../lib/server/site-editorial-actions'
 import type { HomeFeature, HomePageContent, SiteSettings, StandardPageContent } from '../lib/content-types'
 
 export const Route = createFileRoute('/admin/pages')({ headers: () => ({ 'Cache-Control': 'private, no-store' }), component: PagesWorkbench })
@@ -48,9 +49,6 @@ const homeFields: { key: HomeTextKey; label: string; multiline?: boolean }[] = [
 const pageLabels = { news: 'News', teams: 'Squadre', calendar: 'Calendario', society: 'Società' } as const
 type PageKey = keyof typeof pageLabels
 
-const PAGE_SETTINGS_KEY = 'nino-romano-v2-site-settings'
-const PAGE_SETTINGS_VERSION = 1
-
 function moveItem<T extends { order: number }>(items: T[], index: number, direction: -1 | 1): T[] {
   const target = index + direction
   if (target < 0 || target >= items.length) return items
@@ -63,49 +61,72 @@ function PagesWorkbench() {
   const initial = localContentService.settings()
   const [settings, setSettings] = useState<SiteSettings>(() => JSON.parse(JSON.stringify(initial)) as SiteSettings)
   const [activeTab, setActiveTab] = useState<'home' | 'pages' | 'navigation' | 'seo'>('home')
-  const [saveMessage, setSaveMessage] = useState('')
+  const [saveMessage, setSaveMessage] = useState('Caricamento bozza condivisa…')
+  const [expectedUpdatedAt, setExpectedUpdatedAt] = useState<string | null>(null)
+  const [editorialStatus, setEditorialStatus] = useState('draft')
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(PAGE_SETTINGS_KEY)
-      if (!raw) return
-      const parsed: unknown = JSON.parse(raw)
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return
-      const envelope = parsed as { version?: unknown; settings?: unknown }
-      if (envelope.version !== PAGE_SETTINGS_VERSION || !envelope.settings || typeof envelope.settings !== 'object') {
-        setSaveMessage('Salvataggio locale precedente non riconosciuto: impostazioni iniziali caricate.')
+    let active = true
+    void getSiteEditorialDraftFn({ data: { resource: 'site-settings' } }).then((result) => {
+      if (!active) return
+      if (!result.ok) {
+        setSaveMessage(result.code === 'not-configured' ? 'Database non configurato: salvataggio condiviso non disponibile.' : 'Impossibile caricare la bozza condivisa.')
         return
       }
-      const restored = envelope.settings as SiteSettings
-      if (validateSiteSettings(restored).length === 0) {
-        setSettings(restored)
-        setSaveMessage('Ultima configurazione locale ripristinata.')
-      } else {
-        setSaveMessage('Configurazione locale non valida: impostazioni iniziali caricate.')
+      if (!result.exists) {
+        setSaveMessage('Nessuna bozza condivisa: puoi creare la prima revisione.')
+        return
       }
-    } catch {
-      setSaveMessage('Impossibile leggere le impostazioni locali.')
-    }
+      if (result.payload && typeof result.payload === 'object' && !Array.isArray(result.payload)) {
+        const restored = result.payload as SiteSettings
+        if (validateSiteSettings(restored).length === 0) {
+          setSettings(restored)
+          setExpectedUpdatedAt(result.updatedAt)
+          setEditorialStatus(result.editorialStatus)
+          setSaveMessage('Bozza condivisa caricata dal server.')
+          return
+        }
+      }
+      setSaveMessage('Bozza server non valida: contenuti iniziali mantenuti. Nessun dato è stato sovrascritto.')
+    }).catch(() => {
+      if (active) setSaveMessage('Errore di rete durante il caricamento della bozza condivisa.')
+    })
+    return () => { active = false }
   }, [])
-  const saveSettings = () => {
+  const issues = useMemo(() => validateSiteSettings(settings), [settings])
+  const saveSettings = async () => {
     if (issues.length) { setSaveMessage('Correggi gli avvisi di validazione prima di salvare.'); return }
+    setSaveMessage('Salvataggio della bozza condivisa…')
     try {
-      window.localStorage.setItem(PAGE_SETTINGS_KEY, JSON.stringify({ version: PAGE_SETTINGS_VERSION, savedAt: new Date().toISOString(), settings }))
-      setSaveMessage('Impostazioni salvate in questo browser.')
+      const result = await saveSiteEditorialDraftFn({ data: { resource: 'site-settings', expectedUpdatedAt, payload: settings } })
+      if (!result.ok) {
+        setSaveMessage(result.code === 'conflict' ? 'Conflitto: un altro utente ha modificato la bozza. Ricarica prima di continuare.' : result.code === 'not-configured' ? 'Database non configurato: nessuna modifica salvata.' : 'Salvataggio non riuscito. La bozza non è stata modificata.')
+        return
+      }
+      setExpectedUpdatedAt(result.updatedAt)
+      setEditorialStatus('draft')
+      setSaveMessage('Bozza condivisa salvata sul server.')
     } catch {
-      setSaveMessage('Salvataggio non riuscito: spazio locale non disponibile.')
+      setSaveMessage('Errore di rete: impossibile confermare il salvataggio.')
+    }
+  }
+  const submitForReview = async () => {
+    if (!expectedUpdatedAt || editorialStatus !== 'draft') { setSaveMessage('Salva prima una bozza valida.'); return }
+    setSaveMessage('Invio in revisione…')
+    try {
+      const result = await siteEditorialWorkflowFn({ data: { resource: 'site-settings', action: 'submit', expectedUpdatedAt, note: '' } })
+      if (!result.ok) { setSaveMessage(result.code === 'conflict' ? 'Conflitto: ricarica la bozza prima di inviarla.' : 'Invio in revisione non riuscito.'); return }
+      setExpectedUpdatedAt(result.updatedAt)
+      setEditorialStatus(result.editorialStatus)
+      setSaveMessage('Bozza inviata alla coda revisioni.')
+    } catch {
+      setSaveMessage('Errore di rete durante l’invio in revisione.')
     }
   }
   const resetSettings = () => {
-    if (!window.confirm('Ripristinare le impostazioni iniziali? Le modifiche locali salvate saranno eliminate.')) return
-    try {
-      window.localStorage.removeItem(PAGE_SETTINGS_KEY)
-      setSettings(JSON.parse(JSON.stringify(initial)) as SiteSettings)
-      setSaveMessage('Impostazioni iniziali ripristinate.')
-    } catch {
-      setSaveMessage('Ripristino non riuscito.')
-    }
+    if (!window.confirm('Ripristinare i contenuti iniziali nell’editor? La bozza sul server non verrà eliminata.')) return
+    setSettings(JSON.parse(JSON.stringify(initial)) as SiteSettings)
+    setSaveMessage('Contenuti iniziali caricati nell’editor. Salva per creare una nuova revisione.')
   }
-  const issues = useMemo(() => validateSiteSettings(settings), [settings])
   const patchHome = (key: HomeTextKey, value: string) => setSettings((current) => ({ ...current, home: { ...current.home, [key]: value } }))
   const patchPage = (page: PageKey, key: keyof StandardPageContent, value: string) => setSettings((current) => ({ ...current, [page]: { ...current[page], [key]: value } }))
   const patchFeature = (index: number, patch: Partial<HomeFeature>) => setSettings((current) => ({ ...current, home: { ...current.home, features: current.home.features.map((feature, i) => i === index ? { ...feature, ...patch } : feature) } }))
@@ -128,15 +149,15 @@ function PagesWorkbench() {
         <header className="mt-10">
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-red-300">Pagine e homepage · workbench UI</p>
           <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Editor pagine</h1>
-          <p className="mt-4 max-w-3xl leading-7 text-slate-300">Modifica i contenuti editoriali, l'ordine delle sezioni, la navigazione e i metadati SEO. Le modifiche sono mostrate in anteprima locale.</p>
+          <p className="mt-4 max-w-3xl leading-7 text-slate-300">Modifica homepage, pagine interne, menu e metadati SEO. Le bozze sono salvate sul server e non diventano pubbliche prima dell’approvazione.</p>
         </header>
 
         <section className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5" aria-labelledby="pages-prototype-notice">
-          <h2 id="pages-prototype-notice" className="font-bold text-amber-200">Prototipo locale — salvataggio solo su questo dispositivo</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-300">Puoi salvare e ripristinare le impostazioni in questo browser. I dati non sono condivisi tra dispositivi, non sono collegati ad autenticazione, API, revisioni o database e non modificano il sito pubblico. La validazione è un controllo preliminare lato interfaccia.</p>
+          <h2 id="pages-prototype-notice" className="font-bold text-amber-200">Bozza editoriale condivisa</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-300">Il salvataggio usa una funzione server-side con controllo dei ruoli e delle modifiche concorrenti. Il contenuto pubblico resta invariato fino al completamento della revisione e alla pubblicazione.</p>
         </section>
 
-        <div className="mt-6 flex flex-wrap items-center gap-3"><button type="button" onClick={saveSettings} className="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold hover:bg-emerald-600">Salva impostazioni sul dispositivo</button><button type="button" onClick={resetSettings} className="rounded-xl border border-white/20 px-4 py-3 text-sm font-semibold hover:bg-white/10">Ripristina iniziali</button>{saveMessage && <p role="status" aria-live="polite" className="text-sm text-slate-300">{saveMessage}</p>}</div>
+        <div className="mt-6 flex flex-wrap items-center gap-3"><button type="button" onClick={() => void saveSettings()} disabled={issues.length > 0 || editorialStatus === 'in-review' || editorialStatus === 'approved'} className="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40">Salva bozza condivisa</button><button type="button" onClick={() => void submitForReview()} disabled={!expectedUpdatedAt || editorialStatus !== 'draft' || issues.length > 0} className="rounded-xl bg-red-700 px-4 py-3 text-sm font-bold hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40">Invia in revisione</button><button type="button" onClick={resetSettings} className="rounded-xl border border-white/20 px-4 py-3 text-sm font-semibold hover:bg-white/10">Ripristina contenuti iniziali</button><span className="rounded-full border border-white/15 px-3 py-1 text-xs text-slate-300">Stato: {editorialStatus}</span>{saveMessage && <p role="status" aria-live="polite" className="text-sm text-slate-300">{saveMessage}</p>}</div>
         <div className="mt-8 flex flex-wrap gap-2" role="tablist" aria-label="Sezioni editor pagine">
           {([{ id: 'home', label: 'Homepage' }, { id: 'pages', label: 'Pagine interne' }, { id: 'navigation', label: 'Menu' }, { id: 'seo', label: 'SEO sito' }] as const).map((tab) => <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => setActiveTab(tab.id)} className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${activeTab === tab.id ? 'border-red-400 bg-red-500/15 text-white' : 'border-white/15 text-slate-400 hover:border-white/30 hover:text-white'}`}>{tab.label}</button>)}
         </div>
@@ -206,7 +227,7 @@ function PagesWorkbench() {
         <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6" aria-live="polite">
           <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl font-bold">Validazione impostazioni</h2><span className={issues.length ? 'rounded-full bg-amber-400/10 px-3 py-1 text-xs text-amber-200' : 'rounded-full bg-emerald-400/10 px-3 py-1 text-xs text-emerald-200'}>{issues.length ? `${issues.length} avvisi` : 'Nessun errore'}</span></div>
           {issues.length > 0 && <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-amber-200">{issues.slice(0, 20).map((issue, index) => <li key={index}>{issue}</li>)}</ul>}
-          <p className="mt-4 text-xs leading-6 text-slate-500">La validazione controlla anche link, campi obbligatori, identificativi, ordine e visibilità. Prima di ogni salvataggio il server dovrà ripetere i controlli e applicare permessi e audit trail.</p>
+          <p className="mt-4 text-xs leading-6 text-slate-500">La validazione controlla link, campi obbligatori, identificativi, ordine e visibilità. Il server ripete i controlli e registra le operazioni editoriali.</p>
         </section>
       </div>
     </main>
