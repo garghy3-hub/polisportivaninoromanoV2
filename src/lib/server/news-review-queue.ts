@@ -2,6 +2,7 @@ import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
 import { getActiveEditorialActor } from "./editorial-auth";
 import { getSupabaseServerClient } from "../supabase/server";
 import { mapNewsRevisionRecord } from "./supabase-news-editorial-repository";
+import type { NewsRevisionRecord } from "./news-editorial-service";
 
 const loadNewsReviewQueue = createServerOnlyFn(async () => {
   const actor = await getActiveEditorialActor();
@@ -28,7 +29,8 @@ const loadNewsReviewQueue = createServerOnlyFn(async () => {
     return { ok: false as const, code: "internal" as const };
   }
 
-  return { ok: true as const, items: items.filter((item) => item !== null) };
+  const validItems = items.filter((item): item is NewsRevisionRecord => item !== null);
+  return { ok: true as const, items: validItems };
 });
 
 export const newsReviewQueueFn = createServerFn({ method: "GET" }).handler(
