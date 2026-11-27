@@ -3,7 +3,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../supabase/database.types";
 import type { EditorialRole, NewsCategory } from "../content-types";
 import type {
-  NewsDraftContent,
   NewsReadItem,
   NewsReadPage,
   NewsReadRepository,
@@ -26,7 +25,7 @@ function encodeCursor(timestamp: string, id: string): string {
   return encodeURIComponent(`${timestamp}|${id}`);
 }
 
-function decodeCursor(value?: string): Cursor | null {
+function decodeCursor(value?: string, idPattern: RegExp = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i): Cursor | null {
   if (!value) return null;
   try {
     const decoded = decodeURIComponent(value);
@@ -34,7 +33,7 @@ function decodeCursor(value?: string): Cursor | null {
     if (separator < 0) return null;
     const timestamp = normalizeTimestamp(decoded.slice(0, separator));
     const id = decoded.slice(separator + 1);
-    if (!timestamp || !id || id.length > 128) return null;
+    if (!timestamp || !id || id.length > 128 || !idPattern.test(id)) return null;
     return { timestamp, id };
   } catch {
     return null;
@@ -206,7 +205,7 @@ export function createSupabaseNewsReadRepository(
         .order("occurred_at", { ascending: false })
         .order("id", { ascending: false })
         .limit(query.pageSize + 1);
-      const cursor = decodeCursor(query.cursor);
+      const cursor = decodeCursor(query.cursor, /^\\d{1,20}$/);
       if (query.cursor && !cursor) return { items: [], nextCursor: null };
       if (cursor) request = request.or(`occurred_at.lt.${cursor.timestamp},and(occurred_at.eq.${cursor.timestamp},id.lt.${cursor.id})`);
       const { data, error } = await request;
