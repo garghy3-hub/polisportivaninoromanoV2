@@ -26,7 +26,7 @@ function makeRepository(overrides: Partial<NewsReadRepository> = {}): NewsReadRe
     getRevision: vi.fn().mockResolvedValue(null),
     listRevisionHistory: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
     listAudit: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
-    getPublishedBySlug: vi.fn().mockResolvedValue(null),
+    listPublished: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),\n    getPublishedBySlug: vi.fn().mockResolvedValue(null),
     ...overrides,
   };
 }
@@ -54,6 +54,25 @@ describe("News read service", () => {
     const result = await createNewsReadService(repository).getPublishedBySlug("notizia-di-prova");
     expect(result).toMatchObject({ ok: false, code: "internal" });
     expect(JSON.stringify(result)).not.toContain("password");
+  });
+
+  it("returns a bounded public list and rejects duplicate or malformed projections", async () => {
+    const repository = makeRepository({
+      listPublished: vi.fn().mockResolvedValue({ items: [published], nextCursor: null }),
+    });
+    expect(await createNewsReadService(repository).listPublished({ pageSize: 10, category: "official" }))
+      .toEqual({ ok: true, value: { items: [published], nextCursor: null } });
+
+    const duplicate = makeRepository({
+      listPublished: vi.fn().mockResolvedValue({ items: [published, published], nextCursor: null }),
+    });
+    expect(await createNewsReadService(duplicate).listPublished({}))
+      .toMatchObject({ ok: false, code: "internal" });
+
+    const invalid = makeRepository();
+    expect(await createNewsReadService(invalid).listPublished({ status: "draft" }))
+      .toMatchObject({ ok: false, code: "invalid" });
+    expect(invalid.listPublished).not.toHaveBeenCalled();
   });
 
   it("returns a valid published projection only when its slug matches", async () => {
