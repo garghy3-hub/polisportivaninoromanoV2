@@ -90,6 +90,8 @@ describe("provider-neutral News editorial service", () => {
       { ...editor, id: " " },
       { ...editor, sessionId: "" },
       { ...editor, id: 42 },
+      { ...editor, id: "x".repeat(129) },
+      { ...editor, sessionId: "x".repeat(129) },
     ];
     for (const actor of malformedActors) {
       await expect(service.createDraft(actor as never, validContent)).resolves.toMatchObject({
