@@ -36,6 +36,10 @@ A repository implementation should provide these server-side operations before t
 
 `src/lib/news-read-query.ts` provides a provider-neutral validator for bounded page size, opaque cursor length, status, category, search, creator and date-range filters. Unit tests cover defaults, invalid values, malformed top-level payloads and impossible calendar/clock components; date filters are restricted to ISO-shaped values and checked for valid ranges. The validator fails closed when the query payload is not an object. This is input validation only; it does not query data, enforce permissions, or implement pagination.
 
+## Repository contract module
+
+`src/lib/news-read-repository.ts` now declares provider-neutral read DTOs and the `NewsReadRepository` interface for editorial list queries, revision lookup/history, restricted audit history, and published-by-slug reads. It is an interface only; implementations must still enforce authorization, scope, projection and consistency. The actor ID parameter is not itself proof of authorization.
+
 ## Acceptance checklist for the adapter
 
 - [ ] Unauthorized read attempts fail closed.
