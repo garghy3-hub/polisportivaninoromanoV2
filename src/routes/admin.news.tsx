@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState } from 'react'\nimport { saveLocalNewsDraft, loadLocalNewsDraft, clearLocalNewsDraft } from '../lib/news-local-drafts'
 import { localContentService } from '../lib/content-service'
 import { slugifyEditorialTitle } from '../lib/editorial-slug'
 import { isSafeEditorialImageUrl } from '../lib/editorial-media'
@@ -42,7 +42,7 @@ function NewsDraftWorkbench() {
   const [seoTitle, setSeoTitle] = useState('')
   const [seoDescription, setSeoDescription] = useState('')
   const [imageUrl, setImageUrl] = useState('')
-  const [imageAlt, setImageAlt] = useState('')
+  const [imageAlt, setImageAlt] = useState('')\n  const [draftMessage, setDraftMessage] = useState('')\n  const draftContent = { title, slug, category, excerpt, body, seoTitle, seoDescription, imageUrl, imageAlt }\n  const restoreDraft = () => { try { const saved = loadLocalNewsDraft(window.localStorage); if (!saved) { setDraftMessage('Nessuna bozza locale valida trovata.'); return } const c=saved.content; setTitle(c.title);setSlug(c.slug);setSlugEdited(true);setCategory(c.category);setExcerpt(c.excerpt);setBody(c.body);setSeoTitle(c.seoTitle);setSeoDescription(c.seoDescription);setImageUrl(c.imageUrl);setImageAlt(c.imageAlt);setDraftMessage('Bozza ripristinata dal dispositivo ('+new Date(saved.savedAt).toLocaleString()+').') } catch {setDraftMessage('Ripristino locale non disponibile.')} }\n  const saveDraft = () => { try {const ok=saveLocalNewsDraft(window.localStorage,draftContent);setDraftMessage(ok?'Bozza salvata solo su questo dispositivo.':'Salvataggio locale non disponibile.')}catch{setDraftMessage('Salvataggio locale non disponibile.')} }\n  const clearDraft = () => {try{const ok=clearLocalNewsDraft(window.localStorage);setDraftMessage(ok?'Bozza locale eliminata.':'Impossibile eliminare la bozza.')}catch{setDraftMessage('Eliminazione locale non disponibile.')}}
 
   const draftIssues = validateNewsDraft({ title, slug, category, excerpt, body, seoTitle, seoDescription, imageUrl, imageAlt }, categoryOptions.map(([value]) => value))
   const fieldMessage = (field: NewsDraftField) => draftIssues.find((issue) => issue.field === field)?.message
@@ -53,7 +53,7 @@ function NewsDraftWorkbench() {
       <div className="mx-auto max-w-7xl">
         <Link to="/admin" className="text-sm font-semibold text-red-300 hover:text-white">← Area amministrativa</Link>
         <header className="mt-10"><p className="text-sm font-bold uppercase tracking-[0.2em] text-red-300">News · workbench UI</p><h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Editor articolo</h1><p className="mt-4 max-w-3xl leading-7 text-slate-300">Prototipo con anteprima in tempo reale. I dati sono temporanei: non vengono salvati, inviati o pubblicati.</p></header>
-        <div className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5"><h2 className="font-bold text-amber-200">Modalità anteprima, nessun salvataggio</h2><p className="mt-2 text-sm leading-6 text-slate-300">Non inserire dati personali sensibili. Nessun backend o autenticazione è collegato.</p></div>
+        <div className="mt-5 flex flex-wrap gap-3"><button type="button" onClick={saveDraft} className="rounded-xl bg-red-600 px-4 py-2 font-semibold hover:bg-red-500">Salva bozza sul dispositivo</button><button type="button" onClick={restoreDraft} className="rounded-xl border border-white/20 px-4 py-2 font-semibold hover:bg-white/10">Ripristina bozza</button><button type="button" onClick={clearDraft} className="rounded-xl border border-white/20 px-4 py-2 font-semibold hover:bg-white/10">Elimina bozza locale</button></div>{draftMessage && <p className="mt-3 text-sm text-emerald-300" role="status">{draftMessage}</p>}\n        <div className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5"><h2 className="font-bold text-amber-200">Modalità anteprima, nessun salvataggio</h2><p className="mt-2 text-sm leading-6 text-slate-300">Non inserire dati personali sensibili. Nessun backend o autenticazione è collegato.</p></div>
         <div className="mt-8 grid gap-8 lg:grid-cols-2">
           <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6" aria-labelledby="fields-heading">
             <h2 id="fields-heading" className="text-xl font-bold">Contenuto</h2><div className="mt-6 grid gap-5">
