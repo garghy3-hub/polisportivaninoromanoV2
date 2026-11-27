@@ -74,21 +74,39 @@ export const editorialLoginFn = createServerFn({ method: "POST" })
     const supabase = getSupabaseServerClient();
     if (!supabase) return { ok: false as const, code: "not-configured" as const };
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
       email: data.email.trim().toLowerCase(),
       password: data.password,
     });
 
-    if (error) return { ok: false as const, code: "invalid-credentials" as const };
+    if (error || !authData.user?.id) {
+      return { ok: false as const, code: "invalid-credentials" as const };
+    }
 
-    const user = await getActiveEditorialUser();
-    if (!user) {
+    // signInWithPassword returns a user authenticated by Supabase Auth.
+    // Read the role from the protected allow-list, never from user metadata.
+    const { data: admin, error: adminError } = await supabase
+      .from("admin_users")
+      .select("user_id, role, is_active")
+      .eq("user_id", authData.user.id)
+      .maybeSingle();
+
+    if (
+      adminError ||
+      !admin ||
+      admin.user_id !== authData.user.id ||
+      admin.is_active !== true ||
+      !allowedRoles.includes(admin.role as EditorialRole)
+    ) {
       // A valid Supabase account without an active allow-list row is not an admin.
       await supabase.auth.signOut({ scope: "local" });
       return { ok: false as const, code: "not-authorized" as const };
     }
 
-    return { ok: true as const, user };
+    return {
+      ok: true as const,
+      user: { id: authData.user.id, role: admin.role as EditorialRole },
+    };
   });
 
 export const editorialLogoutFn = createServerFn({ method: "POST" }).handler(
