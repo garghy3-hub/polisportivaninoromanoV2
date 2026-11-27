@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { AdminNav } from "../components/AdminNav";
 import { newsApproveFn, newsRejectFn, newsPublishFn } from "../lib/server/news-editorial-actions";
 import { newsReviewQueueFn } from "../lib/server/news-review-queue";
+import type { NewsRevisionRecord } from "../lib/server/news-editorial-service";
 
 export const Route = createFileRoute("/admin/news-review")({
   headers: () => ({ "Cache-Control": "private, no-store" }),
@@ -22,7 +23,7 @@ function NewsReviewQueuePage() {
   const [message, setMessage] = useState("");
 
   const handleAction = async (
-    item: NonNullable<typeof queue extends { ok: true; items: (infer T)[] } ? T : never>,
+    item: NewsRevisionRecord,
     action: "approve" | "reject" | "publish",
   ) => {
     if (busyId) return;
@@ -99,7 +100,7 @@ function NewsReviewQueuePage() {
                   <article key={item.revision.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <p className="text-xs font-bold uppercase tracking-widest text-amber-200">Da approvare · v{item.version}</p>
-                      <p className="text-xs text-slate-500">{new Date(item.revision.submittedAt ?? item.revision.updatedAt).toLocaleString("it-IT")}</p>
+                      <p className="text-xs text-slate-500">{new Date(item.revision.updatedAt).toLocaleString("it-IT")}</p>
                     </div>
                     <h3 className="mt-3 text-xl font-bold">{item.revision.content.title}</h3>
                     <p className="mt-2 text-sm text-slate-400">{item.revision.content.category} · {item.revision.content.slug}</p>
