@@ -104,9 +104,18 @@ begin
     end if;
     if p_resource = 'site-settings'
        and (not (p_payload ?& array['interface','brand','site','navigation','home','news','teams','calendar','society','footer']::text[])
+         or exists (select 1 from pg_catalog.jsonb_object_keys(p_payload) as supplied(key)
+           where supplied.key <> all (array['interface','brand','site','navigation','home','news','teams','calendar','society','footer']::text[]))
+         or pg_catalog.jsonb_typeof(p_payload->'interface') is distinct from 'object'
+         or pg_catalog.jsonb_typeof(p_payload->'brand') is distinct from 'object'
+         or pg_catalog.jsonb_typeof(p_payload->'site') is distinct from 'object'
          or pg_catalog.jsonb_typeof(p_payload->'navigation') is distinct from 'array'
          or pg_catalog.jsonb_typeof(p_payload->'home') is distinct from 'object'
-         or pg_catalog.jsonb_typeof(p_payload->'site') is distinct from 'object') then
+         or pg_catalog.jsonb_typeof(p_payload->'news') is distinct from 'object'
+         or pg_catalog.jsonb_typeof(p_payload->'teams') is distinct from 'object'
+         or pg_catalog.jsonb_typeof(p_payload->'calendar') is distinct from 'object'
+         or pg_catalog.jsonb_typeof(p_payload->'society') is distinct from 'object'
+         or pg_catalog.jsonb_typeof(p_payload->'footer') is distinct from 'object') then
       return pg_catalog.jsonb_build_object('ok', false, 'code', 'invalid_payload');
     end if;
     if p_resource = 'club-profile'
