@@ -63,7 +63,9 @@ describe("validateNewsReadQuery", () => {
     expect(validateNewsReadQuery({ createdAfter: "2026-04-31T12:00:00Z" }).ok).toBe(false);
     expect(validateNewsReadQuery({ createdAfter: "2026-01-01T25:00:00Z" }).ok).toBe(false);
     expect(validateNewsReadQuery({ createdAfter: "2026-01-01T12:00:00+99:00" }).ok).toBe(false);
-    expect(validateNewsReadQuery({ createdAfter: "2024-02-29" }).ok).toBe(true);\n    expect(validateNewsReadQuery({ createdAfter: "0000-02-29" }).ok).toBe(true);\n    expect(validateNewsReadQuery({ createdAfter: "0099-02-29" }).ok).toBe(false);
+    expect(validateNewsReadQuery({ createdAfter: "2024-02-29" }).ok).toBe(true);
+    expect(validateNewsReadQuery({ createdAfter: "0000-02-29" }).ok).toBe(true);
+    expect(validateNewsReadQuery({ createdAfter: "0099-02-29" }).ok).toBe(false);
   });
 
   it("rejects malformed creator/date filters and reversed date ranges", () => {
