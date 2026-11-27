@@ -32,6 +32,10 @@ A repository implementation should provide these server-side operations before t
 - Avoid exposing provider-specific errors; normalize failures at the server boundary.
 - A preview is read-only and must not create audit mutations unless a separate preview-access audit policy is explicitly implemented.
 
+## Query validation foundation
+
+`src/lib/news-read-query.ts` provides a provider-neutral validator for bounded page size, opaque cursor length, status, category and search filters. Unit tests cover defaults and invalid values. This is input validation only; it does not query data, enforce permissions, or implement pagination.
+
 ## Acceptance checklist for the adapter
 
 - [ ] Unauthorized read attempts fail closed.
