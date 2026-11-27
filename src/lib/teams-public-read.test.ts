@@ -29,7 +29,7 @@ describe("mapPublishedTeams", () => {
         { id: "player-draft", team_id: "team-1", name: "Bozza", jersey_number: null, position: null, biography: null, photo_asset_id: null, is_published: false, display_order: 0 },
       ],
       staff: [
-        { id: "staff-1", team_id: "team-1", name: "Tecnico", role_label: "Allenatore", biography: null, photo_asset_id: null, is_published: true, display_order: 0, created_at: "", updated_at: "" },
+        { id: "staff-1", team_id: "team-1", name: "Tecnico", role_label: "Allenatore", biography: null, photo_asset_id: null, is_published: true, display_order: 0 },
       ],
       media: [
         { id: "logo", bucket_id: "nrm-media", storage_key: "logo.webp", alt_text: "Logo squadra", is_public: true },
