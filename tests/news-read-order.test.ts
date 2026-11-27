@@ -11,6 +11,10 @@ describe("News read ordering", () => {
     expect(isValidNewsReadOrderRecord({ id: "x".repeat(129), createdAt: "2026-01-01T00:00:00Z" })).toBe(false);
   });
 
+  it("throws instead of silently sorting malformed records", () => {
+    expect(() => sortNewsReadRecords([{ id: "x", createdAt: "invalid" }])).toThrow(TypeError);
+  });
+
   it("orders newest records first", () => {
     const records = [
       { id: "a", createdAt: "2026-01-01T10:00:00Z" },
