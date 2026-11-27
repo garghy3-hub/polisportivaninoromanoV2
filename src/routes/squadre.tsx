@@ -1,10 +1,23 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { localContentService } from '../lib/content-service'
 import { getPageHead } from '../lib/page-seo'
+import { teamsPublicListFn } from '../lib/server/teams-public-read-actions'
 
-export const Route = createFileRoute('/squadre')({ head: () => getPageHead(localContentService.settings().teams), component: TeamsPage })
+export const Route = createFileRoute('/squadre')({
+  loader: async () => {
+    const result = await teamsPublicListFn()
+    if (result.ok) return { teams: result.value, unavailable: false, localFallback: false }
+    if (result.code === 'not-configured') {
+      return { teams: localContentService.teamsByCategory('senior').concat(localContentService.teamsByCategory('youth')), unavailable: false, localFallback: true }
+    }
+    return { teams: [], unavailable: true, localFallback: false }
+  },
+  head: () => getPageHead(localContentService.settings().teams),
+  component: TeamsPage,
+})
 
 function TeamsPage() {
+  const teamsData = Route.useLoaderData()
   const content = localContentService.settings().teams
   const categories = content.categories.filter((item) => item.visible).slice().sort((a, b) => a.order - b.order)
   return (
@@ -16,10 +29,16 @@ function TeamsPage() {
           <h1 className="mt-4 text-5xl font-black tracking-tight sm:text-7xl">{content.title}<br /><span className="text-[#e53949]">{content.accent}</span></h1>
           <p className="mt-8 text-lg leading-8 text-slate-300">{content.description}</p>
         </header>
+        {teamsData.unavailable ? (
+          <section className="mt-14 rounded-3xl border border-amber-300/25 bg-amber-300/5 p-7" role="status">
+            <h2 className="text-xl font-bold text-amber-100">Le squadre non sono momentaneamente disponibili</h2>
+            <p className="mt-3 leading-7 text-slate-300">Non è stato possibile recuperare i dati pubblicati. Riprova più tardi.</p>
+          </section>
+        ) : null}
+        {!teamsData.unavailable && <>
         <section className="mt-14 grid gap-6 lg:grid-cols-2" aria-label={localContentService.settings().interface.teamSectionsLabel}>
           {categories.map((category) => {
-            const categoryTeams = localContentService.teamsByCategory(category.category)
-              .filter((team) => team.visible !== false)
+            const categoryTeams = teamsData.teams.filter((team) => team.category === category.category && team.visible !== false)
               .slice()
               .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
             return (
@@ -92,11 +111,13 @@ function TeamsPage() {
             )
           })}
         </section>
+        {teamsData.localFallback && <p className="mt-8 text-xs text-slate-500">Contenuti dimostrativi locali: il collegamento al database pubblico non è ancora configurato.</p>}
         <aside className="mt-12 rounded-2xl border border-white/10 bg-[#111827] p-6 sm:p-8">
           <h2 className="text-xl font-bold">{content.asideTitle}</h2>
           <p className="mt-3 leading-7 text-slate-400">{content.asideDescription}</p>
           <a href={content.asideActionHref} className="mt-5 inline-flex font-semibold text-red-300 hover:text-white">{content.asideActionLabel}</a>
         </aside>
+        </>}
       </div>
     </main>
   )
