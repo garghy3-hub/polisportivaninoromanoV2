@@ -1,16 +1,15 @@
 import "@tanstack/react-start/server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../supabase/database.types";
-import type { EditorialRole, NewsCategory } from "../content-types";
+import type { EditorialAuditEntry, EditorialRole, NewsCategory } from "../content-types";
 import type {
   NewsReadItem,
   NewsReadPage,
   NewsReadRepository,
   NewsRevisionDetail,
   NewsPublishedArticle,
-  ValidNewsReadQuery,
-  ValidNewsPublicListQuery,
 } from "../news-read-repository";
+import type { ValidNewsReadQuery, ValidNewsPublicListQuery } from "../news-read-query";
 import { mapNewsRevisionRecord } from "./supabase-news-editorial-repository";
 
 type Cursor = { timestamp: string; id: string };
@@ -211,9 +210,34 @@ export function createSupabaseNewsReadRepository(
       const { data, error } = await request;
       if (error || !data) throw new Error("news_read_failed");
       const visible = data.slice(0, query.pageSize);
+      const items = visible.map((row): EditorialAuditEntry | null => {
+        const occurredAt = normalizeTimestamp(row.occurred_at);
+        const roles = ["reader", "editor", "publisher", "administrator"];
+        const actions = ["create", "update", "submit", "approve", "reject", "publish", "unpublish", "archive", "restore", "delete"];
+        if (
+          typeof row.actor_id !== "string" ||
+          typeof row.actor_role !== "string" || !roles.includes(row.actor_role) ||
+          typeof row.action !== "string" || !actions.includes(row.action) ||
+          typeof row.entity_type !== "string" ||
+          typeof row.entity_id !== "string" ||
+          !occurredAt
+        ) return null;
+        return {
+          id: String(row.id),
+          actorId: row.actor_id,
+          actorRole: row.actor_role as EditorialAuditEntry["actorRole"],
+          action: row.action as EditorialAuditEntry["action"],
+          entityType: row.entity_type as EditorialAuditEntry["entityType"],
+          entityId: row.entity_id,
+          occurredAt,
+          summary: typeof row.summary === "string" ? row.summary : JSON.stringify(row.summary ?? {}),
+        };
+      });
+      if (items.some(item => item === null)) throw new Error("news_audit_invalid");
+      const validItems = items.filter((item): item is EditorialAuditEntry => item !== null);
       const last = visible[visible.length - 1];
       return {
-        items: visible,
+        items: validItems,
         nextCursor: data.length > query.pageSize && last
           ? encodeCursor(normalizeTimestamp(last.occurred_at) ?? last.occurred_at, String(last.id))
           : null,
