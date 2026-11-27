@@ -507,6 +507,24 @@ describe("provider-neutral News editorial service", () => {
     });
   });
 
+  it("accepts valid ISO timestamps with timezone offsets", async () => {
+    vi.mocked(repository.createDraft).mockResolvedValueOnce({
+      ok: true,
+      value: {
+        ...record,
+        revision: {
+          ...record.revision,
+          createdAt: "2026-11-26T21:00:00+01:00",
+          updatedAt: "2026-11-26T21:30:00+01:00",
+          reviewedAt: "2026-11-26T21:45:00+01:00",
+        },
+      },
+    } as never);
+    await expect(service.createDraft(editor, validContent)).resolves.toMatchObject({
+      ok: true,
+    });
+  });
+
   it("rejects repository revisions with unknown metadata fields", async () => {
     vi.mocked(repository.createDraft).mockResolvedValueOnce({
       ok: true,
