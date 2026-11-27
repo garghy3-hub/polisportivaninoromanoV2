@@ -4,18 +4,16 @@ This document is the handoff from the installed database foundation to the V2 ap
 
 ## Worker configuration
 
-Configure these Cloudflare Worker runtime variables for the V2 environment:
+The current V2 client reads two public Vite variables at build time:
 
-- `SUPABASE_URL`: the project's Supabase URL.
-- `SUPABASE_PUBLISHABLE_KEY`: the project's publishable API key.
+- `VITE_SUPABASE_URL`: the project's Supabase URL.
+- `VITE_SUPABASE_PUBLISHABLE_KEY`: the project's publishable API key.
 
-Both are public connection identifiers. Do not configure or expose a Supabase secret/service-role key in browser code. Prefer the publishable key and rely on Auth JWTs plus RLS for user-scoped access.
-
-For TanStack Start on Cloudflare Workers, read runtime bindings from the request/runtime context. Do not capture Worker environment values at module initialization.
+Copy `.env.example` to `.env.local` for local development and provide the same values to the V2 build environment in CI/deployment. Both values are public connection identifiers. Do not add a Supabase secret/service-role key to Vite variables, browser code or Worker configuration. The application uses Auth JWTs plus RLS for user-scoped access.
 
 ## Authentication adapter
 
-Use the Supabase SSR package for cookie-based sessions in TanStack Start. The server client must be created per request, read incoming cookies and append refreshed cookies to the response. Apply secure, HttpOnly, SameSite and path settings; never serialize a session token into page data.
+The initial adapter is implemented in `src/lib/supabase/server.ts` and `src/lib/server/editorial-auth.ts`. It uses `@supabase/ssr` with request-scoped cookie storage, PKCE and Supabase `getClaims()` to verify the access token. The active role is loaded from `public.admin_users`; user-editable metadata is never used for authorization. The login page is `/admin/login`, and the `/admin` route family is guarded server-side. No sign-up flow is exposed.
 
 Every server function that reads private data or performs a mutation must independently authenticate the caller and load their active `admin_users` row. Route guards are only a UI convenience and are not an authorization boundary.
 
