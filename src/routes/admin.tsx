@@ -1,17 +1,8 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { AdminNav } from '../components/AdminNav'
-import { getCurrentEditorialUserFn } from '../lib/server/editorial-auth'
 
 export const Route = createFileRoute('/admin')({
   headers: () => ({ 'Cache-Control': 'private, no-store' }),
-  beforeLoad: async ({ location }) => {
-    // The login screen shares this route prefix but must remain reachable
-    // without an authenticated parent route.
-    if (location.pathname === '/admin/login') return { editorialUser: null }
-    const user = await getCurrentEditorialUserFn()
-    if (!user) throw redirect({ to: '/admin/login' })
-    return { editorialUser: user }
-  },
   component: AdminOverview,
 })
 
