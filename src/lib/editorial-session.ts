@@ -59,8 +59,10 @@ export function resolveEditorialActor(
   if (
     typeof id !== "string" ||
     id.trim().length === 0 ||
+    id.length > 128 ||
     typeof actorId !== "string" ||
     actorId.trim().length === 0 ||
+    actorId.length > 128 ||
     typeof role !== "string" ||
     !editorialRoles.includes(role as EditorialRole) ||
     typeof expiresAt !== "string" ||
