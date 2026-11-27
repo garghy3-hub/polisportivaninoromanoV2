@@ -42,6 +42,11 @@ describe('validateNewsDraft', () => {
     expect(issues).toContainEqual({ field: 'imageAlt', message: 'Descrivi l’immagine con un testo alternativo.' })
   })
 
+  it('rejects image URLs longer than 2048 characters', () => {
+    const issues = validateNewsDraft({ ...validDraft, imageUrl: 'https://example.com/' + 'x'.repeat(2048) })
+    expect(issues).toContainEqual({ field: 'imageUrl', message: 'Massimo 2048 caratteri.' })
+  })
+
   it('rejects unsafe image URLs', () => {
     const issues = validateNewsDraft({ ...validDraft, imageUrl: 'javascript:alert(1)' })
     expect(issues.some((issue) => issue.field === 'imageUrl')).toBe(true)
