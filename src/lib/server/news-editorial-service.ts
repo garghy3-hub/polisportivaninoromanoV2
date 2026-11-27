@@ -384,10 +384,10 @@ function validateRevisionCommand(input: unknown, allowReviewNote = false): NewsE
     };
   }
   const command = input as { articleId?: unknown; revisionId?: unknown; expectedVersion?: unknown };
-  const expectedKeys = allowReviewNote
-    ? ["articleId", "revisionId", "expectedVersion", "reviewNote"]
-    : ["articleId", "revisionId", "expectedVersion"];
-  if (!hasExactKeys(input, expectedKeys)) {
+  const requiredKeys = ["articleId", "revisionId", "expectedVersion"];
+  const allowedKeys = allowReviewNote ? [...requiredKeys, "reviewNote"] : requiredKeys;
+  const actualKeys = Object.keys(input);
+  if (!requiredKeys.every(key => actualKeys.includes(key)) || actualKeys.some(key => !allowedKeys.includes(key))) {
     return {
       ok: false,
       code: "invalid",
