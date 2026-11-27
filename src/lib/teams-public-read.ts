@@ -1,11 +1,11 @@
 import type { Tables } from "./supabase/database.types";
 import type { Player, Team, TeamStaff } from "./content-types";
 
-type TeamRow = Tables<"teams">;
-type SeasonRow = Tables<"seasons">;
-type MemberRow = Tables<"team_members">;
-type StaffRow = Tables<"team_staff">;
-type MediaRow = Tables<"media_assets">;
+type TeamRow = Pick<Tables<"teams">, "id" | "name" | "slug" | "category" | "description" | "season_id" | "logo_asset_id" | "is_published" | "display_order">;
+type SeasonRow = Pick<Tables<"seasons">, "id" | "label">;
+type MemberRow = Pick<Tables<"team_members">, "id" | "team_id" | "name" | "jersey_number" | "position" | "biography" | "photo_asset_id" | "is_published" | "display_order">;
+type StaffRow = Pick<Tables<"team_staff">, "id" | "team_id" | "name" | "role_label" | "biography" | "photo_asset_id" | "is_published" | "display_order">;
+type MediaRow = Pick<Tables<"media_assets">, "id" | "bucket_id" | "storage_key" | "alt_text" | "is_public">;
 
 export interface PublishedTeamRows {
   teams: TeamRow[];
