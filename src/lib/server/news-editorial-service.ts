@@ -19,7 +19,8 @@ export type NewsRepositoryFailureCode =
   | "conflict"
   | "slug-taken"
   | "invalid-transition"
-  | "internal";
+  | "internal"
+  | "forbidden";
 
 export type NewsRepositoryResult<T> =
   | { ok: true; value: T }
