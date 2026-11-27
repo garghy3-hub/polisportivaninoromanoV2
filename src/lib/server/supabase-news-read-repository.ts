@@ -148,6 +148,8 @@ export function createSupabaseNewsReadRepository(
         .from("news_articles")
         .select("id, current_revision_id, created_by")
         .not("current_revision_id", "is", null)
+        .order("updated_at", { ascending: false })
+        .order("id", { ascending: true })
         .limit(500);
       if (!canReadAllEditorial) articleRequest = articleRequest.eq("created_by", actor.id);
       const { data: articles, error: articleError } = await articleRequest;
