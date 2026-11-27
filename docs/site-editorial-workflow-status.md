@@ -12,7 +12,7 @@ Aggiornato al 27 novembre 2026. Questo documento distingue il codice presente ne
 
 ## Non ancora completato
 - La migrazione `20261127224500_site_editorial_workflow.sql` è nel repository ma **non è stata applicata né validata su PostgreSQL**.
-- La pagina pubblica non è ancora collegata a una lettura server-side delle revisioni pubblicate di `site_settings`; la pubblicazione DB non va quindi considerata già visibile nel sito.
+- La pagina pubblica non è ancora collegata a una lettura server-side delle revisioni pubblicate di `site_settings`; per questo la RPC blocca intenzionalmente la pubblicazione finché la proiezione pubblica non è pronta. La pubblicazione DB non va quindi considerata già visibile nel sito.
 - L'editor Società resta un prototipo locale. Il salvataggio congiunto di profilo e testi della pagina Società deve essere realizzato come aggregate atomico prima di dichiararlo condiviso.
 - Mancano account Auth editoriali reali, test integrati per ruoli Editor/Publisher/Admin, test SQL di rollback/concorrenza/RLS e verifica cross-device.
 - Per l'head corrente GitHub non restituisce workflow run né combined status: build, typecheck e test non sono quindi dichiarabili superati per questo blocco.
