@@ -1,3 +1,4 @@
+import '@tanstack/react-start/server-only'
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../supabase/database.types";
 import type { EditorialRevision, RevisionStatus, NewsCategory } from "../content-types";
