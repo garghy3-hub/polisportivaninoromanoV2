@@ -4,7 +4,7 @@ import { mapPublishedTeams } from "./teams-public-read";
 
 const team = (overrides: Partial<Tables<"teams">> = {}): Tables<"teams"> => ({
   id: "team-1", name: "Prima squadra", slug: "prima-squadra", category: "senior",
-  season_id: "season-1", description: null, logo_asset_id: null, is_published: true,
+  season_id: "season-1", description: null, logo_asset_id: null, editorial_status: "published", is_published: true,
   display_order: 0, created_at: "", updated_at: "", created_by: null, updated_by: null,
   ...overrides,
 });
