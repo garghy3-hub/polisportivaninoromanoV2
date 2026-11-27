@@ -12,6 +12,7 @@ const items = [
   { label: 'Calendario', href: '/admin/calendar' },
   { label: 'Revisioni calendario', href: '/admin/calendar-review' },
   { label: 'Pagine', href: '/admin/pages' },
+  { label: 'Revisioni pagine e Società', href: '/admin/site-review' },
   { label: 'Media', href: '/admin/media' },
   { label: 'Brand', href: '/admin/brand' },
   { label: 'Società', href: '/admin/society' },
