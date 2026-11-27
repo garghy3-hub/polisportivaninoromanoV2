@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { AdminNav } from '../components/AdminNav'
 import { useState } from 'react'
 import { localContentService } from '../lib/content-service'
 import type { Player, Team, TeamStaff } from '../lib/content-types'
@@ -67,6 +68,7 @@ function TeamsWorkbench() {
     <main id="main-content" tabIndex={-1} className="min-h-screen bg-[#090d18] px-5 py-12 text-white sm:px-8">
       <div className="mx-auto max-w-7xl">
         <Link to="/admin" className="text-sm font-semibold text-red-300 hover:text-white">← Area amministrativa</Link>
+        <AdminNav />
         <header className="mt-10">
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-red-300">Squadre e roster · workbench UI</p>
           <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Editor squadra</h1>
