@@ -69,7 +69,7 @@ export function validateNewsReadQuery(input: unknown): NewsReadQueryValidation {
     const hour = hourText === undefined ? 0 : Number(hourText);
     const minute = minuteText === undefined ? 0 : Number(minuteText);
     const second = secondText === undefined ? 0 : Number(secondText);
-    const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+    const isLeapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);\n    const daysInMonth = [31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1] ?? 0;
     const zoneMatch = zone && zone !== "Z" ? /[+-](\d{2}):(\d{2})$/.exec(zone) : null;
     const zoneValid = !zoneMatch || (Number(zoneMatch[1]) <= 23 && Number(zoneMatch[2]) <= 59);
     if (month < 1 || month > 12 || day < 1 || day > daysInMonth || hour > 23 || minute > 59 || second > 59 || !zoneValid || !Number.isFinite(Date.parse(normalized))) {
