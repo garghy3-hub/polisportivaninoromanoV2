@@ -3,13 +3,13 @@ create or replace function private.guard_team_editorial_content()
 returns trigger language plpgsql security definer set search_path=''
 as $$
 begin
-  if old.editorial_status in ('in-review','approved','published')
-    and new.editorial_status is not distinct from old.editorial_status
-    and (new.name is distinct from old.name or new.slug is distinct from old.slug
-      or new.category is distinct from old.category or new.season_id is distinct from old.season_id
-      or new.description is distinct from old.description or new.logo_asset_id is distinct from old.logo_asset_id
-      or new.display_order is distinct from old.display_order) then
-    raise exception 'team_locked_for_editorial_review' using errcode='42501';
+  if old.editorial_status in ('in-review','approved','published') then
+    -- Status/publication metadata can transition, but content must remain identical.
+    if (to_jsonb(new)-'editorial_status'-'is_published'-'updated_at'-'updated_by')
+       is distinct from
+       (to_jsonb(old)-'editorial_status'-'is_published'-'updated_at'-'updated_by') then
+      raise exception 'team_locked_for_editorial_review' using errcode='42501';
+    end if;
   end if;
   return new;
 end $$;
