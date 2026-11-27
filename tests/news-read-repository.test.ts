@@ -62,6 +62,7 @@ describe("News read item guard", () => {
       { ...validItem, content: { ...validContent, title: " " } },
       { ...validItem, content: { ...validContent, slug: "" } },
       { ...validItem, content: { ...validContent, body: 42 } },
+      { ...validItem, content: { ...validContent, internalNotes: "non pubblico" } },
     ];
 
     for (const item of invalidItems) {
@@ -83,7 +84,7 @@ describe("News read item guard", () => {
 });
 
 describe("News public projection guard", () => {
-  it("accepts only a well-formed published projection", () => {
+  it("accepts only a well-formed allow-listed published projection", () => {
     expect(isValidNewsPublishedArticle(validPublishedArticle)).toBe(true);
   });
 
@@ -97,6 +98,9 @@ describe("News public projection guard", () => {
       { ...validPublishedArticle, publishedAt: "2026-11-27T12:00:00" },
       { ...validPublishedArticle, content: null },
       { ...validPublishedArticle, content: { ...validContent, title: "" } },
+      { ...validPublishedArticle, content: { ...validContent, auditNote: "internal" } },
+      { ...validPublishedArticle, creatorId: "editor-1" },
+      { ...validPublishedArticle, status: "draft" },
     ];
 
     for (const value of invalid) {
