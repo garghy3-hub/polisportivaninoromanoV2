@@ -47,7 +47,7 @@ begin
     update public.team_members set is_published=true,updated_at=v_now where team_id=p_team_id;
     update public.team_staff set is_published=true,updated_at=v_now where team_id=p_team_id;
   elsif p_action='unpublish' then
-    if v_role not in ('publisher','administrator') or not v_team.is_published then return jsonb_build_object('ok',false,'code','invalid_transition'); end if;
+    if v_role not in ('publisher','administrator') or v_team.editorial_status<>'published' or not v_team.is_published then return jsonb_build_object('ok',false,'code','invalid_transition'); end if;
     v_target:='approved';
     update public.team_members set is_published=false,updated_at=v_now where team_id=p_team_id;
     update public.team_staff set is_published=false,updated_at=v_now where team_id=p_team_id;
