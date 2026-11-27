@@ -20,7 +20,7 @@ async function getActiveEditorialUser(): Promise<AuthenticatedEditorialUser | nu
 
   // getClaims verifies the access token; never authorize from getSession().user.
   const { data, error } = await supabase.auth.getClaims();
-  if (error || !data.claims) return null;
+  if (error || !data?.claims) return null;
 
   const userId = data.claims.sub;
   if (typeof userId !== "string" || !userId.trim()) return null;
