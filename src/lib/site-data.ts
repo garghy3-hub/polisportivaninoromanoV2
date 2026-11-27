@@ -133,7 +133,7 @@ export const siteSettings: SiteSettings = {
     description: "Partite, appuntamenti e attività della Polisportiva Nino Romano: il calendario ufficiale sarà il riferimento per seguire la stagione.",
     seoTitle: "Calendario e risultati | Polisportiva Nino Romano",
     seoDescription: "Calendario delle partite, appuntamenti e risultati ufficiali della Polisportiva Nino Romano.",
-    eventTypes: ["Partite", "Attività societarie", "Eventi"],
+    eventTypes: ["Partite", "Allenamenti", "Attività societarie", "Eventi"],
     eventStatusLabels: { scheduled: "In programma", postponed: "Rinviata", cancelled: "Annullata", completed: "Conclusa" },
     outcomeLabels: { win: "Vittoria", loss: "Sconfitta", draw: "Pareggio" },
     seasonLabel: "Stagione",
