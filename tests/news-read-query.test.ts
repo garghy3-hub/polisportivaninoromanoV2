@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   NEWS_READ_PAGE_SIZE_MAX,
   NEWS_READ_CURSOR_MAX_LENGTH,
-  validateNewsReadQuery,
+  validateNewsReadQuery,\n  validateNewsPublicListQuery,
 } from "../src/lib/news-read-query";
 
 describe("validateNewsReadQuery", () => {
@@ -83,5 +83,30 @@ describe("validateNewsReadQuery", () => {
     expect(validateNewsReadQuery({ creatorId: "x".repeat(129) }).ok).toBe(false);
     expect(validateNewsReadQuery({ createdAfter: "not-a-date" }).ok).toBe(false);
     expect(validateNewsReadQuery({ createdAfter: "2026-03-01", createdBefore: "2026-02-01" }).ok).toBe(false);
+  });
+});
+
+
+describe("validateNewsPublicListQuery", () => {
+  it("accepts only bounded public filters", () => {
+    expect(validateNewsPublicListQuery({ pageSize: 12, cursor: "opaque", category: "official", search: " volley " }))
+      .toEqual({ ok: true, value: { pageSize: 12, cursor: "opaque", category: "official", search: "volley" } });
+    expect(validateNewsPublicListQuery({}))
+      .toEqual({ ok: true, value: { pageSize: 20 } });
+  });
+
+  it("rejects editorial-only fields and malformed public filters", () => {
+    for (const input of [
+      { status: "published" },
+      { status: "draft" },
+      { creatorId: "editor-1" },
+      { createdAfter: "2026-01-01" },
+      { role: "administrator" },
+      { category: "unknown" },
+      { pageSize: 51 },
+    ]) {
+      expect(validateNewsPublicListQuery(input).ok).toBe(false);
+    }
+    expect(validateNewsPublicListQuery(null).ok).toBe(false);
   });
 });
