@@ -4,13 +4,15 @@ import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
 import { saveCalendarDraftFn, calendarWorkflowCommandFn } from '../lib/server/calendar-editorial-actions'
+import { calendarDraftLibraryFn } from '../lib/server/calendar-draft-library'
 import { localContentService } from '../lib/content-service'
 import type { EventStatus, MatchEvent } from '../lib/content-types'
 import { validateEvent } from '../lib/content-validation'
 
-export const Route = createFileRoute('/admin/calendar')({ headers: () => ({ 'Cache-Control': 'private, no-store' }), component: CalendarWorkbench })
+export const Route = createFileRoute('/admin/calendar')({ headers: () => ({ 'Cache-Control': 'private, no-store' }), loader: () => calendarDraftLibraryFn(), component: CalendarWorkbench })
 
 function CalendarWorkbench() {
+  const library = Route.useLoaderData()
   const router = useRouter()
   const saveDraftRequest = useServerFn(saveCalendarDraftFn)
   const runWorkflow = useServerFn(calendarWorkflowCommandFn)
@@ -32,6 +34,36 @@ function CalendarWorkbench() {
   const [awayScore, setAwayScore] = useState('')
   const [notes, setNotes] = useState('')
   const [draftMessage, setDraftMessage] = useState('')
+
+  const restoreDraft = (draft: {
+    id: string; startsAt: string; homeTeam: string; awayTeam: string; eventType: string;
+    roundLabel: string; seasonLabel: string; competition: string; venue: string;
+    status: string; homeScore: number | null; awayScore: number | null; notes: string;
+    updatedAt: string; editorialStatus: string;
+  }) => {
+    const date = new Date(draft.startsAt)
+    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+    setEventId(draft.id)
+    setUpdatedAt(draft.updatedAt)
+    setEditorialStatus(draft.editorialStatus)
+    setDateTime(localDate.toISOString().slice(0, 16))
+    setHomeTeam(draft.homeTeam)
+    setAwayTeam(draft.awayTeam)
+    setType(draft.eventType === 'match' ? 'Partite'
+      : draft.eventType === 'training' ? 'Allenamenti'
+      : draft.eventType === 'club-event' ? 'Attività societarie' : 'Eventi')
+    setSeason(draft.seasonLabel)
+    setCompetition(draft.competition)
+    setRound(draft.roundLabel)
+    setVenue(draft.venue)
+    setStatus(draft.status as EventStatus)
+    setHomeScore(draft.homeScore === null ? '' : String(draft.homeScore))
+    setAwayScore(draft.awayScore === null ? '' : String(draft.awayScore))
+    setNotes(draft.notes)
+    setDraftMessage(draft.editorialStatus === 'rejected'
+      ? 'Bozza respinta ripristinata. Correggi i dati e inviala nuovamente.'
+      : 'Bozza ripristinata dal database condiviso.')
+  }
 
   const parsedHomeScore = homeScore.trim() === '' ? undefined : Number(homeScore)
   const parsedAwayScore = awayScore.trim() === '' ? undefined : Number(awayScore)
@@ -102,6 +134,7 @@ function CalendarWorkbench() {
       setEventId(result.eventId)
       setUpdatedAt(result.updatedAt)
       setDraftMessage('Bozza salvata nel database condiviso.')
+      await router.invalidate()
       return { eventId: result.eventId, updatedAt: result.updatedAt }
     } catch {
       setDraftMessage('Servizio non disponibile: bozza non salvata.')
@@ -168,6 +201,20 @@ function CalendarWorkbench() {
           <p className="mt-4 max-w-3xl leading-7 text-slate-300">Inserisci una partita o un appuntamento, aggiorna lo stato e registra il punteggio soltanto quando l'incontro è concluso. L'anteprima non viene pubblicata.</p>
         </header>
 
+        {library.ok && library.items.length > 0 && <section className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-5" aria-labelledby="calendar-draft-library">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div><h2 id="calendar-draft-library" className="text-xl font-bold">Bozze e appuntamenti respinti</h2><p className="mt-1 text-sm text-slate-400">Seleziona una voce per riprenderne la modifica.</p></div>
+            <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">{library.items.length} elementi</span>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {library.items.map(item => <article key={item.id} className="rounded-xl border border-white/10 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs uppercase tracking-wide text-amber-200">{item.editorialStatus === 'rejected' ? 'Respinto' : 'Bozza'}</span><span className="text-xs text-slate-500">{new Date(item.updatedAt).toLocaleString('it-IT')}</span></div>
+              <p className="mt-2 font-bold">{item.homeTeam} · {item.awayTeam}</p>
+              <p className="mt-1 text-sm text-slate-400">{new Date(item.startsAt).toLocaleString('it-IT', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+              <button type="button" onClick={() => restoreDraft(item)} className="mt-3 rounded-lg border border-red-300/30 px-3 py-2 text-sm font-semibold text-red-200 hover:bg-red-400/10">Apri bozza</button>
+            </article>)}
+          </div>
+        </section>}
         <section className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5" aria-labelledby="calendar-prototype-notice">
           <h2 id="calendar-prototype-notice" className="font-bold text-amber-200">Editor calendario · database condiviso</h2>
           <p className="mt-2 text-sm leading-6 text-slate-300">Le bozze sono salvate nel database e non sono visibili al pubblico. Dopo il salvataggio puoi inviarle alla revisione. Solo un publisher o un amministratore può approvare e pubblicare un appuntamento.</p>
