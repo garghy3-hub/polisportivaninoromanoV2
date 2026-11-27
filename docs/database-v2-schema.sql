@@ -2,8 +2,6 @@
 -- PostgreSQL 17 / Supabase. Reviewed against the existing project schema.
 -- This file is the canonical schema draft; apply through a versioned migration.
 
-begin;
-
 -- Keep the existing public.site_content singleton unchanged: it remains a
 -- public-only projection. Keep admin_users as the allow-list, adding roles.
 alter table public.admin_users
@@ -151,7 +149,7 @@ create table if not exists public.events (
     (home_score is null and away_score is null)
     or (home_score >= 0 and away_score >= 0)
   ),
-  check (status <> 'completed' or (home_score is not null and away_score is not null))
+  check (status <> 'completed' or event_type <> 'match' or (home_score is not null and away_score is not null))
 );
 create index if not exists events_public_date_idx
   on public.events (is_published, starts_at);
@@ -251,7 +249,7 @@ begin
   else
     row_data := to_jsonb(new);
   end if;
-  record_id := coalesce(row_data->>'id', row_data->>'article_id', row_data->>'slug');
+  record_id := coalesce(row_data->>'id', row_data->>'article_id', row_data->>'user_id', row_data->>'slug');
   insert into public.editorial_audit_log (
     actor_id, actor_role, action, entity_type, entity_id, summary
   ) values (
@@ -273,7 +271,7 @@ declare
   t text;
 begin
   foreach t in array array[
-    'seasons','media_assets','teams','team_members','team_staff','events',
+    'admin_users','seasons','media_assets','teams','team_members','team_staff','events',
     'news_articles','news_revisions','club_profile','site_settings'
   ] loop
     execute format('drop trigger if exists audit_%I on public.%I', t, t);
@@ -340,11 +338,10 @@ grant insert, update, delete on public.seasons, public.media_assets,
   public.teams, public.team_members, public.team_staff, public.events,
   public.club_profile, public.site_settings to authenticated;
 grant select on public.editorial_audit_log to authenticated;
-grant usage, select on sequence public.editorial_audit_log_id_seq to authenticated;
 
 -- Public reads see published projections only.
 create policy "Public reads published seasons" on public.seasons
-  for select to anon using (is_published);
+  for select to anon, authenticated using (is_published);
 create policy "Admins read all seasons" on public.seasons
   for select to authenticated using (private.current_editorial_role() is not null);
 create policy "Editors create unpublished seasons" on public.seasons
@@ -365,7 +362,7 @@ create policy "Publishers manage published seasons" on public.seasons
   );
 
 create policy "Public reads public media metadata" on public.media_assets
-  for select to anon using (is_public);
+  for select to anon, authenticated using (is_public);
 create policy "Admins read media metadata" on public.media_assets
   for select to authenticated using (private.current_editorial_role() is not null);
 create policy "Editors manage media metadata" on public.media_assets
@@ -405,11 +402,11 @@ begin
 end $$;
 
 create policy "Public reads published news identities" on public.news_articles
-  for select to anon using (published_revision_id is not null);
+  for select to anon, authenticated using (published_revision_id is not null);
 create policy "Admins read all news identities" on public.news_articles
   for select to authenticated using (private.current_editorial_role() is not null);
 create policy "Public reads published news revisions" on public.news_revisions
-  for select to anon using (
+  for select to anon, authenticated using (
     status = 'published'
     and exists (
       select 1 from public.news_articles a
@@ -484,4 +481,3 @@ create policy "NRM editors can delete media" on storage.objects
     and private.current_editorial_role() in ('editor','publisher','administrator')
   );
 
-commit;
