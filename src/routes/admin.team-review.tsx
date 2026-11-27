@@ -12,7 +12,7 @@ function Page(){
  setBusy(item.id);setMessage("");
  try{const r=await action({data:{action:a,teamId:item.id,expectedUpdatedAt:item.updated_at,...(a==="reject"?{note:note[item.id]}:{})}});
  if(!r.ok){setMessage(r.code==="conflict"?"Dati aggiornati da un altro utente: ricarica.":r.code==="forbidden"?"Permesso insufficiente.":"Operazione non riuscita.");return}
- setMessage(a==="approve"?"Squadra approvata.":a==="reject"?"Squadra respinta.":"Squadra pubblicata.");await router.invalidate();
+ setMessage(a==="approve"?"Squadra approvata.":a==="reject"?"Squadra respinta.":a==="publish"?"Squadra pubblicata.":"Pubblicazione ritirata.");await router.invalidate();
  }catch{setMessage("Servizio non disponibile.")}finally{setBusy("")}
  };
  return <main className="min-h-screen bg-[#090d18] px-5 py-12 text-white sm:px-8"><div className="mx-auto max-w-6xl"><a href="/admin" className="text-sm text-red-300">← Area amministrativa</a><AdminNav/><h1 className="mt-10 text-4xl font-black">Revisioni squadre</h1><p className="mt-3 text-slate-300">Publisher e Administrator · approvazione e pubblicazione separate.</p>{message&&<p role="status" className="mt-5 rounded-xl border border-white/10 p-4">{message}</p>}
