@@ -8,6 +8,7 @@ const items = [
   { label: 'Revisioni', href: '/admin/news-review' },
   { label: 'Bozze', href: '/admin/news-library' },
   { label: 'Squadre', href: '/admin/teams' },
+  { label: 'Revisioni squadre', href: '/admin/team-review' },
   { label: 'Calendario', href: '/admin/calendar' },
   { label: 'Pagine', href: '/admin/pages' },
   { label: 'Media', href: '/admin/media' },
