@@ -1,3 +1,4 @@
+import '@tanstack/react-start/server-only'
 import { createServerClient } from "@supabase/ssr";
 import { getCookies, setCookie, setResponseHeader } from "@tanstack/react-start/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
