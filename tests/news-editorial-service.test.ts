@@ -76,6 +76,21 @@ describe("provider-neutral News editorial service", () => {
     expect(repository.createDraft).not.toHaveBeenCalled();
   });
 
+  it("sanitizes failure messages returned by repository adapters", async () => {
+    vi.mocked(repository.createDraft).mockResolvedValueOnce({
+      ok: false,
+      code: "internal",
+      message: "raw SQL and provider details",
+    });
+    const result = await service.createDraft(editor, validContent);
+    expect(result).toEqual({
+      ok: false,
+      code: "internal",
+      message: "Operazione editoriale non riuscita. Riprova o contatta un amministratore.",
+    });
+    expect(JSON.stringify(result)).not.toContain("raw SQL");
+  });
+
   it("normalizes unexpected repository errors without leaking adapter details", async () => {
     vi.mocked(repository.createDraft).mockRejectedValueOnce(
       new Error("database password and SQL internals"),
