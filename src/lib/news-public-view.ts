@@ -16,8 +16,8 @@ export function toPublicNewsArticle(value: unknown): NewsArticle | null {
 
   const article: NewsPublishedArticle = value;
   const { content } = article;
-  const imageUrl = content.imageUrl.trim() || undefined;
-  const imageAlt = imageUrl ? content.imageAlt : undefined;
+  const imageUrl = content.imageUrl.trim();
+  const imageAlt = content.imageAlt.trim();
 
   return {
     id: article.articleId,
@@ -30,11 +30,15 @@ export function toPublicNewsArticle(value: unknown): NewsArticle | null {
     createdAt: article.publishedAt,
     updatedAt: article.publishedAt,
     publishedAt: article.publishedAt,
-    seoTitle: content.seoTitle || undefined,
-    seoDescription: content.seoDescription || undefined,
-    coverImageUrl: imageUrl,
-    coverImageAlt: imageAlt,
-    socialImageUrl: imageUrl,
-    socialImageAlt: imageAlt,
+    ...(content.seoTitle ? { seoTitle: content.seoTitle } : {}),
+    ...(content.seoDescription ? { seoDescription: content.seoDescription } : {}),
+    ...(imageUrl
+      ? {
+          coverImageUrl: imageUrl,
+          coverImageAlt: imageAlt,
+          socialImageUrl: imageUrl,
+          socialImageAlt: imageAlt,
+        }
+      : {}),
   };
 }
