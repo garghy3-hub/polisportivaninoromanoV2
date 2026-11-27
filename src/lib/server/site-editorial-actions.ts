@@ -212,7 +212,7 @@ const readDraft = createServerOnlyFn(async (resource: SiteEditorialResource) => 
 
   const table = resource === "site-settings" ? "site_settings" : "club_profile";
   const { data, error } = await supabase.from(table)
-    .select("draft_content, updated_at, editorial_status, is_published")
+    .select("draft_content, content, updated_at, editorial_status, is_published")
     .eq("id", "main")
     .maybeSingle();
   if (error) return { ok: false as const, code: "internal" as const };
@@ -222,6 +222,7 @@ const readDraft = createServerOnlyFn(async (resource: SiteEditorialResource) => 
     resource,
     exists: true as const,
     payload: data.draft_content,
+    publishedContent: data.content,
     updatedAt: data.updated_at,
     editorialStatus: data.editorial_status,
     isPublished: data.is_published,
