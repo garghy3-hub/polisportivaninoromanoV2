@@ -11,6 +11,7 @@ import { addImageAsset, readImageLibrary } from '../lib/news-image-library'
 import { listStoredMedia } from '../lib/media-indexeddb'
 import { validateNewsDraft, type NewsDraftField } from '../lib/news-draft-validation'
 import { newsCreateDraftFn, newsUpdateDraftFn, newsSubmitForReviewFn } from '../lib/server/news-editorial-actions'
+import { newsRevisionDetailFn } from '../lib/server/news-read-actions'
 
 export const Route = createFileRoute('/admin/news')({ headers: () => ({ 'Cache-Control': 'private, no-store' }), component: NewsDraftWorkbench })
 
@@ -43,6 +44,7 @@ function NewsDraftWorkbench() {
   const createServerDraft = useServerFn(newsCreateDraftFn)
   const updateServerDraft = useServerFn(newsUpdateDraftFn)
   const submitServerDraft = useServerFn(newsSubmitForReviewFn)
+  const getServerRevision = useServerFn(newsRevisionDetailFn)
   const [title, setTitle] = useState('')
   const [slug, setSlug] = useState('')
   const [slugEdited, setSlugEdited] = useState(false)
@@ -65,7 +67,62 @@ function NewsDraftWorkbench() {
   const [storedMedia,setStoredMedia] = useState<{id:string;name:string;alt:string;caption:string;url:string}[]>([])
   const draftContent = { title, slug, category, excerpt, body, seoTitle, seoDescription, imageUrl, imageAlt }
   useEffect(() => { let urls:string[]=[]; let cancelled=false; void listStoredMedia().then(items=>{if(cancelled)return; urls=items.map(x=>URL.createObjectURL(x.blob));setStoredMedia(items.map((x,i)=>({id:x.id,name:x.name,alt:x.alt,caption:x.caption,url:urls[i]})))}).catch(()=>setImageLibraryMessage('Media library locale non disponibile.')); return ()=>{cancelled=true;urls.forEach(URL.revokeObjectURL)} }, [])
-  useEffect(() => { try { const id=window.localStorage.getItem('nino-romano-v2-news-edit-id'); if(id){const item=listLocalNewsLibrary(window.localStorage).find(i=>i.id===id); if(item){setLibraryId(id); const d=item.content;setTitle(d.title);setSlug(d.slug);setSlugEdited(true);setCategory(d.category);setExcerpt(d.excerpt);setBody(d.body);setSeoTitle(d.seoTitle);setSeoDescription(d.seoDescription);setImageUrl(d.imageUrl);setImageAlt(d.imageAlt);} window.localStorage.removeItem('nino-romano-v2-news-edit-id')}else{const saved=loadLocalNewsDraft(window.localStorage);if(saved){const d=saved.content;setTitle(d.title);setSlug(d.slug);setSlugEdited(true);setCategory(d.category);setExcerpt(d.excerpt);setBody(d.body);setSeoTitle(d.seoTitle);setSeoDescription(d.seoDescription);setImageUrl(d.imageUrl);setImageAlt(d.imageAlt);setAutosaveStatus('Bozza precedente ripristinata automaticamente.')}}}catch{} finally{try{const assets=readImageLibrary(window.localStorage);if(assets.ok)setImageAssets(assets.items);else setImageLibraryMessage('Raccolta immagini non leggibile.')}catch{setImageLibraryMessage('Raccolta immagini non disponibile.')}setEditorReady(true)} }, [])
+  useEffect(() => {
+    let cancelled = false
+    const applyContent = (d: typeof draftContent) => {
+      setTitle(d.title); setSlug(d.slug); setSlugEdited(true); setCategory(d.category)
+      setExcerpt(d.excerpt); setBody(d.body); setSeoTitle(d.seoTitle); setSeoDescription(d.seoDescription)
+      setImageUrl(d.imageUrl); setImageAlt(d.imageAlt)
+    }
+    const initialize = async () => {
+      try {
+        const localEditId = window.localStorage.getItem('nino-romano-v2-news-edit-id')
+        if (localEditId) {
+          const item = listLocalNewsLibrary(window.localStorage).find(i => i.id === localEditId)
+          if (item) { setLibraryId(localEditId); applyContent(item.content) }
+          window.localStorage.removeItem('nino-romano-v2-news-edit-id')
+          window.localStorage.removeItem('nino-romano-v2-news-server-ref')
+          setServerDraft(null)
+        } else {
+          const rawRef = window.localStorage.getItem('nino-romano-v2-news-server-ref')
+          let restoredRemote = false
+          if (rawRef) {
+            const ref = JSON.parse(rawRef) as Record<string, unknown>
+            if (typeof ref.articleId === 'string' && typeof ref.revisionId === 'string'
+              && Number.isInteger(ref.version) && (ref.version as number) > 0
+              && typeof ref.status === 'string') {
+              const serverRef = { articleId: ref.articleId, revisionId: ref.revisionId, version: ref.version as number, status: ref.status }
+              setServerDraft(serverRef)
+              const result = await getServerRevision({ data: { articleId: serverRef.articleId, revisionId: serverRef.revisionId } })
+              if (!cancelled && result.ok && result.value) {
+                applyContent(result.value.revision.content)
+                setServerDraft({ ...serverRef, status: result.value.revision.status })
+                setAutosaveStatus('Bozza condivisa ripristinata dal database.')
+                restoredRemote = true
+              } else if (!cancelled) {
+                setServerMessage('Riferimento alla bozza server non più disponibile. Ricarica la coda editoriale.')
+              }
+            }
+          }
+          if (!restoredRemote && !rawRef) {
+            const saved = loadLocalNewsDraft(window.localStorage)
+            if (saved) { applyContent(saved.content); setAutosaveStatus('Bozza precedente ripristinata automaticamente.') }
+          }
+        }
+      } catch {
+        if (!cancelled) setServerMessage('Impossibile ripristinare la bozza precedente.')
+      } finally {
+        try {
+          const assets = readImageLibrary(window.localStorage)
+          if (assets.ok) setImageAssets(assets.items)
+          else setImageLibraryMessage('Raccolta immagini non leggibile.')
+        } catch { setImageLibraryMessage('Raccolta immagini non disponibile.') }
+        if (!cancelled) setEditorReady(true)
+      }
+    }
+    void initialize()
+    return () => { cancelled = true }
+  }, [])
   useEffect(() => { if(!editorReady)return; setAutosaveStatus('Salvataggio…'); const timer=window.setTimeout(()=>{try{const ok=saveLocalNewsDraft(window.localStorage,draftContent);setAutosaveStatus(ok?'Salvato automaticamente sul dispositivo.':'Autosalvataggio non disponibile.')}catch{setAutosaveStatus('Autosalvataggio non disponibile.')}},800); return ()=>window.clearTimeout(timer) }, [editorReady,title,slug,category,excerpt,body,seoTitle,seoDescription,imageUrl,imageAlt])
   const saveImageToLibrary=()=>{try{const ok=addImageAsset(window.localStorage,imageUrl,imageAlt);const r=readImageLibrary(window.localStorage);if(r.ok)setImageAssets(r.items);setImageLibraryMessage(ok?'Immagine aggiunta alla raccolta locale.':'Impossibile aggiungere l’immagine. Controlla URL e testo alt.')}catch{setImageLibraryMessage('Raccolta immagini non disponibile.')}}
   const selectImage=(id:string)=>{const asset=imageAssets.find(a=>a.id===id);if(asset){setImageUrl(asset.url);setImageAlt(asset.alt)} else {const file=storedMedia.find(a=>a.id===id);if(file){setImageUrl('indexeddb-media:'+file.id);setImageAlt(file.alt);setImageLibraryMessage('Immagine locale selezionata tramite riferimento persistente IndexedDB.')}}}
@@ -99,7 +156,9 @@ function NewsDraftWorkbench() {
         return
       }
       const revision = result.value.revision
-      setServerDraft({ articleId: revision.entityId, revisionId: revision.id, version: result.value.version, status: revision.status })
+      const nextRef = { articleId: revision.entityId, revisionId: revision.id, version: result.value.version, status: revision.status }
+      setServerDraft(nextRef)
+      window.localStorage.setItem('nino-romano-v2-news-server-ref', JSON.stringify(nextRef))
       setServerMessage('Bozza salvata sul database condiviso. Non è ancora pubblica.')
     } catch {
       setServerMessage('Connessione al servizio editoriale non disponibile.')
@@ -118,7 +177,9 @@ function NewsDraftWorkbench() {
         return
       }
       const revision = result.value.revision
-      setServerDraft({ articleId: revision.entityId, revisionId: revision.id, version: result.value.version, status: revision.status })
+      const nextRef = { articleId: revision.entityId, revisionId: revision.id, version: result.value.version, status: revision.status }
+      setServerDraft(nextRef)
+      window.localStorage.setItem('nino-romano-v2-news-server-ref', JSON.stringify(nextRef))
       setServerMessage('Bozza inviata in revisione. La pubblicazione richiede l’approvazione di un Publisher.')
     } catch {
       setServerMessage('Invio in revisione non disponibile.')
@@ -126,6 +187,7 @@ function NewsDraftWorkbench() {
       setServerBusy(false)
     }
   }
+  const clearServerDraftLink = () => { try { window.localStorage.removeItem('nino-romano-v2-news-server-ref') } catch {} setServerDraft(null); setServerMessage('Collegamento alla bozza server rimosso da questo dispositivo.') }
   const fieldMessage = (field: NewsDraftField) => draftIssues.find((issue) => issue.field === field)?.message
   const updateTitle = (value: string) => { setTitle(value); if (!slugEdited) setSlug(slugifyEditorialTitle(value)) }
 
@@ -136,7 +198,7 @@ function NewsDraftWorkbench() {
         <AdminNav />
         <header className="mt-10"><p className="text-sm font-bold uppercase tracking-[0.2em] text-red-300">News · workbench UI</p><h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Editor articolo</h1><p className="mt-4 max-w-3xl leading-7 text-slate-300">Anteprima in tempo reale e autosalvataggio locale. Con Supabase configurato puoi anche salvare una revisione condivisa e inviarla al flusso di approvazione.</p></header>
         <div className="mt-5 flex flex-wrap gap-3"><button type="button" onClick={saveToLibrary} className="rounded-xl bg-emerald-700 px-4 py-2 font-semibold hover:bg-emerald-600">Salva nell’archivio News</button><Link to="/admin/news-library" className="rounded-xl border border-white/20 px-4 py-2 font-semibold hover:bg-white/10">Apri archivio</Link><button type="button" onClick={saveDraft} className="rounded-xl bg-red-600 px-4 py-2 font-semibold hover:bg-red-500">Salva bozza sul dispositivo</button><button type="button" onClick={restoreDraft} className="rounded-xl border border-white/20 px-4 py-2 font-semibold hover:bg-white/10">Ripristina bozza</button><button type="button" onClick={clearDraft} className="rounded-xl border border-white/20 px-4 py-2 font-semibold hover:bg-white/10">Elimina bozza locale</button></div>{draftMessage && <p className="mt-3 text-sm text-emerald-300" role="status">{draftMessage}</p>}<p className="mt-2 text-sm text-slate-400" role="status" aria-live="polite">{autosaveStatus}</p>
-        <div className="mt-5 rounded-2xl border border-sky-300/25 bg-sky-300/5 p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-bold text-sky-100">Workflow editoriale condiviso</h2><p className="mt-1 text-sm text-slate-300">{serverDraft ? `Stato: ${serverDraft.status} · versione ${serverDraft.version}` : 'Nessuna bozza server collegata in questa sessione.'}</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => void saveServerDraft()} disabled={serverBusy || draftIssues.length > 0} className="rounded-xl bg-sky-700 px-4 py-2 text-sm font-semibold hover:bg-sky-600 disabled:opacity-50">{serverBusy ? 'Salvataggio…' : serverDraft ? 'Aggiorna bozza server' : 'Crea bozza server'}</button><button type="button" onClick={() => void submitServerDraftForReview()} disabled={serverBusy || !serverDraft || serverDraft.status !== 'draft'} className="rounded-xl border border-sky-200/30 px-4 py-2 text-sm font-semibold text-sky-100 hover:bg-sky-300/10 disabled:opacity-40">Invia in revisione</button></div></div>{serverMessage && <p className="mt-3 text-sm text-sky-100" role="status" aria-live="polite">{serverMessage}</p>}<p className="mt-3 text-xs leading-5 text-slate-400">Il salvataggio server richiede un account attivo in Supabase. L’invio in revisione non pubblica la notizia; approvazione e pubblicazione restano riservate ai ruoli autorizzati. Il riferimento alla revisione resta in memoria durante questa sessione: l’archivio remoto e il ripristino dopo logout sono ancora da completare.</p></div>
+        <div className="mt-5 rounded-2xl border border-sky-300/25 bg-sky-300/5 p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-bold text-sky-100">Workflow editoriale condiviso</h2><p className="mt-1 text-sm text-slate-300">{serverDraft ? `Stato: ${serverDraft.status} · versione ${serverDraft.version}` : 'Nessuna bozza server collegata in questa sessione.'}</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => void saveServerDraft()} disabled={serverBusy || draftIssues.length > 0} className="rounded-xl bg-sky-700 px-4 py-2 text-sm font-semibold hover:bg-sky-600 disabled:opacity-50">{serverBusy ? 'Salvataggio…' : serverDraft ? 'Aggiorna bozza server' : 'Crea bozza server'}</button><button type="button" onClick={() => void submitServerDraftForReview()} disabled={serverBusy || !serverDraft || serverDraft.status !== 'draft'} className="rounded-xl border border-sky-200/30 px-4 py-2 text-sm font-semibold text-sky-100 hover:bg-sky-300/10 disabled:opacity-40">Invia in revisione</button><button type="button" onClick={clearServerDraftLink} disabled={!serverDraft || serverBusy} className="rounded-xl border border-white/15 px-3 py-2 text-xs text-slate-300 disabled:opacity-40">Scollega bozza</button></div></div>{serverMessage && <p className="mt-3 text-sm text-sky-100" role="status" aria-live="polite">{serverMessage}</p>}<p className="mt-3 text-xs leading-5 text-slate-400">Il salvataggio server richiede un account attivo in Supabase. L’invio in revisione non pubblica la notizia; approvazione e pubblicazione restano riservate ai ruoli autorizzati. Il riferimento alla revisione viene conservato su questo dispositivo e può essere ripristinato dopo un nuovo accesso. L'archivio remoto completo è ancora da completare.</p></div>
         <div className="mt-5 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5"><h2 className="font-bold text-amber-200">Autosalvataggio locale</h2><p className="mt-2 text-sm leading-6 text-slate-300">La copia di recupero automatica resta su questo browser. È distinta dalla bozza condivisa salvata nel database.</p></div>
         <div className="mt-8 grid gap-8 lg:grid-cols-2">
           <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6" aria-labelledby="fields-heading">
