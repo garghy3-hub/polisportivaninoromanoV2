@@ -15,7 +15,7 @@ const command = createServerOnlyFn(async (data: {action:"submit"|"approve"|"reje
  const codes=["forbidden","invalid_action","invalid_payload","invalid_transition","conflict","not_found","unauthenticated"];
  return {ok:false as const,code:typeof value.code==="string"&&codes.includes(value.code)?value.code as typeof codes[number]:"internal"};
 });
-function valid(value:unknown):value is {action:"submit"|"approve"|"reject"|"publish"|"unpublish";teamId:string;expectedUpdatedAt:string;note?:string}{
+export function isValidTeamWorkflowRequest(value:unknown):value is {action:"submit"|"approve"|"reject"|"publish"|"unpublish";teamId:string;expectedUpdatedAt:string;note?:string}{
  if(!value||typeof value!=="object"||Array.isArray(value))return false;
  const d=value as Record<string,unknown>; const allowed=["action","teamId","expectedUpdatedAt",...(d.action==="reject"?["note"]:[])];
  if(Object.keys(d).sort().join(",")!==allowed.sort().join(","))return false;
@@ -25,7 +25,7 @@ function valid(value:unknown):value is {action:"submit"|"approve"|"reject"|"publ
  if(d.action==="reject"&&(typeof d.note!=="string"||!d.note.trim()||d.note.length>1000))return false;
  return true;
 }
-export const teamWorkflowCommandFn=createServerFn({method:"POST"}).validator((data:unknown)=>data).handler(async({data})=>valid(data)?command(data):{ok:false as const,code:"invalid" as const});
+export const teamWorkflowCommandFn=createServerFn({method:"POST"}).validator((data:unknown)=>data).handler(async({data})=>isValidTeamWorkflowRequest(data)?command(data):{ok:false as const,code:"invalid" as const});
 
 const queue=createServerOnlyFn(async()=>{
  const actor=await getActiveEditorialActor(); if(!actor)return {ok:false as const,code:"unauthenticated" as const};
