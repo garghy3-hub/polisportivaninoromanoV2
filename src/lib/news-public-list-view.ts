@@ -5,9 +5,9 @@
 import type { NewsArticle } from "./content-types";
 import {
   isValidNewsReadPageEnvelope,
-  NEWS_READ_PAGE_SIZE_MAX,
   type NewsReadPage,
 } from "./news-read-repository";
+import { NEWS_READ_PAGE_SIZE_MAX } from "./news-read-query";
 import { toPublicNewsArticle } from "./news-public-view";
 
 export interface PublicNewsArticlePage {
