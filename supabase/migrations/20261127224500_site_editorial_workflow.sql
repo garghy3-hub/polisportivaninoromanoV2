@@ -99,7 +99,7 @@ begin
   if p_action = 'save_draft' then
     if pg_catalog.jsonb_typeof(p_payload) <> 'object'
        or pg_catalog.pg_column_size(p_payload) > 262144
-       or p_expected_updated_at is not null then
+       then
       return pg_catalog.jsonb_build_object('ok', false, 'code', 'invalid_payload');
     end if;
     if p_resource = 'site-settings'
@@ -110,12 +110,14 @@ begin
       return pg_catalog.jsonb_build_object('ok', false, 'code', 'invalid_payload');
     end if;
     if p_resource = 'club-profile'
-       and (pg_catalog.jsonb_typeof(p_payload->'name') <> 'string'
-         or pg_catalog.length(pg_catalog.btrim(p_payload->>'name')) not between 1 and 160
-         or (p_payload ? 'contacts' and pg_catalog.jsonb_typeof(p_payload->'contacts') <> 'array')
-         or (p_payload ? 'socialLinks' and pg_catalog.jsonb_typeof(p_payload->'socialLinks') <> 'array')
-         or (p_payload ? 'people' and pg_catalog.jsonb_typeof(p_payload->'people') <> 'array')
-         or (p_payload ? 'partners' and pg_catalog.jsonb_typeof(p_payload->'partners') <> 'array')) then
+       and (pg_catalog.jsonb_typeof(p_payload->'name') is distinct from 'string'
+         or coalesce(pg_catalog.length(pg_catalog.btrim(p_payload->>'name')), 0) not between 1 and 160
+         or (p_payload ? 'contacts' and pg_catalog.jsonb_typeof(p_payload->'contacts') is distinct from 'array')
+         or (p_payload ? 'socialLinks' and pg_catalog.jsonb_typeof(p_payload->'socialLinks') is distinct from 'array')
+         or (p_payload ? 'people' and pg_catalog.jsonb_typeof(p_payload->'people') is distinct from 'array')
+         or (p_payload ? 'partners' and pg_catalog.jsonb_typeof(p_payload->'partners') is distinct from 'array')
+         or exists (select 1 from pg_catalog.jsonb_object_keys(p_payload) as supplied(key)
+           where supplied.key <> all (array['name','shortName','description','history','mission','address','contacts','socialLinks','people','partners']::text[]))) then
       return pg_catalog.jsonb_build_object('ok', false, 'code', 'invalid_payload');
     end if;
 
@@ -125,16 +127,19 @@ begin
     ) into v_row using 'main';
 
     if not found then
+      if p_expected_updated_at is not null then
+        return pg_catalog.jsonb_build_object('ok', false, 'code', 'conflict');
+      end if;
       execute pg_catalog.format(
         'insert into public.%I (id, content, draft_content, editorial_status, draft_created_by, updated_by, updated_at) values ($1, ''{}''::jsonb, $2, ''draft'', $3, $3, $4) returning id, updated_at, editorial_status',
         v_table
       ) into v_row using 'main', p_payload, v_actor, v_now;
     else
+      if p_expected_updated_at is null or v_row.updated_at <> p_expected_updated_at then
+        return pg_catalog.jsonb_build_object('ok', false, 'code', 'conflict');
+      end if;
       if v_row.editorial_status not in ('draft','rejected','published') then
         return pg_catalog.jsonb_build_object('ok', false, 'code', 'not_editable');
-      end if;
-      if p_expected_updated_at is not null then
-        return pg_catalog.jsonb_build_object('ok', false, 'code', 'invalid_payload');
       end if;
       execute pg_catalog.format(
         'update public.%I set draft_content = $1, editorial_status = ''draft'', draft_created_by = $2, reviewer_id = null, reviewed_at = null, review_note = null, submitted_at = null, updated_by = $2, updated_at = $3 where id = $4 returning id, updated_at, editorial_status',
