@@ -1,11 +1,20 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { localContentService } from '../lib/content-service'
+import { newsPublicArticleFn } from '../lib/server/news-read-actions'
+import { toPublicNewsArticle } from '../lib/news-public-view'
 
 export const Route = createFileRoute('/news/$slug')({
-  loader: ({ params }) => localContentService.articleBySlug(params.slug),
+  loader: async ({ params }) => {
+    const result = await newsPublicArticleFn({ data: { slug: params.slug } })
+    if (result.ok) return { article: toPublicNewsArticle(result.value), unavailable: false, localFallback: false }
+    if (result.code === 'not-configured') {
+      return { article: localContentService.articleBySlug(params.slug), unavailable: false, localFallback: true }
+    }
+    return { article: null, unavailable: true, localFallback: false }
+  },
   head: ({ loaderData }) => {
     const settings = localContentService.settings()
-    const article = loaderData
+    const article = loaderData?.article
     if (!article) {
       return {
         meta: [
@@ -37,7 +46,8 @@ export const Route = createFileRoute('/news/$slug')({
 })
 
 function NewsArticlePage() {
-  const article = Route.useLoaderData()
+  const data = Route.useLoaderData()
+  const article = data.article
   const settings = localContentService.settings()
   const content = settings.news
 
@@ -47,8 +57,8 @@ function NewsArticlePage() {
         <div className="mx-auto max-w-3xl">
           <Link to="/news" className="text-sm font-semibold text-red-300 transition hover:text-white">{content.articleBackLabel}</Link>
           <section className="mt-16 rounded-3xl border border-white/10 bg-white/[0.03] p-8" role="status">
-            <h1 className="text-3xl font-black">{content.notFoundTitle}</h1>
-            <p className="mt-4 leading-7 text-slate-400">{content.notFoundDescription}</p>
+            <h1 className="text-3xl font-black">{data.unavailable ? 'Notizia momentaneamente non disponibile' : content.notFoundTitle}</h1>
+            <p className="mt-4 leading-7 text-slate-400">{data.unavailable ? 'Non è stato possibile recuperare il contenuto pubblicato. Riprova più tardi.' : content.notFoundDescription}</p>
           </section>
         </div>
       </main>
