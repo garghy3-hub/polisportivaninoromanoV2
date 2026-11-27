@@ -218,6 +218,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          current_revision_id: string | null
           id: string
           published_at: string | null
           published_revision_id: string | null
@@ -227,6 +228,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
+          current_revision_id?: string | null
           id?: string
           published_at?: string | null
           published_revision_id?: string | null
@@ -236,6 +238,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
+          current_revision_id?: string | null
           id?: string
           published_at?: string | null
           published_revision_id?: string | null
@@ -243,6 +246,27 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "news_articles_current_revision_fk"
+            columns: ["current_revision_id"]
+            isOneToOne: false
+            referencedRelation: "news_public_articles"
+            referencedColumns: ["revision_id"]
+          },
+          {
+            foreignKeyName: "news_articles_current_revision_fk"
+            columns: ["current_revision_id"]
+            isOneToOne: false
+            referencedRelation: "news_revisions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "news_articles_published_revision_fk"
+            columns: ["published_revision_id"]
+            isOneToOne: false
+            referencedRelation: "news_public_articles"
+            referencedColumns: ["revision_id"]
+          },
           {
             foreignKeyName: "news_articles_published_revision_fk"
             columns: ["published_revision_id"]
@@ -335,6 +359,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "news_articles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "news_revisions_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "news_public_articles"
+            referencedColumns: ["article_id"]
           },
           {
             foreignKeyName: "news_revisions_image_asset_id_fkey"
@@ -596,10 +627,35 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      news_public_articles: {
+        Row: {
+          article_id: string | null
+          body: string | null
+          category: string | null
+          excerpt: string | null
+          image_alt: string | null
+          image_url: string | null
+          published_at: string | null
+          revision_id: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string | null
+          title: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      news_editorial_command: {
+        Args: {
+          p_action: string
+          p_article_id?: string
+          p_expected_version?: number
+          p_payload?: Json
+          p_revision_id?: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
