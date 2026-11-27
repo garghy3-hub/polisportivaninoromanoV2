@@ -29,7 +29,8 @@ export interface NewsReadService {
   getRevision(articleId: string, revisionId: string): Promise<NewsReadResult<NewsRevisionDetail | null>>;
   listRevisionHistory(articleId: string, query: unknown): Promise<NewsReadResult<NewsReadPage<NewsRevisionDetail>>>;
   listAudit(articleId: string, query: unknown): Promise<NewsReadResult<NewsReadPage<unknown>>>;
-  listPublished(query: unknown): Promise<NewsReadResult<NewsReadPage<NewsPublishedArticle>>>;\n  getPublishedBySlug(slug: string): Promise<NewsReadResult<NewsPublishedArticle | null>>;
+  listPublished(query: unknown): Promise<NewsReadResult<NewsReadPage<NewsPublishedArticle>>>;
+  getPublishedBySlug(slug: string): Promise<NewsReadResult<NewsPublishedArticle | null>>;
 }
 
 const INTERNAL_MESSAGE = "Impossibile recuperare i contenuti. Riprova o contatta un amministratore.";
