@@ -62,6 +62,8 @@ function SiteReviewPage() {
           ? "Il contenuto è stato aggiornato da un altro utente. Ricarica la coda."
           : result.code === "separation_of_duties"
             ? "L'autore della bozza non può approvare o respingere la propria revisione."
+            : result.code === "public_projection_not_ready"
+            ? "Pubblicazione non abilitata: prima va collegata la lettura pubblica server-side."
             : result.code === "forbidden" ? "Permesso insufficiente."
               : "Operazione non riuscita. Verifica lo stato e riprova.");
         return;
@@ -128,7 +130,7 @@ function SiteReviewPage() {
                     <button type="button" disabled={!!busy} onClick={() => void run(item, "approve")} className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-bold disabled:opacity-40">Approva</button>
                     <button type="button" disabled={!!busy} onClick={() => void run(item, "reject")} className="rounded-lg border border-rose-300/30 px-4 py-2 text-sm font-bold text-rose-100 disabled:opacity-40">Rifiuta</button>
                   </div>
-                </> : <button type="button" disabled={!!busy} onClick={() => void run(item, section.status === "approved" ? "publish" : "unpublish")} className="mt-5 rounded-lg bg-red-600 px-4 py-2 text-sm font-bold disabled:opacity-40">{section.status === "approved" ? "Pubblica" : "Ritira pubblicazione"}</button>}
+                </> : <button type="button" disabled={!!busy || section.status === "approved"} onClick={() => void run(item, "unpublish")} className="mt-5 rounded-lg bg-red-600 px-4 py-2 text-sm font-bold disabled:opacity-40">{section.status === "approved" ? "Pubblicazione non ancora abilitata" : "Ritira pubblicazione"}</button>}
               </article>)}
               {items.length === 0 && <p className="rounded-xl border border-white/10 p-5 text-sm text-slate-400">Nessun contenuto in questa sezione.</p>}
             </div>
