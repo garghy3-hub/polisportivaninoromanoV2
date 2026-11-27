@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { AdminNav } from '../components/AdminNav'
 import { useEffect, useState } from 'react'
+import { useServerFn } from '@tanstack/react-start'
+import { teamWorkflowCommandFn } from '../lib/server/team-workflow-actions'
 import { localContentService } from '../lib/content-service'
 import type { Player, Team, TeamStaff } from '../lib/content-types'
 import { slugifyEditorialTitle } from '../lib/editorial-slug'
@@ -33,6 +35,8 @@ function TeamsWorkbench() {
   const [serverUpdatedAt, setServerUpdatedAt] = useState<string | null>(null)
   const [serverSaving, setServerSaving] = useState(false)
   const [serverHasMedia, setServerHasMedia] = useState(false)
+  const workflowAction = useServerFn(teamWorkflowCommandFn)
+  const [workflowBusy, setWorkflowBusy] = useState(false)
   const draftKey = 'nino-romano-v2-team-draft'
   useEffect(() => {
     try {
@@ -219,7 +223,7 @@ function TeamsWorkbench() {
           <p className="mt-2 text-sm leading-6 text-slate-300">Il salvataggio condiviso richiede Supabase attivo e una sessione editoriale autorizzata. La bozza non aggiorna il sito pubblico. Il salvataggio locale resta disponibile come copia di lavoro; caricamento immagini e pubblicazione sono passaggi separati.</p>
         </section>
 
-        <div className="mt-6 flex flex-wrap items-center gap-3"><button type="button" onClick={saveSharedDraft} disabled={serverSaving} className="rounded-xl bg-red-700 px-4 py-3 text-sm font-bold hover:bg-red-600 disabled:opacity-50">{serverSaving ? 'Salvataggio…' : serverTeamId ? 'Aggiorna bozza condivisa' : 'Salva bozza condivisa'}</button><button type="button" onClick={saveDraft} className="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold hover:bg-emerald-600">Salva bozza sul dispositivo</button><button type="button" onClick={clearDraft} className="rounded-xl border border-white/20 px-4 py-3 text-sm font-semibold hover:bg-white/10">Elimina bozza salvata</button>{draftMessage && <p role="status" aria-live="polite" className="text-sm text-slate-300">{draftMessage}</p>}</div>
+        <div className="mt-6 flex flex-wrap items-center gap-3"><button type="button" onClick={saveSharedDraft} disabled={serverSaving} className="rounded-xl bg-red-700 px-4 py-3 text-sm font-bold hover:bg-red-600 disabled:opacity-50">{serverSaving ? 'Salvataggio…' : serverTeamId ? 'Aggiorna bozza condivisa' : 'Salva bozza condivisa'}</button><button type="button" onClick={saveDraft} className="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold hover:bg-emerald-600">Salva bozza sul dispositivo</button><button type="button" disabled={!serverTeamId || !serverUpdatedAt || serverSaving || workflowBusy || serverHasMedia} onClick={async()=>{if(!serverTeamId||!serverUpdatedAt)return;setWorkflowBusy(true);setDraftMessage('');try{const result=await workflowAction({data:{action:'submit',teamId:serverTeamId,expectedUpdatedAt:serverUpdatedAt}});if(result.ok){setServerUpdatedAt(result.updatedAt);window.localStorage.setItem('nino-romano-v2-team-server-ref',JSON.stringify({teamId:serverTeamId,updatedAt:result.updatedAt}));setDraftMessage('Squadra inviata in revisione. Modifiche bloccate fino alla decisione editoriale.')}else setDraftMessage(result.code==='conflict'?'La squadra è stata modificata: ripristina i dati.':result.code==='invalid_transition'?'Questa squadra non può essere inviata in revisione nello stato attuale.':'Invio in revisione non riuscito.')}catch{setDraftMessage('Errore di rete durante l’invio in revisione.')}finally{setWorkflowBusy(false)}}} className="rounded-xl border border-amber-300/40 px-4 py-3 text-sm font-bold text-amber-200 disabled:opacity-40">{workflowBusy?'Invio…':'Invia in revisione'}</button><button type="button" onClick={clearDraft} className="rounded-xl border border-white/20 px-4 py-3 text-sm font-semibold hover:bg-white/10">Elimina bozza salvata</button>{draftMessage && <p role="status" aria-live="polite" className="text-sm text-slate-300">{draftMessage}</p>}</div>
 
         <div className="mt-8 grid gap-8 xl:grid-cols-2">
           <section className="space-y-6" aria-label="Campi della scheda squadra">
