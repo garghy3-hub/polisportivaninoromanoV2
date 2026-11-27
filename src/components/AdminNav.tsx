@@ -5,6 +5,7 @@ import { editorialLogoutFn } from '../lib/server/editorial-auth'
 const items = [
   { label: 'Dashboard', href: '/admin' },
   { label: 'News', href: '/admin/news' },
+  { label: 'Revisioni', href: '/admin/news-review' },
   { label: 'Bozze', href: '/admin/news-library' },
   { label: 'Squadre', href: '/admin/teams' },
   { label: 'Calendario', href: '/admin/calendar' },
