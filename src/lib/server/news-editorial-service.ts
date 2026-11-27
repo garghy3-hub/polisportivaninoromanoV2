@@ -237,6 +237,9 @@ export function createNewsEditorialService(
     async updateDraft(actor, input) {
       const denied = authorize(actor, "edit-content");
       if (denied) return denied;
+      if (!input || typeof input !== "object" || Array.isArray(input)) {
+        return { ok: false, code: "invalid", message: "Dati della revisione non validi." };
+      }
       const issues = validate(input.content);
       if (issues.length) return { ok: false, code: "invalid", issues };
       if (
@@ -256,17 +259,8 @@ export function createNewsEditorialService(
     async submitForReview(actor, input) {
       const denied = authorize(actor, "submit-for-review");
       if (denied) return denied;
-      if (
-        !isValidRevisionTarget(input.articleId, input.revisionId) ||
-        !Number.isInteger(input.expectedVersion) ||
-        input.expectedVersion < 1
-      ) {
-        return {
-          ok: false,
-          code: "invalid",
-          message: "Valid article and revision IDs plus a positive expected version are required.",
-        };
-      }
+      const invalid = validateRevisionCommand(input);
+      if (invalid) return invalid;
       return callRepository(() => repository.submitForReview({ ...input, actor: actor! }));
     },
 
@@ -374,15 +368,19 @@ export function createNewsEditorialService(
   }
 }
 
-function validateRevisionCommand(input: {
-  articleId: string;
-  revisionId: string;
-  expectedVersion: number;
-}): NewsEditorialResult<never> | null {
+function validateRevisionCommand(input: unknown): NewsEditorialResult<never> | null {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return {
+      ok: false,
+      code: "invalid",
+      message: "Identificativi di articolo e revisione validi e versione attesa positiva sono obbligatori.",
+    };
+  }
+  const command = input as { articleId?: unknown; revisionId?: unknown; expectedVersion?: unknown };
   if (
-    !isValidRevisionTarget(input.articleId, input.revisionId) ||
-    !Number.isInteger(input.expectedVersion) ||
-    input.expectedVersion < 1
+    !isValidRevisionTarget(command.articleId as string, command.revisionId as string) ||
+    !Number.isInteger(command.expectedVersion) ||
+    (command.expectedVersion as number) < 1
   ) {
     return {
       ok: false,
