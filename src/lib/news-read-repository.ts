@@ -1,5 +1,5 @@
 /** Provider-neutral contracts for the future News read repository. No adapter is implemented here. */
-import type { EditorialRevision, NewsCategory } from "./content-types";
+import { NEWS_CATEGORIES, type EditorialRevision, type NewsCategory } from "./content-types";
 import { NEWS_READ_PAGE_SIZE_MAX, NEWS_READ_CURSOR_MAX_LENGTH, type ValidNewsReadQuery } from "./news-read-query";
 import type { NewsDraftContent } from "./server/news-editorial-service";
 import { isValidNewsReadOrderRecord } from "./news-read-order";
@@ -73,10 +73,9 @@ function isValidNewsDraftContent(value: unknown): value is NewsDraftContent {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   if (!hasExactKeys(value, ["title", "slug", "category", "excerpt", "body", "seoTitle", "seoDescription", "imageUrl", "imageAlt"])) return false;
   const content = value as Partial<NewsDraftContent>;
-  const categories: NewsCategory[] = ["official", "match-report", "interview", "youth", "club-life"];
   return typeof content.title === "string" && content.title.trim().length > 0 && content.title.length <= 140
     && typeof content.slug === "string" && content.slug.length <= 160 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(content.slug)
-    && typeof content.category === "string" && categories.includes(content.category as NewsCategory)
+    && typeof content.category === "string" && NEWS_CATEGORIES.includes(content.category as NewsCategory)
     && typeof content.excerpt === "string" && content.excerpt.trim().length > 0 && content.excerpt.length <= 300
     && typeof content.body === "string" && content.body.trim().length > 0 && content.body.length <= 20000
     && typeof content.seoTitle === "string" && content.seoTitle.length <= 70
