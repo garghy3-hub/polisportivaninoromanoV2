@@ -36,8 +36,8 @@ as $$
   from public.admin_users as au
   where au.user_id = (select auth.uid())
     and au.is_active = true
-  limit 1
-$$;
+  limit 1;
+$;
 
 revoke all on function private.current_editorial_role() from public, anon;
 grant execute on function private.current_editorial_role() to authenticated;
