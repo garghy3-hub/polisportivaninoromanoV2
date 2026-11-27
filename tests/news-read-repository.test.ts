@@ -1,8 +1,19 @@
 import { describe, expect, it } from "vitest";
 import {
+  isValidNewsPublishedArticle,
   isValidNewsReadItem,
   isValidNewsReadPageEnvelope,
 } from "../src/lib/news-read-repository";
+
+const validContent = {
+  title: "Titolo della notizia",
+  slug: "titolo-della-notizia",
+  category: "official",
+  excerpt: "Un breve riepilogo.",
+  body: "Testo completo della notizia.",
+  seoTitle: "Titolo SEO",
+  seoDescription: "Descrizione SEO.",
+};
 
 const validItem = {
   articleId: "article-1",
@@ -11,15 +22,14 @@ const validItem = {
   status: "draft",
   createdAt: "2026-11-27T05:00:00Z",
   updatedAt: "2026-11-27T05:30:00+01:00",
-  content: {
-    title: "Titolo della notizia",
-    slug: "titolo-della-notizia",
-    category: "prima-squadra",
-    excerpt: "Un breve riepilogo.",
-    body: "Testo completo della notizia.",
-    seoTitle: "Titolo SEO",
-    seoDescription: "Descrizione SEO.",
-  },
+  content: validContent,
+};
+
+const validPublishedArticle = {
+  articleId: "article-1",
+  revisionId: "revision-3",
+  publishedAt: "2026-11-27T06:00:00Z",
+  content: validContent,
 };
 
 describe("News read page envelope guard", () => {
@@ -49,9 +59,9 @@ describe("News read item guard", () => {
       { ...validItem, creatorId: "" },
       { ...validItem, status: "scheduled" },
       { ...validItem, content: null },
-      { ...validItem, content: { ...validItem.content, title: " " } },
-      { ...validItem, content: { ...validItem.content, slug: "" } },
-      { ...validItem, content: { ...validItem.content, body: 42 } },
+      { ...validItem, content: { ...validContent, title: " " } },
+      { ...validItem, content: { ...validContent, slug: "" } },
+      { ...validItem, content: { ...validContent, body: 42 } },
     ];
 
     for (const item of invalidItems) {
@@ -68,6 +78,29 @@ describe("News read item guard", () => {
   it("rejects non-object payloads", () => {
     for (const value of [null, [], "news", 42]) {
       expect(isValidNewsReadItem(value)).toBe(false);
+    }
+  });
+});
+
+describe("News public projection guard", () => {
+  it("accepts only a well-formed published projection", () => {
+    expect(isValidNewsPublishedArticle(validPublishedArticle)).toBe(true);
+  });
+
+  it("rejects incomplete or malformed public projections", () => {
+    const invalid = [
+      null,
+      [],
+      { ...validPublishedArticle, articleId: "" },
+      { ...validPublishedArticle, revisionId: " " },
+      { ...validPublishedArticle, publishedAt: "2026-02-31T12:00:00Z" },
+      { ...validPublishedArticle, publishedAt: "2026-11-27T12:00:00" },
+      { ...validPublishedArticle, content: null },
+      { ...validPublishedArticle, content: { ...validContent, title: "" } },
+    ];
+
+    for (const value of invalid) {
+      expect(isValidNewsPublishedArticle(value)).toBe(false);
     }
   });
 });
