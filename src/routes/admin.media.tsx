@@ -3,7 +3,7 @@ import { AdminNav } from '../components/AdminNav'
 import { useEffect, useRef, useState } from 'react'
 import { listStoredMedia, saveStoredMedia, deleteStoredMedia, type StoredMedia } from '../lib/media-indexeddb'
 
-export const Route = createFileRoute('/admin/media')({ component: MediaLibraryWorkbench })
+export const Route = createFileRoute('/admin/media')({ headers: () => ({ 'Cache-Control': 'private, no-store' }), component: MediaLibraryWorkbench })
 const MAX_BYTES=10*1024*1024, ALLOWED=['image/jpeg','image/png','image/webp','image/avif']
 type ViewItem=StoredMedia & {url:string}
 function MediaLibraryWorkbench(){
