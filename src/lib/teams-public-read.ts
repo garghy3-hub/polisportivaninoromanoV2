@@ -85,7 +85,7 @@ export function mapPublishedTeams(
         id: team.id,
         name: team.name,
         slug: team.slug,
-        category: team.category,
+        category: team.category as Team["category"],
         ...(team.season_id && seasons.get(team.season_id) ? { season: seasons.get(team.season_id)! } : {}),
         ...(team.description ? { description: team.description } : {}),
         ...(logoUrl ? { logoUrl, logoAlt: rows.media.find((asset) => asset.id === team.logo_asset_id)?.alt_text ?? "" } : {}),
