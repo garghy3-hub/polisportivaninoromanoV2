@@ -43,7 +43,7 @@ export function validateNewsReadQuery(input: unknown): NewsReadQueryValidation {
     if (typeof query.status !== "string" || !statuses.includes(query.status as NewsReadStatus)) issues.push("status is not recognized.");
     else status = query.status as NewsReadStatus;
   }
-  let category: string | undefined;
+  let category: NewsCategory | undefined;
   if (query.category !== undefined) {
     if (typeof query.category !== "string" || !query.category.trim() || query.category.length > 60) issues.push("category must be a non-empty string of at most 60 characters.");
     else if (!NEWS_CATEGORIES.includes(query.category.trim() as NewsCategory)) issues.push("category is not recognized.");
