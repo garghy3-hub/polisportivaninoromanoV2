@@ -25,7 +25,7 @@ A repository implementation should provide these server-side operations before t
 
 ## Query and consistency requirements
 
-- Use deterministic ordering (timestamp plus stable ID tie-breaker). The provider-neutral helper `src/lib/news-read-order.ts` sorts creation timestamps descending and IDs ascending for ties; adapter implementations should validate record timestamps and identifiers before use. The helper now fails closed (throws `TypeError`) if any record is malformed instead of attempting a potentially misleading sort; unit tests cover malformed IDs, dates and top-level records.
+- Use deterministic ordering (timestamp plus stable ID tie-breaker). The provider-neutral helper `src/lib/news-read-order.ts` sorts creation timestamps descending and IDs ascending for ties; adapter implementations should validate record timestamps and identifiers before use. Timestamp validation requires strict ISO date-time syntax with a timezone and valid calendar/time components. The helper now fails closed (throws `TypeError`) if any record is malformed instead of attempting a potentially misleading sort; unit tests cover malformed IDs, dates and top-level records.
 - Cursor or offset pagination must be bounded and validated.
 - History and audit queries must not silently omit entries due to unstable ordering.
 - Public reads and publication mutations must observe a consistent projection.
