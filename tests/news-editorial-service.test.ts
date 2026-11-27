@@ -115,6 +115,37 @@ describe("provider-neutral News editorial service", () => {
     });
   });
 
+  it("rejects malformed command objects without throwing or calling the repository", async () => {
+    const malformed = null as unknown as {
+      articleId: string;
+      revisionId: string;
+      expectedVersion: number;
+    };
+    await expect(service.submitForReview(editor, malformed)).resolves.toMatchObject({
+      ok: false,
+      code: "invalid",
+    });
+    await expect(service.publish(publisher, malformed)).resolves.toMatchObject({
+      ok: false,
+      code: "invalid",
+    });
+    await expect(service.approve(publisher, malformed)).resolves.toMatchObject({
+      ok: false,
+      code: "invalid",
+    });
+    expect(repository.submitForReview).not.toHaveBeenCalled();
+    expect(repository.publishApproved).not.toHaveBeenCalled();
+    expect(repository.reviewDecision).not.toHaveBeenCalled();
+  });
+
+  it("rejects a malformed update envelope without throwing", async () => {
+    await expect(service.updateDraft(editor, null as never)).resolves.toMatchObject({
+      ok: false,
+      code: "invalid",
+    });
+    expect(repository.updateDraft).not.toHaveBeenCalled();
+  });
+
   it("requires a positive optimistic version for draft updates", async () => {
     const result = await service.updateDraft(editor, {
       articleId: "article-1",
