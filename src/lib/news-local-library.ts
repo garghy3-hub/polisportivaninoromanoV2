@@ -39,7 +39,7 @@ export function saveLocalNewsLibraryItem(storage: NewsLibraryStorage, content: N
     const existing=items.find(i=>i.id===id)
     const next:LocalNewsLibraryItem={id,createdAt:existing?.createdAt??now,updatedAt:now,content}
     const rest=items.filter(i=>i.id!==id)
-    storage.setItem(STORAGE_KEY,JSON.stringify({version:1,items:[next,...rest].slice(0,MAX_ITEMS)})
+    storage.setItem(STORAGE_KEY,JSON.stringify({version:1,items:[next,...rest].slice(0,MAX_ITEMS)}))
     return true
   } catch{return false}
 }
