@@ -379,7 +379,7 @@ declare
 begin
   foreach t in array array['teams','team_members','team_staff','events'] loop
     execute format(
-      'create policy %I on public.%I for select to anon using (is_published)',
+      'create policy %I on public.%I for select to anon, authenticated using (is_published)',
       'Public reads published ' || t, t
     );
     execute format(
@@ -399,7 +399,51 @@ begin
       'Publishers manage ' || t, t
     );
   end loop;
-end $$;
+end $;
+
+-- Child records cannot become public unless their parent team/season is published.
+drop policy if exists "Public reads published team_members" on public.team_members;
+create policy "Public reads published team_members" on public.team_members
+  for select to anon, authenticated using (
+    is_published and exists (
+      select 1 from public.teams t
+      where t.id = team_id and t.is_published
+        and (t.season_id is null or exists (
+          select 1 from public.seasons s where s.id = t.season_id and s.is_published
+        ))
+    )
+  );
+drop policy if exists "Public reads published team_staff" on public.team_staff;
+create policy "Public reads published team_staff" on public.team_staff
+  for select to anon, authenticated using (
+    is_published and exists (
+      select 1 from public.teams t
+      where t.id = team_id and t.is_published
+        and (t.season_id is null or exists (
+          select 1 from public.seasons s where s.id = t.season_id and s.is_published
+        ))
+    )
+  );
+drop policy if exists "Public reads published teams" on public.teams;
+create policy "Public reads published teams" on public.teams
+  for select to anon, authenticated using (
+    is_published and (
+      season_id is null or exists (
+        select 1 from public.seasons s
+        where s.id = season_id and s.is_published
+      )
+    )
+  );
+drop policy if exists "Public reads published events" on public.events;
+create policy "Public reads published events" on public.events
+  for select to anon, authenticated using (
+    is_published and (
+      season_id is null or exists (
+        select 1 from public.seasons s
+        where s.id = season_id and s.is_published
+      )
+    )
+  );
 
 create policy "Public reads published news identities" on public.news_articles
   for select to anon, authenticated using (published_revision_id is not null);
