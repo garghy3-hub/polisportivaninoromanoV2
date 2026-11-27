@@ -1,0 +1,19 @@
+import {createFileRoute,useRouter} from "@tanstack/react-router";
+import {useState} from "react";
+import {useServerFn} from "@tanstack/react-start";
+import {AdminNav} from "../components/AdminNav";
+import {teamReviewQueueFn,teamWorkflowCommandFn} from "../lib/server/team-workflow-actions";
+export const Route=createFileRoute("/admin/team-review")({headers:()=>({"Cache-Control":"private,no-store"}),loader:()=>teamReviewQueueFn(),component:Page});
+function Page(){
+ const queue=Route.useLoaderData(),router=useRouter(),action=useServerFn(teamWorkflowCommandFn),[busy,setBusy]=useState(""),[note,setNote]=useState<Record<string,string>>({}),[message,setMessage]=useState("");
+ const run=async(item:NonNullable<typeof queue extends {ok:true;items:infer I}?I:never>[number],a:"approve"|"reject"|"publish",)=>{
+ if(busy)return;if(a==="reject"&&!note[item.id]?.trim()){setMessage("Inserisci la motivazione del rifiuto.");return}
+ setBusy(item.id);setMessage("");
+ try{const r=await action({data:{action:a,teamId:item.id,expectedUpdatedAt:item.updated_at,...(a==="reject"?{note:note[item.id]}:{})}});
+ if(!r.ok){setMessage(r.code==="conflict"?"Dati aggiornati da un altro utente: ricarica.":r.code==="forbidden"?"Permesso insufficiente.":"Operazione non riuscita.");return}
+ setMessage(a==="approve"?"Squadra approvata.":a==="reject"?"Squadra respinta.":"Squadra pubblicata.");await router.invalidate();
+ }catch{setMessage("Servizio non disponibile.")}finally{setBusy("")}
+ };
+ return <main className="min-h-screen bg-[#090d18] px-5 py-12 text-white sm:px-8"><div className="mx-auto max-w-6xl"><a href="/admin" className="text-sm text-red-300">← Area amministrativa</a><AdminNav/><h1 className="mt-10 text-4xl font-black">Revisioni squadre</h1><p className="mt-3 text-slate-300">Publisher e Administrator · approvazione e pubblicazione separate.</p>{message&&<p role="status" className="mt-5 rounded-xl border border-white/10 p-4">{message}</p>}
+ {!queue.ok?<p className="mt-8 rounded-xl border border-amber-300/30 p-5">{queue.code==="forbidden"?"Accesso riservato ai publisher.":"Coda non disponibile."}</p>:<div className="mt-8 space-y-8">{(["in-review","approved"] as const).map(status=><section key={status}><h2 className="text-2xl font-bold">{status==="in-review"?"In revisione":"Approvate · da pubblicare"}</h2><div className="mt-4 space-y-4">{queue.items.filter(i=>i.editorial_status===status).map(item=><article key={item.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"><div className="flex flex-wrap justify-between gap-3"><h3 className="text-xl font-bold">{item.name}</h3><span className="text-sm text-slate-400">{item.category} · {new Date(item.updated_at).toLocaleString("it-IT")}</span></div><p className="mt-2 text-sm text-slate-400">{item.slug}</p>{item.description&&<p className="mt-3 text-slate-300">{item.description}</p>}{status==="in-review"?<><label className="mt-4 block text-sm" htmlFor={"note-"+item.id}>Motivazione rifiuto</label><textarea id={"note-"+item.id} value={note[item.id]??""} onChange={e=>setNote(s=>({...s,[item.id]:e.target.value}))} maxLength={1000} rows={2} className="mt-2 w-full rounded-lg border border-white/15 bg-slate-950 p-3"/><div className="mt-3 flex gap-2"><button disabled={!!busy} onClick={()=>void run(item,"approve")} className="rounded-lg bg-emerald-700 px-4 py-2 disabled:opacity-50">Approva</button><button disabled={!!busy} onClick={()=>void run(item,"reject")} className="rounded-lg border border-rose-300/30 px-4 py-2 disabled:opacity-50">Rifiuta</button></div></>:<button disabled={!!busy} onClick={()=>void run(item,"publish")} className="mt-4 rounded-lg bg-red-600 px-4 py-2 disabled:opacity-50">Pubblica squadra</button>}</article>)}{queue.items.filter(i=>i.editorial_status===status).length===0&&<p className="rounded-xl border border-white/10 p-5 text-slate-400">Nessuna squadra.</p>}</div></section>)}</div>}</div></main>
+}
