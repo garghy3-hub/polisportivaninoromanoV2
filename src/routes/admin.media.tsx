@@ -50,6 +50,7 @@ function MediaLibraryWorkbench() {
   }
   const clear = () => {
     items.forEach(item => URL.revokeObjectURL(item.url))
+    urlsRef.current = urlsRef.current.filter(url => !items.some(item => item.url === url))
     setItems([]); setMessage('Raccolta temporanea svuotata.')
   }
   const copyMetadata = async (item: MediaItem) => {
