@@ -10,7 +10,7 @@ import { addImageAsset, readImageLibrary } from '../lib/news-image-library'
 import { listStoredMedia } from '../lib/media-indexeddb'
 import { validateNewsDraft, type NewsDraftField } from '../lib/news-draft-validation'
 
-export const Route = createFileRoute('/admin/news')({ component: NewsDraftWorkbench })
+export const Route = createFileRoute('/admin/news')({ headers: () => ({ 'Cache-Control': 'private, no-store' }), component: NewsDraftWorkbench })
 
 const fieldTargetIds: Record<NewsDraftField, string> = {
   title: 'news-title',
