@@ -1,7 +1,9 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
 import type { EditorialRole } from "../content-types";
 import type { EditorialActor } from "../editorial-session";
 import { getSupabaseServerClient } from "../supabase/server";
+
+const getServerSupabaseClient = createServerOnlyFn(() => getSupabaseServerClient());
 
 export interface AuthenticatedEditorialUser {
   id: string;
@@ -16,7 +18,7 @@ const allowedRoles: readonly EditorialRole[] = [
 ];
 
 export async function getActiveEditorialActor(): Promise<EditorialActor | null> {
-  const supabase = getSupabaseServerClient();
+  const supabase = getServerSupabaseClient();
   if (!supabase) return null;
 
   // getClaims verifies the access token; never authorize from getSession().user.
@@ -81,7 +83,7 @@ export const editorialLoginFn = createServerFn({ method: "POST" })
       return { ok: false as const, code: "invalid-input" as const };
     }
 
-    const supabase = getSupabaseServerClient();
+    const supabase = getServerSupabaseClient();
     if (!supabase) return { ok: false as const, code: "not-configured" as const };
 
     const { data: authData, error } = await supabase.auth.signInWithPassword({
@@ -121,7 +123,7 @@ export const editorialLoginFn = createServerFn({ method: "POST" })
 
 export const editorialLogoutFn = createServerFn({ method: "POST" }).handler(
   async () => {
-    const supabase = getSupabaseServerClient();
+    const supabase = getServerSupabaseClient();
     if (supabase) await supabase.auth.signOut({ scope: "local" });
     return { ok: true as const };
   },
