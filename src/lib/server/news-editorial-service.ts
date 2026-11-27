@@ -483,21 +483,37 @@ function isRepositoryResult(value: unknown): value is NewsRepositoryResult<unkno
 function isValidNewsRevisionRecord(value: unknown): value is NewsRevisionRecord {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const record = value as Record<string, unknown>;
+  if (!hasExactKeys(record, ["version", "revision"])) return false;
   if (!Number.isSafeInteger(record.version) || (record.version as number) < 1) return false;
-  if (!record.revision || typeof record.revision !== "object" || Array.isArray(record.revision)) return false;
-  const revision = record.revision as Record<string, unknown>;
+  const revision = record.revision;
+  if (!revision || typeof revision !== "object" || Array.isArray(revision)) return false;
+  const revisionRecord = revision as Record<string, unknown>;
   const requiredStrings = ["id", "entityId", "createdAt", "createdBy", "updatedAt", "updatedBy"];
-  if (revision.entityType !== "article" || !requiredStrings.every(key =>
-    typeof revision[key] === "string" && (revision[key] as string).trim().length > 0
+  const optionalKeys = ["reviewerId", "reviewedAt", "reviewNote", "publishedAt"];
+  const allowedKeys = ["id", "entityType", "entityId", "status", "content", "createdAt", "createdBy", "updatedAt", "updatedBy", ...optionalKeys];
+  if (!requiredStrings.every(key =>
+    typeof revisionRecord[key] === "string" && (revisionRecord[key] as string).trim().length > 0
   )) return false;
-  if (!["draft", "in-review", "approved", "rejected", "published", "archived"].includes(String(revision.status))) return false;
-  if (!Number.isFinite(Date.parse(revision.createdAt as string)) || !Number.isFinite(Date.parse(revision.updatedAt as string))) return false;
-  const content = revision.content;
+  if (Object.keys(revisionRecord).some(key => !allowedKeys.includes(key))) return false;
+  if (!["draft", "in-review", "approved", "rejected", "published", "archived"].includes(String(revisionRecord.status))) return false;
+  if (revisionRecord.entityType !== "article") return false;
+  if (!isValidTimestamp(revisionRecord.createdAt) || !isValidTimestamp(revisionRecord.updatedAt)) return false;
+  if (revisionRecord.reviewerId !== undefined && (typeof revisionRecord.reviewerId !== "string" || !revisionRecord.reviewerId.trim())) return false;
+  if (revisionRecord.reviewedAt !== undefined && !isValidTimestamp(revisionRecord.reviewedAt)) return false;
+  if (revisionRecord.reviewNote !== undefined && (typeof revisionRecord.reviewNote !== "string" || revisionRecord.reviewNote.length > 1000)) return false;
+  if (revisionRecord.publishedAt !== undefined && !isValidTimestamp(revisionRecord.publishedAt)) return false;
+  const content = revisionRecord.content;
   const contentKeys = ["title", "slug", "category", "excerpt", "body", "seoTitle", "seoDescription", "imageUrl", "imageAlt"];
   if (!content || typeof content !== "object" || Array.isArray(content)) return false;
   const draft = content as Record<string, unknown>;
-  return Object.keys(draft).length === contentKeys.length
-    && contentKeys.every(key => typeof draft[key] === "string" && Object.hasOwn(draft, key));
+  return hasExactKeys(draft, contentKeys)
+    && contentKeys.every(key => typeof draft[key] === "string");
+}
+
+function isValidTimestamp(value: unknown): value is string {
+  if (typeof value !== "string" || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?(?:Z|[+-]\\d{2}:\\d{2})$/.test(value)) return false;
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) && new Date(timestamp).toISOString().slice(0, 10) === value.slice(0, 10);
 }
 
 function internalFailure(): NewsEditorialResult<never> {
