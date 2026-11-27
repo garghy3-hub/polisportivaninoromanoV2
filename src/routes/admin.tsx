@@ -1,7 +1,15 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { AdminNav } from '../components/AdminNav'
+import { getCurrentEditorialUserFn } from '../lib/server/editorial-auth'
 
-export const Route = createFileRoute('/admin')({ component: AdminOverview })
+export const Route = createFileRoute('/admin')({
+  beforeLoad: async () => {
+    const user = await getCurrentEditorialUserFn()
+    if (!user) throw redirect({ to: '/admin/login' })
+    return { editorialUser: user }
+  },
+  component: AdminOverview,
+})
 
 const areas = [
   { title: 'News', description: 'Editor articolo e archivio locale multi-bozza.', status: 'Prototipo disponibile', icon: '✍️', href: '/admin/news' },
@@ -22,13 +30,13 @@ function AdminOverview() {
         <header className="mt-10">
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-red-300">Area amministrativa · V2</p>
           <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">Content management</h1>
-          <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-300">Struttura dell'area editoriale per gestire tutti i contenuti pubblici della Polisportiva Nino Romano.</p>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-300">Area editoriale riservata. Accesso verificato dal server tramite Supabase Auth e ruolo attivo.</p>
         </header>
         <AdminNav />
 
         <section className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5 sm:p-7" aria-labelledby="prototype-notice">
-          <h2 id="prototype-notice" className="font-bold text-amber-200">Prototipo strutturale — non è ancora un pannello operativo</h2>
-          <p className="mt-2 leading-7 text-slate-300">Non è presente autenticazione, salvataggio, API o database. Questa pagina non consente modifiche e non deve essere usata per pubblicare contenuti. Le funzioni saranno attivate dopo aver definito e implementato i servizi server e i controlli di sicurezza.</p>
+          <h2 id="prototype-notice" className="font-bold text-amber-200">Accesso protetto · moduli ancora in modalità prototipo</h2>
+          <p className="mt-2 leading-7 text-slate-300">L'autenticazione è attiva, ma gli editor dei contenuti non sono ancora collegati al database. Le bozze presenti nei moduli esistenti restano locali al browser e non vengono pubblicate.</p>
         </section>
 
         <div className="mt-5 flex flex-wrap gap-3"><Link to="/admin/news-library" className="rounded-xl bg-red-600 px-4 py-2 font-semibold">Apri archivio bozze News</Link><Link to="/admin/news" className="rounded-xl border border-white/20 px-4 py-2 font-semibold">Scrivi una News</Link></div>\n\n        <section className="mt-10" aria-labelledby="content-areas">
