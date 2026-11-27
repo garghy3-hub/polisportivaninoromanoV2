@@ -6,6 +6,7 @@ import type { Player, Team, TeamStaff } from '../lib/content-types'
 import { slugifyEditorialTitle } from '../lib/editorial-slug'
 import { validateTeam } from '../lib/content-validation'
 import { isSafeEditorialImageUrl } from '../lib/editorial-media'
+import { saveTeamDraftFn } from '../lib/server/team-editorial-actions'
 
 export const Route = createFileRoute('/admin/teams')({ headers: () => ({ 'Cache-Control': 'private, no-store' }), component: TeamsWorkbench })
 
@@ -28,6 +29,9 @@ function TeamsWorkbench() {
   const [players, setPlayers] = useState<PlayerDraft[]>([])
   const [staff, setStaff] = useState<StaffDraft[]>([])
   const [draftMessage, setDraftMessage] = useState('')
+  const [serverTeamId, setServerTeamId] = useState<string | null>(null)
+  const [serverUpdatedAt, setServerUpdatedAt] = useState<string | null>(null)
+  const [serverSaving, setServerSaving] = useState(false)
   const draftKey = 'nino-romano-v2-team-draft'
   useEffect(() => {
     try {
@@ -46,6 +50,19 @@ function TeamsWorkbench() {
       setPlayers(draft.players as PlayerDraft[]); setStaff(draft.staff as StaffDraft[])
       setDraftMessage('Bozza locale ripristinata da questo browser.')
     } catch { setDraftMessage('Impossibile leggere la bozza locale.') }
+  }, [])
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem('nino-romano-v2-team-server-ref')
+      if (!raw) return
+      const parsed: unknown = JSON.parse(raw)
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return
+      const reference = parsed as Record<string, unknown>
+      if (typeof reference.teamId === 'string' && typeof reference.updatedAt === 'string' && Number.isFinite(Date.parse(reference.updatedAt))) {
+        setServerTeamId(reference.teamId)
+        setServerUpdatedAt(reference.updatedAt)
+      }
+    } catch { /* Invalid local reference is ignored; the database remains authoritative. */ }
   }, [])
   const updateName = (value: string) => {
     setName(value)
@@ -93,6 +110,63 @@ function TeamsWorkbench() {
     setDraftMessage('Bozza locale eliminata.')
   }
   const isComplete = name.trim().length > 0 && slug.trim().length > 0 && Boolean(category)
+  const saveSharedDraft = async () => {
+    if (!isComplete || issues.length > 0) {
+      setDraftMessage('Completa i dati obbligatori e correggi gli errori prima di salvare.')
+      return
+    }
+    if (logoUrl.trim() || players.some((player) => player.photoUrl.trim()) || staff.some((member) => member.photoUrl.trim())) {
+      setDraftMessage('Le immagini inserite tramite URL non sono ancora collegabili al database: completa prima il caricamento nella Libreria media.')
+      return
+    }
+    setServerSaving(true)
+    setDraftMessage('')
+    try {
+      const result = await saveTeamDraftFn({
+        data: {
+          teamId: serverTeamId,
+          expectedUpdatedAt: serverUpdatedAt,
+          payload: {
+            name: name.trim(),
+            slug: slug.trim(),
+            category: category as Team['category'],
+            seasonLabel: season.trim(),
+            description: description.trim(),
+            roster: players.map((player) => ({
+              name: player.name.trim(),
+              jerseyNumber: player.jerseyNumber.trim() ? Number(player.jerseyNumber) : null,
+              role: player.role.trim(),
+            })),
+            staff: staff.map((member) => ({ name: member.name.trim(), role: member.role.trim() })),
+          },
+        },
+      })
+      if (result.ok) {
+        setServerTeamId(result.teamId)
+        setServerUpdatedAt(result.updatedAt)
+        window.localStorage.setItem('nino-romano-v2-team-server-ref', JSON.stringify({ teamId: result.teamId, updatedAt: result.updatedAt }))
+        setDraftMessage('Bozza condivisa salvata nel database. Non è ancora pubblicata.')
+      } else {
+        const messages: Record<string, string> = {
+          'not-configured': 'Collegamento al database non configurato in questo ambiente.',
+          unauthenticated: 'Sessione scaduta: accedi nuovamente al pannello.',
+          forbidden: 'Il tuo ruolo non consente di modificare le squadre.',
+          conflict: 'La bozza è stata modificata da un altro utente. Ricarica i dati prima di riprovare.',
+          slug_taken: 'Esiste già una squadra con questo slug nella stessa stagione.',
+          season_not_found: 'La stagione indicata non esiste nel database.',
+          duplicate_jersey: 'I numeri di maglia devono essere univoci.',
+          invalid_roster: 'Controlla i dati del roster.',
+          invalid_staff: 'Controlla i dati dello staff.',
+          not_editable: 'Questa squadra non è più modificabile come bozza.',
+        }
+        setDraftMessage(messages[result.code] ?? 'Salvataggio condiviso non riuscito.')
+      }
+    } catch {
+      setDraftMessage('Errore di rete durante il salvataggio condiviso.')
+    } finally {
+      setServerSaving(false)
+    }
+  }
   const updatePlayer = (index: number, patch: Partial<PlayerDraft>) => setPlayers((current) => current.map((player, i) => i === index ? { ...player, ...patch } : player))
   const updateStaff = (index: number, patch: Partial<StaffDraft>) => setStaff((current) => current.map((member, i) => i === index ? { ...member, ...patch } : member))
 
@@ -102,17 +176,17 @@ function TeamsWorkbench() {
         <Link to="/admin" className="text-sm font-semibold text-red-300 hover:text-white">← Area amministrativa</Link>
         <AdminNav />
         <header className="mt-10">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-red-300">Squadre e roster · workbench UI</p>
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-red-300">Squadre e roster · editoriale</p>
           <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Editor squadra</h1>
-          <p className="mt-4 max-w-3xl leading-7 text-slate-300">Prepara una scheda squadra, organizza il roster e inserisci lo staff. I contenuti vengono mostrati in anteprima ma non sono salvati.</p>
+          <p className="mt-4 max-w-3xl leading-7 text-slate-300">Prepara una scheda squadra, organizza il roster e salva una bozza condivisa nel database. La pubblicazione resta riservata al passaggio editoriale successivo.</p>
         </header>
 
         <section className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5" aria-labelledby="team-prototype-notice">
-          <h2 id="team-prototype-notice" className="font-bold text-amber-200">Prototipo locale — bozza salvata solo su questo browser</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-300">Puoi salvare e ripristinare una bozza su questo dispositivo. Non modifica le pagine pubbliche e non è condivisa con altri dispositivi. Non inserire dati personali sensibili. Autenticazione, API, revisioni e database non sono ancora collegati.</p>
+          <h2 id="team-prototype-notice" className="font-bold text-amber-200">Bozza condivisa e pubblicazione separata</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-300">Il salvataggio condiviso richiede Supabase attivo e una sessione editoriale autorizzata. La bozza non aggiorna il sito pubblico. Il salvataggio locale resta disponibile come copia di lavoro; caricamento immagini e pubblicazione sono passaggi separati.</p>
         </section>
 
-        <div className="mt-6 flex flex-wrap items-center gap-3"><button type="button" onClick={saveDraft} className="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold hover:bg-emerald-600">Salva bozza sul dispositivo</button><button type="button" onClick={clearDraft} className="rounded-xl border border-white/20 px-4 py-3 text-sm font-semibold hover:bg-white/10">Elimina bozza salvata</button>{draftMessage && <p role="status" aria-live="polite" className="text-sm text-slate-300">{draftMessage}</p>}</div>
+        <div className="mt-6 flex flex-wrap items-center gap-3"><button type="button" onClick={saveSharedDraft} disabled={serverSaving} className="rounded-xl bg-red-700 px-4 py-3 text-sm font-bold hover:bg-red-600 disabled:opacity-50">{serverSaving ? 'Salvataggio…' : serverTeamId ? 'Aggiorna bozza condivisa' : 'Salva bozza condivisa'}</button><button type="button" onClick={saveDraft} className="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold hover:bg-emerald-600">Salva bozza sul dispositivo</button><button type="button" onClick={clearDraft} className="rounded-xl border border-white/20 px-4 py-3 text-sm font-semibold hover:bg-white/10">Elimina bozza salvata</button>{draftMessage && <p role="status" aria-live="polite" className="text-sm text-slate-300">{draftMessage}</p>}</div>
 
         <div className="mt-8 grid gap-8 xl:grid-cols-2">
           <section className="space-y-6" aria-label="Campi della scheda squadra">
