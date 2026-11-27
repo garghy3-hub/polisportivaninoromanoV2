@@ -12,6 +12,14 @@ describe("validateNewsReadQuery", () => {
     }
   });
 
+  it("rejects unknown query fields instead of silently ignoring them", () => {
+    expect(validateNewsReadQuery({ pageSize: 10, unexpected: true })).toEqual({
+      ok: false,
+      issues: ["unexpected query field: unexpected."],
+    });
+    expect(validateNewsReadQuery({ role: "administrator" }).ok).toBe(false);
+  });
+
   it("uses safe default page size", () => {
     expect(validateNewsReadQuery({})).toEqual({ ok: true, value: { pageSize: 20 } });
   });
@@ -53,6 +61,7 @@ describe("validateNewsReadQuery", () => {
     expect(validateNewsReadQuery({ search: " volley " })).toEqual({ ok: true, value: { pageSize: 20, search: "volley" } });
     expect(validateNewsReadQuery({ search: "x".repeat(201) }).ok).toBe(false);
   });
+
   it("accepts normalized creator and date filters", () => {
     expect(validateNewsReadQuery({ creatorId: " actor-7 ", createdAfter: "2026-01-01", createdBefore: "2026-02-01" })).toEqual({ ok: true, value: { pageSize: 20, creatorId: "actor-7", createdAfter: "2026-01-01T00:00:00.000Z", createdBefore: "2026-02-01T00:00:00.000Z" } });
   });
@@ -75,5 +84,4 @@ describe("validateNewsReadQuery", () => {
     expect(validateNewsReadQuery({ createdAfter: "not-a-date" }).ok).toBe(false);
     expect(validateNewsReadQuery({ createdAfter: "2026-03-01", createdBefore: "2026-02-01" }).ok).toBe(false);
   });
-
 });
