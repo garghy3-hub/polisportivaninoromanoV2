@@ -16,8 +16,13 @@ Prioritized implementation sequence for the V2 editorial panel. Provider selecti
 - Review data protection, administrator invitation and account recovery.
 - [x] Implement CI test runner and unit-level permission/session/service boundary tests.
 - [ ] Complete integration-level security tests against a real authenticated server and transactional persistence.
+- [ ] Enforce separation of duties in the transactional repository: the reviewer must differ from the revision creator; test approval and rejection paths, including concurrent attempts.
+- [ ] Validate repository success payloads at the service boundary before exposing them; malformed success records must fail closed.
+- [ ] Verify actor attribution is sourced only from verified server sessions, not request payloads or revision content.
 
 ## Phase 2 — news vertical slice
+
+**Security gates before enabling any mutation UI:** verified server-side sessions; authorization per request; creator/reviewer separation enforced transactionally; exact revision/version checks; validated repository response envelopes; immutable audit records; protected preview; and public projection isolation. Unit tests alone are insufficient.
 - Authenticated admin shell and navigation.
 - News list, filtering and pagination.
 - Accessible create/edit forms, client-side validation and server-side validation.
@@ -48,7 +53,7 @@ Prioritized implementation sequence for the V2 editorial panel. Provider selecti
 - Revision concurrency and history.
 - Audit and content changes are transactional.
 - Public access limited to published content.
-- Tests cover permission-denied and failure paths.
+- Tests cover permission-denied and failure paths, creator/reviewer separation, malformed adapter outputs, race conditions and transaction rollback.
 - No fabricated club information.
 - Release and deployment authorization explicitly obtained.
 
