@@ -56,7 +56,6 @@ function CalendarWorkbench() {
     ...(status === 'completed' && parsedHomeScore !== undefined ? { homeScore: parsedHomeScore } : {}),
     ...(status === 'completed' && parsedAwayScore !== undefined ? { awayScore: parsedAwayScore } : {}),
     ...(outcome ? { outcome } : {}),
-    visible,
     order: 0,
   }
   const issues = validateEvent(event)
