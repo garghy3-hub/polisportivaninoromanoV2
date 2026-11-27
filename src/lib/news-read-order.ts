@@ -23,7 +23,10 @@ export function isValidNewsReadOrderRecord(value: unknown): value is NewsReadOrd
     && typeof record.createdAt === "string" && Number.isFinite(Date.parse(record.createdAt));
 }
 
-/** Return a sorted copy; never mutates the repository's original collection. */
+/** Return a sorted copy; reject malformed records rather than silently misordering them. */
 export function sortNewsReadRecords<T extends NewsReadOrderRecord>(records: readonly T[]): T[] {
+  if (!records.every(isValidNewsReadOrderRecord)) {
+    throw new TypeError("News read ordering requires valid record IDs and timestamps.");
+  }
   return [...records].sort(compareNewsReadOrder);
 }
