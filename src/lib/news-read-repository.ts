@@ -73,11 +73,13 @@ function isValidNewsDraftContent(value: unknown): value is NewsDraftContent {
   if (!hasExactKeys(value, ["title", "slug", "category", "excerpt", "body", "seoTitle", "seoDescription"])) return false;
   const content = value as Partial<NewsDraftContent>;
   const categories: NewsCategory[] = ["official", "match-report", "interview", "youth", "club-life"];
-  return typeof content.title === "string" && content.title.trim().length > 0
-    && typeof content.slug === "string" && content.slug.trim().length > 0
+  return typeof content.title === "string" && content.title.trim().length > 0 && content.title.length <= 140
+    && typeof content.slug === "string" && content.slug.length <= 160 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(content.slug)
     && typeof content.category === "string" && categories.includes(content.category as NewsCategory)
-    && typeof content.excerpt === "string" && typeof content.body === "string"
-    && typeof content.seoTitle === "string" && typeof content.seoDescription === "string";
+    && typeof content.excerpt === "string" && content.excerpt.trim().length > 0 && content.excerpt.length <= 300
+    && typeof content.body === "string" && content.body.trim().length > 0 && content.body.length <= 20000
+    && typeof content.seoTitle === "string" && content.seoTitle.length <= 70
+    && typeof content.seoDescription === "string" && content.seoDescription.length <= 160;
 }
 
 /** Validate the minimal shape of an editorial queue item before consuming adapter data. */
