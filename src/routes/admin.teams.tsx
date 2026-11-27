@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { AdminNav } from '../components/AdminNav'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { localContentService } from '../lib/content-service'
 import type { Player, Team, TeamStaff } from '../lib/content-types'
 import { slugifyEditorialTitle } from '../lib/editorial-slug'
@@ -27,6 +27,26 @@ function TeamsWorkbench() {
   const [logoAlt, setLogoAlt] = useState('')
   const [players, setPlayers] = useState<PlayerDraft[]>([])
   const [staff, setStaff] = useState<StaffDraft[]>([])
+  const [draftMessage, setDraftMessage] = useState('')
+  const draftKey = 'nino-romano-v2-team-draft'
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(draftKey)
+      if (!raw) return
+      const parsed: unknown = JSON.parse(raw)
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return
+      const draft = parsed as Record<string, unknown>
+      if (draft.version !== 1 || typeof draft.name !== 'string' || typeof draft.slug !== 'string' || typeof draft.category !== 'string' || typeof draft.season !== 'string' || typeof draft.description !== 'string' || typeof draft.logoUrl !== 'string' || typeof draft.logoAlt !== 'string' || !Array.isArray(draft.players) || !Array.isArray(draft.staff)) return
+      const validPlayers = draft.players.every((item) => item && typeof item === 'object' && typeof item.name === 'string' && typeof item.jerseyNumber === 'string' && typeof item.role === 'string' && typeof item.photoUrl === 'string' && typeof item.photoAlt === 'string')
+      const validStaff = draft.staff.every((item) => item && typeof item === 'object' && typeof item.name === 'string' && typeof item.role === 'string' && typeof item.photoUrl === 'string' && typeof item.photoAlt === 'string')
+      if (!validPlayers || !validStaff || draft.players.length > 100 || draft.staff.length > 30) return
+      setName(draft.name); setSlug(draft.slug); setSlugEdited(true)
+      setCategory((['senior', 'youth'].includes(draft.category) ? draft.category : '') as Team['category'] | '')
+      setSeason(draft.season); setDescription(draft.description); setLogoUrl(draft.logoUrl); setLogoAlt(draft.logoAlt)
+      setPlayers(draft.players as PlayerDraft[]); setStaff(draft.staff as StaffDraft[])
+      setDraftMessage('Bozza locale ripristinata da questo browser.')
+    } catch { setDraftMessage('Impossibile leggere la bozza locale.') }
+  }, [])
   const updateName = (value: string) => {
     setName(value)
     if (!slugEdited) setSlug(slugifyEditorialTitle(value))
@@ -60,6 +80,18 @@ function TeamsWorkbench() {
     order: 0,
   }
   const issues = validateTeam(team)
+  const saveDraft = () => {
+    if (!isComplete || issues.length > 0) { setDraftMessage('Completa i dati obbligatori e correggi gli errori prima di salvare.'); return }
+    try {
+      window.localStorage.setItem(draftKey, JSON.stringify({ version: 1, savedAt: new Date().toISOString(), name, slug, category, season, description, logoUrl, logoAlt, players, staff }))
+      setDraftMessage('Bozza salvata in questo browser.')
+    } catch { setDraftMessage('Salvataggio non riuscito: spazio locale non disponibile.') }
+  }
+  const clearDraft = () => {
+    if (!window.confirm('Eliminare la bozza salvata in questo browser?')) return
+    window.localStorage.removeItem(draftKey)
+    setDraftMessage('Bozza locale eliminata.')
+  }
   const isComplete = name.trim().length > 0 && slug.trim().length > 0 && Boolean(category)
   const updatePlayer = (index: number, patch: Partial<PlayerDraft>) => setPlayers((current) => current.map((player, i) => i === index ? { ...player, ...patch } : player))
   const updateStaff = (index: number, patch: Partial<StaffDraft>) => setStaff((current) => current.map((member, i) => i === index ? { ...member, ...patch } : member))
@@ -76,9 +108,11 @@ function TeamsWorkbench() {
         </header>
 
         <section className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5" aria-labelledby="team-prototype-notice">
-          <h2 id="team-prototype-notice" className="font-bold text-amber-200">Prototipo locale — nessun salvataggio</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-300">La schermata non modifica le pagine pubbliche e non conserva i dati dopo averla chiusa o ricaricata. Non inserire dati personali sensibili. Autenticazione, API, revisioni e database non sono ancora collegati.</p>
+          <h2 id="team-prototype-notice" className="font-bold text-amber-200">Prototipo locale — bozza salvata solo su questo browser</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-300">Puoi salvare e ripristinare una bozza su questo dispositivo. Non modifica le pagine pubbliche e non è condivisa con altri dispositivi. Non inserire dati personali sensibili. Autenticazione, API, revisioni e database non sono ancora collegati.</p>
         </section>
+
+        <div className="mt-6 flex flex-wrap items-center gap-3"><button type="button" onClick={saveDraft} className="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold hover:bg-emerald-600">Salva bozza sul dispositivo</button><button type="button" onClick={clearDraft} className="rounded-xl border border-white/20 px-4 py-3 text-sm font-semibold hover:bg-white/10">Elimina bozza salvata</button>{draftMessage && <p role="status" aria-live="polite" className="text-sm text-slate-300">{draftMessage}</p>}</div>
 
         <div className="mt-8 grid gap-8 xl:grid-cols-2">
           <section className="space-y-6" aria-label="Campi della scheda squadra">
