@@ -45,3 +45,17 @@ The existing `site_content` table is intentionally not repurposed for drafts: it
 - Existing Storage bucket: `nrm-media`, public reads, 10 MiB cap, JPEG/PNG/WebP/AVIF.
 - The applied SQL is tracked in `supabase/migrations/`; the explanatory copies in `docs/` remain readable references. Generated TypeScript database types live in `src/lib/supabase/database.types.ts`.
 - No seed content or first Administrator is inserted. Bootstrap must be a controlled operator action after a verified Auth user exists.
+
+
+## Transactional news workflow
+
+The tracked migrations `20261127191120_news_editorial_rpc` and `20261127191156_news_rpc_private_definer` add:
+
+- `news_articles.current_revision_id` as the current editorial revision pointer.
+- `news_public_articles`, a security-invoker public view that exposes only the published projection.
+- Anonymous column-level grants limited to the public article/revision fields; author, reviewer, review-note, audit and current-draft metadata remain unavailable to anonymous clients.
+- `public.news_editorial_command`, a SECURITY INVOKER RPC entry point.
+- `private.news_editorial_command`, the SECURITY DEFINER implementation in the non-exposed `private` schema. It derives the actor from `auth.uid()`, checks the active allow-list role, performs optimistic version checks, enforces reviewer/creator separation, and appends the audit row in the same transaction.
+- Direct browser INSERT/UPDATE/DELETE privileges on the news revision and audit tables remain revoked.
+
+The Supabase security advisor no longer reports an exposed SECURITY DEFINER function. The remaining Auth warning is leaked-password protection being disabled.
