@@ -6,7 +6,7 @@ import {teamReviewQueueFn,teamWorkflowCommandFn} from "../lib/server/team-workfl
 export const Route=createFileRoute("/admin/team-review")({headers:()=>({"Cache-Control":"private,no-store"}),loader:()=>teamReviewQueueFn(),component:Page});
 function Page(){
  const queue=Route.useLoaderData(),router=useRouter(),action=useServerFn(teamWorkflowCommandFn),[busy,setBusy]=useState(""),[note,setNote]=useState<Record<string,string>>({}),[message,setMessage]=useState("");
- const run=async(item:NonNullable<typeof queue extends {ok:true;items:infer I}?I:never>[number],a:"approve"|"reject"|"publish",)=>{
+ type ReviewItem={id:string;name:string;slug:string;category:string;description:string|null;editorial_status:string;updated_at:string;is_published:boolean};\n const run=async(item:ReviewItem,a:"approve"|"reject"|"publish")=>{
  if(busy)return;if(a==="reject"&&!note[item.id]?.trim()){setMessage("Inserisci la motivazione del rifiuto.");return}
  setBusy(item.id);setMessage("");
  try{const r=await action({data:{action:a,teamId:item.id,expectedUpdatedAt:item.updated_at,...(a==="reject"?{note:note[item.id]}:{})}});
