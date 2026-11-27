@@ -46,6 +46,7 @@ describe("News read page envelope guard", () => {
     }
     expect(isValidNewsReadPageEnvelope({ items: [], nextCursor: null }, 51)).toBe(false);
     expect(isValidNewsReadPageEnvelope({ items: [], nextCursor: null }, 0)).toBe(false);
+    expect(isValidNewsReadPageEnvelope({ items: [], nextCursor: null, internal: true }, 20)).toBe(false);
   });
 });
 
@@ -65,6 +66,7 @@ describe("News read item guard", () => {
       { ...validItem, content: { ...validContent, slug: "" } },
       { ...validItem, content: { ...validContent, body: 42 } },
       { ...validItem, content: { ...validContent, internalNotes: "non pubblico" } },
+      { ...validItem, internalNotes: "non pubblico" },
     ];
 
     for (const item of invalidItems) {
