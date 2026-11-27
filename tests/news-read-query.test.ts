@@ -56,6 +56,11 @@ describe("validateNewsReadQuery", () => {
     expect(validateNewsReadQuery({ creatorId: " actor-7 ", createdAfter: "2026-01-01", createdBefore: "2026-02-01" })).toEqual({ ok: true, value: { pageSize: 20, creatorId: "actor-7", createdAfter: "2026-01-01T00:00:00.000Z", createdBefore: "2026-02-01T00:00:00.000Z" } });
   });
 
+  it("rejects loosely formatted date strings", () => {
+    expect(validateNewsReadQuery({ createdAfter: "March 1, 2026" }).ok).toBe(false);
+    expect(validateNewsReadQuery({ createdAfter: "2026-99-99" }).ok).toBe(false);
+  });
+
   it("rejects malformed creator/date filters and reversed date ranges", () => {
     expect(validateNewsReadQuery({ creatorId: " " }).ok).toBe(false);
     expect(validateNewsReadQuery({ creatorId: "x".repeat(129) }).ok).toBe(false);
