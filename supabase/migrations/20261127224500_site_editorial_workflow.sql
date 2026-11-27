@@ -217,6 +217,8 @@ begin
       ) into v_row using v_status, v_actor, v_now, nullif(v_note,''), 'main';
 
     elsif p_action = 'publish' then
+      -- Do not publish until the public site reads this published projection.
+      return pg_catalog.jsonb_build_object('ok', false, 'code', 'public_projection_not_ready');
       if v_row.editorial_status <> 'approved' or v_row.draft_content is null then
         return pg_catalog.jsonb_build_object('ok', false, 'code', 'invalid_transition');
       end if;
