@@ -2,7 +2,16 @@ import { describe, expect, it } from "vitest";
 import { compareNewsReadOrder, isValidNewsReadOrderRecord, sortNewsReadRecords } from "../src/lib/news-read-order";
 
 describe("News read ordering", () => {
-  it("validates ordering fields fail-closed", () => {\n    expect(isValidNewsReadOrderRecord({ id: "x", createdAt: "2026-01-01T00:00:00Z" })).toBe(true);\n    expect(isValidNewsReadOrderRecord({ id: " ", createdAt: "2026-01-01T00:00:00Z" })).toBe(false);\n    expect(isValidNewsReadOrderRecord({ id: "x", createdAt: "invalid" })).toBe(false);\n    expect(isValidNewsReadOrderRecord(null)).toBe(false);\n    expect(isValidNewsReadOrderRecord([])).toBe(false);\n    expect(isValidNewsReadOrderRecord({ id: "x".repeat(129), createdAt: "2026-01-01T00:00:00Z" })).toBe(false);\n  });\n\n  it("orders newest records first", () => {
+  it("validates ordering fields fail-closed", () => {
+    expect(isValidNewsReadOrderRecord({ id: "x", createdAt: "2026-01-01T00:00:00Z" })).toBe(true);
+    expect(isValidNewsReadOrderRecord({ id: " ", createdAt: "2026-01-01T00:00:00Z" })).toBe(false);
+    expect(isValidNewsReadOrderRecord({ id: "x", createdAt: "invalid" })).toBe(false);
+    expect(isValidNewsReadOrderRecord(null)).toBe(false);
+    expect(isValidNewsReadOrderRecord([])).toBe(false);
+    expect(isValidNewsReadOrderRecord({ id: "x".repeat(129), createdAt: "2026-01-01T00:00:00Z" })).toBe(false);
+  });
+
+  it("orders newest records first", () => {
     const records = [
       { id: "a", createdAt: "2026-01-01T10:00:00Z" },
       { id: "b", createdAt: "2026-01-02T10:00:00Z" },
