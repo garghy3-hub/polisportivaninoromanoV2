@@ -101,7 +101,7 @@ begin
     end if;
   end loop;
 
-  if pg_catalog.exists(select 1 from pg_catalog.jsonb_array_elements(p_payload->'roster') item
+  if exists (select 1 from pg_catalog.jsonb_array_elements(p_payload->'roster') item
     group by item->>'jerseyNumber' having item->>'jerseyNumber' is not null and count(*) > 1)
   then
     return pg_catalog.jsonb_build_object('ok', false, 'code', 'duplicate_jersey');
