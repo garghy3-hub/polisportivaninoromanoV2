@@ -21,6 +21,7 @@ const editorialRead = createServerOnlyFn(async <T>(
 ): Promise<T | { ok: false; code: "unauthenticated" | "forbidden" | "internal" }> => {
   const actor = await getActiveEditorialActor();
   if (!actor) return { ok: false, code: "unauthenticated" };
+  if (actor.role === "reader") return { ok: false, code: "forbidden" };
   const supabase = getSupabaseServerClient();
   if (!supabase) return { ok: false, code: "internal" };
   const service = createNewsReadService(createSupabaseNewsReadRepository(supabase, actor));
