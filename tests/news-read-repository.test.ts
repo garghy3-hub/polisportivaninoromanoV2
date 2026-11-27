@@ -13,6 +13,8 @@ const validContent = {
   body: "Testo completo della notizia.",
   seoTitle: "Titolo SEO",
   seoDescription: "Descrizione SEO.",
+  imageUrl: "",
+  imageAlt: "",
 };
 
 const validItem = {
@@ -88,6 +90,9 @@ describe("News read item guard", () => {
       { ...validContent, seoDescription: "d".repeat(161) },
       { ...validContent, excerpt: " " },
       { ...validContent, body: " " },
+      { ...validContent, imageUrl: "javascript:alert(1)", imageAlt: "Immagine" },
+      { ...validContent, imageUrl: "https://example.com/image.jpg", imageAlt: " " },
+      { ...validContent, imageUrl: "https://example.com/image.jpg", imageAlt: "a".repeat(201) },
     ];
     for (const content of invalidContent) {
       expect(isValidNewsReadItem({ ...validItem, content })).toBe(false);
