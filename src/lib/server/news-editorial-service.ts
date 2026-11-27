@@ -458,6 +458,7 @@ async function callRepository<T>(
       "slug-taken": "Questo slug è già utilizzato.",
       "invalid-transition": "L'operazione non è consentita nello stato corrente.",
       internal: "Operazione editoriale non riuscita. Riprova o contatta un amministratore.",
+      forbidden: "Il tuo ruolo non è autorizzato a eseguire questa operazione.",
     };
     const code = Object.hasOwn(messages, result.code) ? result.code : "internal";
     return { ok: false, code, message: messages[code] };
