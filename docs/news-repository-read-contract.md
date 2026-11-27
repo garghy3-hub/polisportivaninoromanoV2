@@ -25,8 +25,8 @@ A repository implementation should provide these server-side operations before t
 
 ## Query and consistency requirements
 
-- Use deterministic ordering (timestamp plus stable ID tie-breaker). The provider-neutral helper `src/lib/news-read-order.ts` sorts creation timestamps descending and IDs ascending for ties; adapter implementations should validate record timestamps and identifiers before use. Timestamp validation requires strict ISO date-time syntax with a timezone and valid calendar/time components. The helper now fails closed (throws `TypeError`) if any record is malformed instead of attempting a potentially misleading sort; unit tests cover malformed IDs, dates and top-level records.
-- Cursor or offset pagination must be bounded and validated. The provider-neutral read repository now includes a runtime page-envelope guard checking item-array shape, requested page-size bounds, and cursor shape/length; the repository module also provides a minimal read-item runtime shape guard, reusing strict timestamp validation (ISO date-time with timezone and valid components) for item creation/update timestamps. Domain-level validation, authorization and data provenance still remain adapter responsibilities.
+- Use deterministic ordering (timestamp plus stable ID tie-breaker). The provider-neutral helper `src/lib/news-read-order.ts` sorts creation timestamps descending and IDs ascending for ties; adapter implementations should validate record timestamps and identifiers before use. Timestamp validation requires strict ISO date-time syntax with a timezone and valid calendar/time components. The helper fails closed (throws `TypeError`) if any record is malformed instead of attempting a potentially misleading sort; unit tests cover malformed IDs, dates and top-level records.
+- Cursor or offset pagination must be bounded and validated. The provider-neutral read repository includes a runtime page-envelope guard checking item-array shape, requested page-size bounds, and cursor shape/length. It also exposes `isValidNewsReadItem()`, which checks the minimal shape of editorial queue items, recognized revision status, identifiers, required text fields, and strict creation/update timestamps. These are structural guards only: domain-level validation, authorization and data provenance remain adapter responsibilities.
 - History and audit queries must not silently omit entries due to unstable ordering.
 - Public reads and publication mutations must observe a consistent projection.
 - Avoid exposing provider-specific errors; normalize failures at the server boundary.
@@ -38,7 +38,7 @@ A repository implementation should provide these server-side operations before t
 
 ## Repository contract module
 
-`src/lib/news-read-repository.ts` now declares provider-neutral read DTOs and the `NewsReadRepository` interface for editorial list queries, revision lookup/history, restricted audit history, and published-by-slug reads. It is an interface only; implementations must still enforce authorization, scope, projection and consistency. The actor ID parameter is not itself proof of authorization.
+`src/lib/news-read-repository.ts` declares provider-neutral read DTOs and the `NewsReadRepository` interface for editorial list queries, revision lookup/history, restricted audit history, and published-by-slug reads. It is an interface only; implementations must still enforce authorization, scope, projection and consistency. The actor ID parameter is not itself proof of authorization.
 
 ## Acceptance checklist for the adapter
 
