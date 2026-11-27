@@ -507,6 +507,38 @@ describe("provider-neutral News editorial service", () => {
     });
   });
 
+  it("rejects repository revisions with unknown metadata fields", async () => {
+    vi.mocked(repository.createDraft).mockResolvedValueOnce({
+      ok: true,
+      value: {
+        ...record,
+        revision: { ...record.revision, internalToken: "must-not-cross-boundary" },
+      },
+    } as never);
+    await expect(service.createDraft(editor, validContent)).resolves.toMatchObject({
+      ok: false,
+      code: "internal",
+    });
+  });
+
+  it("validates optional revision metadata returned by the repository", async () => {
+    for (const patch of [
+      { reviewerId: 42 },
+      { reviewedAt: "yesterday" },
+      { reviewNote: "x".repeat(1001) },
+      { publishedAt: "2026-02-31T12:00:00Z" },
+    ]) {
+      vi.mocked(repository.createDraft).mockResolvedValueOnce({
+        ok: true,
+        value: { ...record, revision: { ...record.revision, ...patch } },
+      } as never);
+      await expect(service.createDraft(editor, validContent)).resolves.toMatchObject({
+        ok: false,
+        code: "internal",
+      });
+    }
+  });
+
   it("rejects repository records with malformed revision content", async () => {
     vi.mocked(repository.createDraft).mockResolvedValueOnce({
       ok: true,
