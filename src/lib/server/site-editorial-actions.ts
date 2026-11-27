@@ -35,8 +35,7 @@ function validatePayload(resource: SiteEditorialResource, payload: unknown): pay
   } catch {
     return false;
   }
-  if (new TextEncoder().encode(serialized).byteLength > 262144) return false;
-  if (typeof serialized !== "string") return false;
+  if (typeof serialized !== "string" || new TextEncoder().encode(serialized).byteLength > 262144) return false;
   try {
     return resource === "site-settings"
       ? validateSiteSettings(payload as unknown as SiteSettings).length === 0
