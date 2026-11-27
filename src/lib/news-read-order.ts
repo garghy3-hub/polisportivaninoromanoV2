@@ -15,6 +15,14 @@ export function compareNewsReadOrder(a: NewsReadOrderRecord, b: NewsReadOrderRec
   return a.id.localeCompare(b.id);
 }
 
+/** Validate the fields required by the stable ordering primitive. */
+export function isValidNewsReadOrderRecord(value: unknown): value is NewsReadOrderRecord {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const record = value as Partial<NewsReadOrderRecord>;
+  return typeof record.id === "string" && record.id.trim().length > 0 && record.id.length <= 128
+    && typeof record.createdAt === "string" && Number.isFinite(Date.parse(record.createdAt));
+}
+
 /** Return a sorted copy; never mutates the repository's original collection. */
 export function sortNewsReadRecords<T extends NewsReadOrderRecord>(records: readonly T[]): T[] {
   return [...records].sort(compareNewsReadOrder);
