@@ -46,4 +46,15 @@ describe("validateNewsReadQuery", () => {
     expect(validateNewsReadQuery({ search: " volley " })).toEqual({ ok: true, value: { pageSize: 20, search: "volley" } });
     expect(validateNewsReadQuery({ search: "x".repeat(201) }).ok).toBe(false);
   });
+  it("accepts normalized creator and date filters", () => {
+    expect(validateNewsReadQuery({ creatorId: " actor-7 ", createdAfter: "2026-01-01", createdBefore: "2026-02-01" })).toEqual({ ok: true, value: { pageSize: 20, creatorId: "actor-7", createdAfter: "2026-01-01T00:00:00.000Z", createdBefore: "2026-02-01T00:00:00.000Z" } });
+  });
+
+  it("rejects malformed creator/date filters and reversed date ranges", () => {
+    expect(validateNewsReadQuery({ creatorId: " " }).ok).toBe(false);
+    expect(validateNewsReadQuery({ creatorId: "x".repeat(129) }).ok).toBe(false);
+    expect(validateNewsReadQuery({ createdAfter: "not-a-date" }).ok).toBe(false);
+    expect(validateNewsReadQuery({ createdAfter: "2026-03-01", createdBefore: "2026-02-01" }).ok).toBe(false);
+  });
+
 });
