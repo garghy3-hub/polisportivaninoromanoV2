@@ -10,6 +10,7 @@ import {
   isValidNewsPublishedArticle,
   isValidNewsReadItem,
   isValidNewsReadPageEnvelope,
+  isValidNewsAuditEntry,
   type NewsPublishedArticle,
   type NewsReadItem,
   type NewsReadPage,
@@ -17,6 +18,7 @@ import {
   type NewsRevisionDetail,
 } from "./news-read-repository";
 import { validateNewsPublicListQuery, validateNewsReadQuery, type ValidNewsReadQuery } from "./news-read-query";
+import type { EditorialAuditEntry } from "./content-types";
 import { isValidNewsReadOrderRecord } from "./news-read-order";
 
 export type NewsReadFailureCode = "invalid" | "internal";
@@ -28,7 +30,7 @@ export interface NewsReadService {
   listEditorial(actorId: string, query: unknown): Promise<NewsReadResult<NewsReadPage<NewsReadItem>>>;
   getRevision(articleId: string, revisionId: string): Promise<NewsReadResult<NewsRevisionDetail | null>>;
   listRevisionHistory(articleId: string, query: unknown): Promise<NewsReadResult<NewsReadPage<NewsRevisionDetail>>>;
-  listAudit(articleId: string, query: unknown): Promise<NewsReadResult<NewsReadPage<unknown>>>;
+  listAudit(articleId: string, query: unknown): Promise<NewsReadResult<NewsReadPage<EditorialAuditEntry>>>;
   listPublished(query: unknown): Promise<NewsReadResult<NewsReadPage<NewsPublishedArticle>>>;
   getPublishedBySlug(slug: string): Promise<NewsReadResult<NewsPublishedArticle | null>>;
 }
@@ -77,8 +79,8 @@ export function createNewsReadService(repository: NewsReadRepository): NewsReadS
       if (!parsed.ok) return invalid(parsed.issues);
       return run(async () => {
         const page = await repository.listAudit(articleId, parsed.value);
-        if (!isValidNewsReadPageEnvelope(page, parsed.value.pageSize)) return failure();
-        return success(page);
+        if (!isValidNewsReadPageEnvelope(page, parsed.value.pageSize) || !page.items.every(isValidNewsAuditEntry)) return failure();
+        return success(page as NewsReadPage<EditorialAuditEntry>);
       });
     },
 
