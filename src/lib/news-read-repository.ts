@@ -13,6 +13,7 @@ export interface NewsReadItem {
   createdAt: string;
   updatedAt: string;
   creatorId: string;
+  version: number;
 }
 
 export interface NewsReadPage<T> {
@@ -112,13 +113,14 @@ export function isValidNewsDraftContent(value: unknown): value is NewsDraftConte
 /** Validate the minimal shape of an editorial queue item before consuming adapter data. */
 export function isValidNewsReadItem(value: unknown): value is NewsReadItem {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-  if (!hasExactKeys(value, ["articleId", "revisionId", "creatorId", "status", "createdAt", "updatedAt", "content"])) return false;
+  if (!hasExactKeys(value, ["articleId", "revisionId", "creatorId", "status", "createdAt", "updatedAt", "content", "version"])) return false;
   const item = value as Partial<NewsReadItem>;
   const statuses = ["draft", "in-review", "approved", "published", "rejected", "archived"];
   if (typeof item.articleId !== "string" || !item.articleId.trim() || item.articleId.length > 128) return false;
   if (typeof item.revisionId !== "string" || !item.revisionId.trim() || item.revisionId.length > 128) return false;
   if (typeof item.creatorId !== "string" || !item.creatorId.trim() || item.creatorId.length > 128) return false;
   if (typeof item.status !== "string" || !statuses.includes(item.status)) return false;
+  if (!Number.isInteger(item.version) || (item.version as number) < 1) return false;
   if (!isValidNewsReadOrderRecord({ id: item.articleId, createdAt: item.createdAt }) || !isValidNewsReadOrderRecord({ id: item.revisionId, createdAt: item.updatedAt })) return false;
   return isValidNewsDraftContent(item.content);
 }
