@@ -17,7 +17,7 @@ This schema introduces the first relational persistence layer for the V2 website
 
 ## Security model
 
-RLS is enabled for every new public-schema table. Anonymous and ordinary authenticated visitors see only rows marked public/published. Editorial users can read the working records according to the role helper. Editors can create and edit unpublished non-news content; Publishers and Administrators can publish. Direct writes to news workflow tables are deliberately denied until the transactional server adapter and its RPC commands are implemented. Audit records are written by database triggers and cannot be changed through the Data API.
+RLS is enabled for every new public-schema table. Anonymous and ordinary authenticated visitors see only rows marked public/published. Editorial users can read the working records according to the role helper. Editors can create and edit unpublished non-news content; Publishers and Administrators can publish. Direct writes to news workflow tables are deliberately denied until the transactional server adapter and its RPC commands are implemented. Audit records are readable only by Publisher/Administrator roles and cannot be changed through the Data API. Trusted server-side transactional commands must append audit rows alongside each mutation.
 
 The role helper lives in the non-exposed `private` schema, derives the role only from `auth.uid()`, and is executable only by authenticated users. No role is read from user-editable JWT metadata.
 
@@ -43,5 +43,5 @@ The existing `site_content` table is intentionally not repurposed for drafts: it
 
 - PostgreSQL version expected: 17.
 - Existing Storage bucket: `nrm-media`, public reads, 10 MiB cap, JPEG/PNG/WebP/AVIF.
-- The SQL file in this directory is the reviewed schema source. It must be applied through a versioned migration, not pasted into an ad-hoc production SQL session.
+- The SQL file in this directory is the reviewed schema source and is applied as a tracked Supabase migration, not pasted into an ad-hoc production SQL session.
 - No seed content or first Administrator is inserted. Bootstrap must be a controlled operator action after a verified Auth user exists.
