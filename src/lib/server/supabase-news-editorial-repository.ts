@@ -55,6 +55,12 @@ function mapRecord(value: unknown): NewsRevisionRecord | null {
     typeof raw.updated_by !== "string"
   ) return null;
 
+  const createdAt = normalizeTimestamp(raw.created_at);
+  const updatedAt = normalizeTimestamp(raw.updated_at);
+  const reviewedAt = raw.reviewed_at === null ? undefined : normalizeTimestamp(raw.reviewed_at);
+  const publishedAt = raw.published_at === null ? undefined : normalizeTimestamp(raw.published_at);
+  if (!createdAt || !updatedAt || (raw.reviewed_at !== null && !reviewedAt) || (raw.published_at !== null && !publishedAt)) return null;
+
   const content: NewsDraftContent = {
     title: raw.title,
     slug: raw.slug,
@@ -73,14 +79,14 @@ function mapRecord(value: unknown): NewsRevisionRecord | null {
     entityId: articleId,
     status: status as RevisionStatus,
     content,
-    createdAt: raw.created_at,
+    createdAt,
     createdBy: raw.created_by,
-    updatedAt: raw.updated_at,
+    updatedAt,
     updatedBy: raw.updated_by,
     ...(typeof raw.reviewer_id === "string" ? { reviewerId: raw.reviewer_id } : {}),
-    ...(typeof raw.reviewed_at === "string" ? { reviewedAt: raw.reviewed_at } : {}),
+    ...(reviewedAt ? { reviewedAt } : {}),
     ...(typeof raw.review_note === "string" ? { reviewNote: raw.review_note } : {}),
-    ...(typeof raw.published_at === "string" ? { publishedAt: raw.published_at } : {}),
+    ...(publishedAt ? { publishedAt } : {}),
   };
 
   return { revision, version: version as number };
@@ -171,4 +177,10 @@ export function createSupabaseNewsEditorialRepository(
       return command({ action: "restore", articleId, revisionId, expectedVersion });
     },
   };
+}
+
+function normalizeTimestamp(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const milliseconds = Date.parse(value);
+  return Number.isFinite(milliseconds) ? new Date(milliseconds).toISOString() : null;
 }
