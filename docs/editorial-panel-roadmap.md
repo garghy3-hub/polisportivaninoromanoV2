@@ -56,5 +56,6 @@ Prioritized implementation sequence for the V2 editorial panel. Provider selecti
 - Phase 0 contracts are documented.
 - Phase 1 is partially complete: Vitest runs in CI; pure permission/session helpers and a provider-neutral News service boundary cover draft creation, updates, review decisions, publication, unpublication, archive and restore commands. Unexpected repository errors are normalized before returning to callers. The service has no HTTP endpoint, trusted authentication adapter or repository implementation.
 - Phase 2 UI workbenches exist as local, non-persistent prototypes. They are not connected to the News service and do not save or publish content.
+- Read-side News requirements (work queue, revision history, audit history, public projection reads and protected preview) are documented in `docs/news-repository-read-contract.md`; they are not implemented.
 - Authentication, persistence, media storage, transactional audit, public projection integration and operational hardening remain unimplemented.
 - No provider, database, auth or deployment has been chosen or connected.
