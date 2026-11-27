@@ -16,6 +16,8 @@ export function validateArticle(article: NewsArticle): string[] {
   if (!nonEmpty(article.title)) issues.push("Missing article title.");
   if (nonEmpty(article.slug) && article.slug !== article.slug.trim())
     issues.push("Article slug must not have surrounding whitespace.");
+  if (nonEmpty(article.slug) && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(article.slug))
+    issues.push("Article slug must contain only lowercase letters, numbers and single hyphens.");
   if (!nonEmpty(article.body)) issues.push("Missing article body.");
   if (!["official", "match-report", "interview", "youth", "club-life"].includes(article.category))
     issues.push("Unknown article category.");
@@ -45,6 +47,8 @@ export function validateTeam(team: Team): string[] {
   if (!nonEmpty(team.slug)) issues.push("Missing team slug.");
   if (nonEmpty(team.slug) && team.slug !== team.slug.trim())
     issues.push("Team slug must not have surrounding whitespace.");
+  if (nonEmpty(team.slug) && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(team.slug))
+    issues.push("Team slug must contain only lowercase letters, numbers and single hyphens.");
   if (!["senior", "youth"].includes(team.category)) issues.push("Unknown team category.");
   if (team.order !== undefined && !Number.isInteger(team.order)) issues.push("Team order must be an integer.");
   if (team.visible !== undefined && typeof team.visible !== "boolean") issues.push("Team visibility must be boolean.");
@@ -151,6 +155,8 @@ export function validateEvent(event: MatchEvent): string[] {
     issues.push("Event visibility must be boolean.");
   if (event.outcome !== undefined && !["win", "loss", "draw"].includes(event.outcome))
     issues.push("Unknown match outcome.");
+  if (event.outcome !== undefined && event.status !== "completed")
+    issues.push("Match outcome may only be set for completed events.");
   if (event.outcome !== undefined && event.status === "completed" &&
     Number.isInteger(event.homeScore) && Number.isInteger(event.awayScore)) {
     const expected = event.homeScore! > event.awayScore! ? "win" :
