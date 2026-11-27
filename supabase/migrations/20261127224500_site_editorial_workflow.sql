@@ -97,16 +97,16 @@ begin
   end if;
 
   if p_action = 'save_draft' then
-    if pg_catalog.jsonb_typeof(p_payload) <> 'object'
+    if pg_catalog.jsonb_typeof(p_payload) is distinct from 'object'
        or pg_catalog.pg_column_size(p_payload) > 262144
        then
       return pg_catalog.jsonb_build_object('ok', false, 'code', 'invalid_payload');
     end if;
     if p_resource = 'site-settings'
        and (not (p_payload ?& array['interface','brand','site','navigation','home','news','teams','calendar','society','footer']::text[])
-         or pg_catalog.jsonb_typeof(p_payload->'navigation') <> 'array'
-         or pg_catalog.jsonb_typeof(p_payload->'home') <> 'object'
-         or pg_catalog.jsonb_typeof(p_payload->'site') <> 'object') then
+         or pg_catalog.jsonb_typeof(p_payload->'navigation') is distinct from 'array'
+         or pg_catalog.jsonb_typeof(p_payload->'home') is distinct from 'object'
+         or pg_catalog.jsonb_typeof(p_payload->'site') is distinct from 'object') then
       return pg_catalog.jsonb_build_object('ok', false, 'code', 'invalid_payload');
     end if;
     if p_resource = 'club-profile'
