@@ -1,4 +1,4 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
 import { NEWS_CATEGORIES } from "../content-types";
 import { getActiveEditorialActor } from "./editorial-auth";
 import { getSupabaseServerClient } from "../supabase/server";
@@ -6,7 +6,7 @@ import { isValidNewsDraftContent } from "../news-read-repository";
 import { createNewsEditorialService, type NewsDraftContent } from "./news-editorial-service";
 import { createSupabaseNewsEditorialRepository } from "./supabase-news-editorial-repository";
 
-async function withNewsService<T>(
+const withNewsService = createServerOnlyFn(async function withNewsService<T>(
   operation: (service: ReturnType<typeof createNewsEditorialService>, actor: NonNullable<Awaited<ReturnType<typeof getActiveEditorialActor>>>) => Promise<T>,
 ): Promise<T | { ok: false; code: "unauthenticated" | "internal" }> {
   const actor = await getActiveEditorialActor();
@@ -19,7 +19,7 @@ async function withNewsService<T>(
     NEWS_CATEGORIES,
   );
   return operation(service, actor);
-}
+});
 
 function isDraftPayload(value: unknown): value is NewsDraftContent {
   return isValidNewsDraftContent(value);
