@@ -111,7 +111,10 @@ function PagesWorkbench() {
   const patchFeature = (index: number, patch: Partial<HomeFeature>) => setSettings((current) => ({ ...current, home: { ...current.home, features: current.home.features.map((feature, i) => i === index ? { ...feature, ...patch } : feature) } }))
   const reorderFeatures = (index: number, direction: -1 | 1) => setSettings((current) => ({ ...current, home: { ...current.home, features: moveItem(current.home.features, index, direction) } }))
   const addFeature = () => setSettings((current) => {
-    const id = `sezione-${current.home.features.length + 1}`
+    const existingIds = new Set(current.home.features.map((feature) => feature.id))
+    let suffix = current.home.features.length + 1
+    let id = `sezione-${suffix}`
+    while (existingIds.has(id)) { suffix += 1; id = `sezione-${suffix}` }
     return { ...current, home: { ...current.home, features: [...current.home.features, { id, eyebrow: 'Nuova sezione', title: 'Titolo da definire', description: 'Descrizione da inserire', visible: false, order: current.home.features.length }] } }
   })
   const patchNavigation = (index: number, patch: Partial<SiteSettings['navigation'][number]>) => setSettings((current) => ({ ...current, navigation: current.navigation.map((item, i) => i === index ? { ...item, ...patch } : item) }))
