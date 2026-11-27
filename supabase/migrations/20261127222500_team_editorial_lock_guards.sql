@@ -24,12 +24,18 @@ for each row execute function private.guard_team_editorial_content();
 create or replace function private.guard_team_children_editorial()
 returns trigger language plpgsql security definer set search_path=''
 as $$
-declare v_team_id uuid; v_status text; v_transition boolean;
+declare v_old_status text; v_new_status text; v_protected boolean; v_transition boolean;
 begin
-  if tg_op='DELETE' then v_team_id:=old.team_id; else v_team_id:=new.team_id; end if;
-  select editorial_status into v_status from public.teams where id=v_team_id;
-  if v_status in ('in-review','approved','published') then
-    v_transition := tg_op='UPDATE'
+  if tg_op in ('UPDATE','DELETE') then
+    select editorial_status into v_old_status from public.teams where id=old.team_id;
+  end if;
+  if tg_op in ('INSERT','UPDATE') then
+    select editorial_status into v_new_status from public.teams where id=new.team_id;
+  end if;
+  v_protected := v_old_status in ('in-review','approved','published')
+    or v_new_status in ('in-review','approved','published');
+  if v_protected then
+    v_transition := tg_op='UPDATE' and old.team_id=new.team_id
       and (to_jsonb(new)-'is_published'-'updated_at') is not distinct from
           (to_jsonb(old)-'is_published'-'updated_at')
       and new.is_published is distinct from old.is_published;
