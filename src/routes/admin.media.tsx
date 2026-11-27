@@ -8,9 +8,9 @@ const MAX_BYTES=10*1024*1024, ALLOWED=['image/jpeg','image/png','image/webp','im
 type ViewItem=StoredMedia & {url:string}
 function MediaLibraryWorkbench(){
  const [items,setItems]=useState<ViewItem[]>([]),[selected,setSelected]=useState<File|null>(null),[preview,setPreview]=useState(''),[alt,setAlt]=useState(''),[caption,setCaption]=useState(''),[message,setMessage]=useState(''),[loading,setLoading]=useState(true)
- const inputRef=useRef<HTMLInputElement>(null)
- const refresh=async()=>{try{const stored=await listStoredMedia();setItems(stored.map(x=>({...x,url:URL.createObjectURL(x.blob)})))}catch{setMessage('Archivio locale non disponibile.')}finally{setLoading(false)}}
- useEffect(()=>{void refresh();return()=>{items.forEach(x=>URL.revokeObjectURL(x.url));if(preview)URL.revokeObjectURL(preview)}},[])
+ const inputRef=useRef<HTMLInputElement>(null), urlsRef=useRef<string[]>([])
+ const refresh=async()=>{try{const stored=await listStoredMedia();urlsRef.current.forEach(URL.revokeObjectURL);const next=stored.map(x=>({...x,url:URL.createObjectURL(x.blob)}));urlsRef.current=next.map(x=>x.url);setItems(next)}catch{setMessage('Archivio locale non disponibile.')}finally{setLoading(false)}}
+ useEffect(()=>{void refresh();return()=>{urlsRef.current.forEach(URL.revokeObjectURL);if(preview)URL.revokeObjectURL(preview)}},[])
  const choose=(file:File|null)=>{if(!file)return;setMessage('');if(!ALLOWED.includes(file.type)){setMessage('Formato non supportato.');return}if(!file.size||file.size>MAX_BYTES){setMessage('File vuoto o superiore a 10 MiB.');return}if(items.length>=100){setMessage('Limite locale di 100 file raggiunto.');return}if(preview)URL.revokeObjectURL(preview);const url=URL.createObjectURL(file);setSelected(file);setPreview(url);setAlt('');setCaption('')}
  const add=async()=>{if(!selected||!alt.trim()){setMessage('Alt text obbligatorio.');return}try{const id=crypto.randomUUID();await saveStoredMedia({id,blob:selected,name:selected.name,type:selected.type,alt:alt.trim(),caption:caption.trim(),addedAt:new Date().toISOString()});setMessage('Immagine archiviata localmente in IndexedDB.');setSelected(null);setPreview('');setAlt('');setCaption('');await refresh()}catch{setMessage('Salvataggio locale fallito.')}}
  const remove=async(id:string)=>{if(!confirm('Eliminare questo file dalla raccolta locale?'))return;try{await deleteStoredMedia(id);items.filter(x=>x.id===id).forEach(x=>URL.revokeObjectURL(x.url));await refresh();setMessage('Immagine eliminata.')}catch{setMessage('Eliminazione non riuscita.')}}
