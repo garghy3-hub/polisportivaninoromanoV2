@@ -17,7 +17,7 @@ const command = createServerOnlyFn(async (data: {action:"submit"|"approve"|"reje
 });
 function isStrictIsoTimestamp(value: unknown): value is string {
  if (typeof value !== "string") return false;
- const match = /^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(?:\\.\\d{1,9})?(Z|[+-]\\d{2}:\\d{2})$/.exec(value);
+ const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?(Z|[+-]\d{2}:\d{2})$/.exec(value);
  if (!match) return false;
  const [, yearText, monthText, dayText, hourText, minuteText, secondText, zone] = match;
  const year = Number(yearText), month = Number(monthText), day = Number(dayText);
@@ -28,7 +28,7 @@ function isStrictIsoTimestamp(value: unknown): value is string {
  date.setUTCHours(hour, minute, second, 0);
  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return false;
  if (zone !== "Z") {
-   const offset = /[+-](\\d{2}):(\\d{2})$/.exec(zone);
+   const offset = /[+-](\d{2}):(\d{2})$/.exec(zone);
    if (!offset || Number(offset[1]) > 23 || Number(offset[2]) > 59) return false;
  }
  return Number.isFinite(Date.parse(value));
