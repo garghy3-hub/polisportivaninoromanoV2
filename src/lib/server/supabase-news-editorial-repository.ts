@@ -27,7 +27,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function mapRecord(value: unknown): NewsRevisionRecord | null {
+export function mapNewsRevisionRecord(value: unknown): NewsRevisionRecord | null {
   if (!isObject(value) || !isObject(value.revision)) return null;
   const raw = value.revision;
   const articleId = raw.article_id;
@@ -129,7 +129,7 @@ export function createSupabaseNewsEditorialRepository(
         p_payload: args.payload ?? {},
       });
       if (error) return { ok: false, code: mapFailure(error) };
-      const record = mapRecord(data);
+      const record = mapNewsRevisionRecord(data);
       return record
         ? { ok: true, value: record }
         : { ok: false, code: "internal" };
