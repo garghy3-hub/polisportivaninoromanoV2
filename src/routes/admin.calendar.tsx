@@ -65,7 +65,7 @@ function CalendarWorkbench() {
   const saveDraft = async () => {
     if (!canSaveDraft) {
       setDraftMessage('Completa i campi obbligatori e correggi gli errori prima di salvare.')
-      return false
+      return null
     }
     const startsAt = new Date(dateTime)
     if (!Number.isFinite(startsAt.getTime())) {
@@ -103,7 +103,7 @@ function CalendarWorkbench() {
       setEventId(result.eventId)
       setUpdatedAt(result.updatedAt)
       setDraftMessage('Bozza salvata nel database condiviso.')
-      return true
+      return { eventId: result.eventId, updatedAt: result.updatedAt }
     } catch {
       setDraftMessage('Servizio non disponibile: bozza non salvata.')
       return false
@@ -112,16 +112,10 @@ function CalendarWorkbench() {
 
   const submitForReview = async () => {
     const saved = await saveDraft()
-    if (!saved || !eventId && !updatedAt) return
-    const savedId = eventId
-    const savedUpdatedAt = updatedAt
-    if (!savedId || !savedUpdatedAt) {
-      setDraftMessage('Bozza salvata. Premi nuovamente “Invia in revisione” per completare l’invio.')
-      return
-    }
+    if (!saved) return
     try {
       const result = await runWorkflow({ data: {
-        action: 'submit', eventId: savedId, expectedUpdatedAt: savedUpdatedAt, note: '',
+        action: 'submit', eventId: saved.eventId, expectedUpdatedAt: saved.updatedAt, note: '',
       } })
       if (!result.ok) {
         setDraftMessage(result.code === 'conflict'
