@@ -3,7 +3,10 @@ import { AdminNav } from '../components/AdminNav'
 import { getCurrentEditorialUserFn } from '../lib/server/editorial-auth'
 
 export const Route = createFileRoute('/admin')({
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
+    // The login screen shares this route prefix but must remain reachable
+    // without an authenticated parent route.
+    if (location.pathname === '/admin/login') return { editorialUser: null }
     const user = await getCurrentEditorialUserFn()
     if (!user) throw redirect({ to: '/admin/login' })
     return { editorialUser: user }
