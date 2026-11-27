@@ -5,7 +5,7 @@ import { localContentService } from '../lib/content-service'
 import { validateClubProfile, validateSiteSettings } from '../lib/content-validation'
 import type { ClubContact, ClubPartner, ClubPerson, ClubProfile, SocietyPillar, SocietyPageContent } from '../lib/content-types'
 
-export const Route = createFileRoute('/admin/society')({ component: SocietyWorkbench })
+export const Route = createFileRoute('/admin/society')({ headers: () => ({ 'Cache-Control': 'private, no-store' }), component: SocietyWorkbench })
 
 const SOCIETY_DRAFT_KEY = 'nino-romano-v2-society-draft'
 const SOCIETY_DRAFT_VERSION = 1
