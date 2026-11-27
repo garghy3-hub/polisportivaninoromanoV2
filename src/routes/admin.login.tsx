@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { editorialLoginFn, getCurrentEditorialUserFn } from "../lib/server/editorial-auth";
 
 export const Route = createFileRoute("/admin/login")({
+  headers: () => ({ "Cache-Control": "private, no-store" }),
   beforeLoad: async () => {
     const user = await getCurrentEditorialUserFn();
     if (user) throw redirect({ to: "/admin" });
