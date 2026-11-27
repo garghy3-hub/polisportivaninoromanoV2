@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { AdminNav } from '../components/AdminNav'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { localContentService } from '../lib/content-service'
 import { validateSiteSettings } from '../lib/content-validation'
 import type { HomeFeature, HomePageContent, SiteSettings, StandardPageContent } from '../lib/content-types'
@@ -48,6 +48,9 @@ const homeFields: { key: HomeTextKey; label: string; multiline?: boolean }[] = [
 const pageLabels = { news: 'News', teams: 'Squadre', calendar: 'Calendario', society: 'Società' } as const
 type PageKey = keyof typeof pageLabels
 
+const PAGE_SETTINGS_KEY = 'nino-romano-v2-site-settings'
+const PAGE_SETTINGS_VERSION = 1
+
 function moveItem<T extends { order: number }>(items: T[], index: number, direction: -1 | 1): T[] {
   const target = index + direction
   if (target < 0 || target >= items.length) return items
@@ -60,6 +63,48 @@ function PagesWorkbench() {
   const initial = localContentService.settings()
   const [settings, setSettings] = useState<SiteSettings>(() => JSON.parse(JSON.stringify(initial)) as SiteSettings)
   const [activeTab, setActiveTab] = useState<'home' | 'pages' | 'navigation' | 'seo'>('home')
+  const [saveMessage, setSaveMessage] = useState('')
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(PAGE_SETTINGS_KEY)
+      if (!raw) return
+      const parsed: unknown = JSON.parse(raw)
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return
+      const envelope = parsed as { version?: unknown; settings?: unknown }
+      if (envelope.version !== PAGE_SETTINGS_VERSION || !envelope.settings || typeof envelope.settings !== 'object') {
+        setSaveMessage('Salvataggio locale precedente non riconosciuto: impostazioni iniziali caricate.')
+        return
+      }
+      const restored = envelope.settings as SiteSettings
+      if (validateSiteSettings(restored).length === 0) {
+        setSettings(restored)
+        setSaveMessage('Ultima configurazione locale ripristinata.')
+      } else {
+        setSaveMessage('Configurazione locale non valida: impostazioni iniziali caricate.')
+      }
+    } catch {
+      setSaveMessage('Impossibile leggere le impostazioni locali.')
+    }
+  }, [])
+  const saveSettings = () => {
+    if (issues.length) { setSaveMessage('Correggi gli avvisi di validazione prima di salvare.'); return }
+    try {
+      window.localStorage.setItem(PAGE_SETTINGS_KEY, JSON.stringify({ version: PAGE_SETTINGS_VERSION, savedAt: new Date().toISOString(), settings }))
+      setSaveMessage('Impostazioni salvate in questo browser.')
+    } catch {
+      setSaveMessage('Salvataggio non riuscito: spazio locale non disponibile.')
+    }
+  }
+  const resetSettings = () => {
+    if (!window.confirm('Ripristinare le impostazioni iniziali? Le modifiche locali salvate saranno eliminate.')) return
+    try {
+      window.localStorage.removeItem(PAGE_SETTINGS_KEY)
+      setSettings(JSON.parse(JSON.stringify(initial)) as SiteSettings)
+      setSaveMessage('Impostazioni iniziali ripristinate.')
+    } catch {
+      setSaveMessage('Ripristino non riuscito.')
+    }
+  }
   const issues = useMemo(() => validateSiteSettings(settings), [settings])
   const patchHome = (key: HomeTextKey, value: string) => setSettings((current) => ({ ...current, home: { ...current.home, [key]: value } }))
   const patchPage = (page: PageKey, key: keyof StandardPageContent, value: string) => setSettings((current) => ({ ...current, [page]: { ...current[page], [key]: value } }))
@@ -85,9 +130,10 @@ function PagesWorkbench() {
 
         <section className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5" aria-labelledby="pages-prototype-notice">
           <h2 id="pages-prototype-notice" className="font-bold text-amber-200">Prototipo locale — nessun salvataggio</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-300">Le modifiche restano temporanee nello stato della pagina. Non sono collegate ad autenticazione, API, revisioni o database e non cambiano il sito pubblico. La validazione è un controllo preliminare lato interfaccia.</p>
+          <p className="mt-2 text-sm leading-6 text-slate-300">Le modifiche possono essere salvate solo nel browser corrente. Non sono collegate ad autenticazione, API, revisioni o database e non cambiano il sito pubblico. La validazione è un controllo preliminare lato interfaccia.</p>
         </section>
 
+        <div className="mt-6 flex flex-wrap items-center gap-3"><button type="button" onClick={saveSettings} className="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold hover:bg-emerald-600">Salva impostazioni sul dispositivo</button><button type="button" onClick={resetSettings} className="rounded-xl border border-white/20 px-4 py-3 text-sm font-semibold hover:bg-white/10">Ripristina iniziali</button>{saveMessage && <p role="status" aria-live="polite" className="text-sm text-slate-300">{saveMessage}</p>}</div>
         <div className="mt-8 flex flex-wrap gap-2" role="tablist" aria-label="Sezioni editor pagine">
           {([{ id: 'home', label: 'Homepage' }, { id: 'pages', label: 'Pagine interne' }, { id: 'navigation', label: 'Menu' }, { id: 'seo', label: 'SEO sito' }] as const).map((tab) => <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => setActiveTab(tab.id)} className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${activeTab === tab.id ? 'border-red-400 bg-red-500/15 text-white' : 'border-white/15 text-slate-400 hover:border-white/30 hover:text-white'}`}>{tab.label}</button>)}
         </div>
