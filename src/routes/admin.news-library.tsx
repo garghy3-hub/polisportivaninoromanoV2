@@ -3,7 +3,7 @@ import { AdminNav } from '../components/AdminNav'
 import { useEffect, useRef, useState } from 'react'
 import { readLocalNewsLibrary, deleteLocalNewsLibraryItem, type LocalNewsLibraryItem, type NewsLibraryStorage } from '../lib/news-local-library'
 
-export const Route=createFileRoute('/admin/news-library')({component:NewsLibrary})
+export const Route=createFileRoute('/admin/news-library')({ headers: () => ({ 'Cache-Control': 'private, no-store' }),component:NewsLibrary})
 const STORAGE_KEY='nino-romano-v2-news-library'
 
 function NewsLibrary(){
