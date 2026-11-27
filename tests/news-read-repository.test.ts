@@ -21,6 +21,7 @@ const validItem = {
   articleId: "article-1",
   revisionId: "revision-1",
   creatorId: "editor-1",
+  version: 1,
   status: "draft",
   createdAt: "2026-11-27T05:00:00Z",
   updatedAt: "2026-11-27T05:30:00+01:00",
