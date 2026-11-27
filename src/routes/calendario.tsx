@@ -1,12 +1,15 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { localContentService } from '../lib/content-service'
 import { getPageHead } from '../lib/page-seo'
+import { getCompletedEvents, getUpcomingEvents } from '../lib/content-query'
+import { publicCalendarFn } from '../lib/server/public-calendar'
 
-export const Route = createFileRoute('/calendario')({ head: () => getPageHead(localContentService.settings().calendar), component: CalendarPage })
+export const Route = createFileRoute('/calendario')({ loader: () => publicCalendarFn(), head: () => getPageHead(localContentService.settings().calendar), component: CalendarPage })
 
 function CalendarPage() {
-  const upcoming = localContentService.upcoming()
-  const results = localContentService.results()
+  const publishedCalendar = Route.useLoaderData()
+  const upcoming = publishedCalendar.configured ? getUpcomingEvents(publishedCalendar.events) : localContentService.upcoming()
+  const results = publishedCalendar.configured ? getCompletedEvents(publishedCalendar.events) : localContentService.results()
   const settings = localContentService.settings()
   const content = settings.calendar
   const formatDate = (value: string, withTime = true) => new Date(value).toLocaleString(settings.site.locale, withTime
