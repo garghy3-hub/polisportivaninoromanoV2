@@ -1,6 +1,6 @@
 /** Provider-neutral contracts for the future News read repository. No adapter is implemented here. */
 import type { EditorialRevision } from "./content-types";
-import type { ValidNewsReadQuery } from "./news-read-query";
+import { NEWS_READ_PAGE_SIZE_MAX, NEWS_READ_CURSOR_MAX_LENGTH, type ValidNewsReadQuery } from "./news-read-query";
 import type { NewsDraftContent } from "./server/news-editorial-service";
 
 export interface NewsReadItem {
@@ -42,3 +42,13 @@ export interface NewsReadRepository {
  * deterministic ordering, projection minimization, and atomic publication reads.
  * Never use a client-supplied actor ID as proof of authorization.
  */
+
+/** Runtime guard for adapter page envelopes; item-specific validation remains separate. */
+export function isValidNewsReadPageEnvelope(value: unknown, requestedPageSize: number): value is NewsReadPage<unknown> {
+  if (!Number.isInteger(requestedPageSize) || requestedPageSize < 1 || requestedPageSize > NEWS_READ_PAGE_SIZE_MAX) return false;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const page = value as Partial<NewsReadPage<unknown>>;
+  if (!Array.isArray(page.items) || page.items.length > requestedPageSize) return false;
+  if (page.nextCursor !== null && (typeof page.nextCursor !== "string" || !page.nextCursor.trim() || page.nextCursor.length > NEWS_READ_CURSOR_MAX_LENGTH)) return false;
+  return true;
+}
