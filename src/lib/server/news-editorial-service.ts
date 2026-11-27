@@ -447,7 +447,7 @@ async function callRepository<T>(
     if (!isRepositoryResult(result)) return internalFailure();
     if (result.ok) {
       if (!isValidNewsRevisionRecord(result.value)) return internalFailure();
-      return result;
+      return result as NewsRepositoryResult<T>;
     }
     // Repository adapters are trusted server code, but their failure messages
     // may contain provider/SQL details. Expose only stable codes and safe copy.
