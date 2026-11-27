@@ -28,6 +28,8 @@ describe("editorial server session boundary", () => {
     expect(resolveEditorialActor(null, now)).toBeNull();
     expect(resolveEditorialActor(undefined, now)).toBeNull();
     expect(resolveEditorialActor({ ...activeSession, id: " " }, now)).toBeNull();
+    expect(resolveEditorialActor({ ...activeSession, id: "x".repeat(128) }, now)).not.toBeNull();
+    expect(resolveEditorialActor({ ...activeSession, actorId: "x".repeat(128) }, now)).not.toBeNull();
     expect(resolveEditorialActor({ ...activeSession, id: "x".repeat(129) }, now)).toBeNull();
     expect(resolveEditorialActor({ ...activeSession, actorId: "x".repeat(129) }, now)).toBeNull();
     expect(resolveEditorialActor({ ...activeSession, unexpected: true }, now)).toBeNull();
