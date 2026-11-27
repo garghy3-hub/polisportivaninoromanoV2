@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   NEWS_READ_PAGE_SIZE_MAX,
   NEWS_READ_CURSOR_MAX_LENGTH,
-  validateNewsReadQuery,\n  validateNewsPublicListQuery,
+  validateNewsReadQuery,
+  validateNewsPublicListQuery,
 } from "../src/lib/news-read-query";
 
 describe("validateNewsReadQuery", () => {
