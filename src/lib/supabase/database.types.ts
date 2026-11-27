@@ -646,6 +646,15 @@ export type Database = {
       }
     }
     Functions: {
+      team_editorial_command: {
+        Args: {
+          p_action: string
+          p_expected_updated_at?: string | null
+          p_payload?: Json
+          p_team_id?: string | null
+        }
+        Returns: Json
+      }
       news_editorial_command: {
         Args: {
           p_action: string
