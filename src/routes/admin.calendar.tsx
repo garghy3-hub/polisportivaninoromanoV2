@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { AdminNav } from '../components/AdminNav'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { localContentService } from '../lib/content-service'
 import type { EventStatus, MatchEvent } from '../lib/content-types'
 import { validateEvent } from '../lib/content-validation'
 
 export const Route = createFileRoute('/admin/calendar')({ component: CalendarWorkbench })
+
+const calendarDraftKey = 'nino-romano-v2-calendar-draft'
 
 function CalendarWorkbench() {
   const settings = localContentService.settings()
@@ -23,6 +25,42 @@ function CalendarWorkbench() {
   const [awayScore, setAwayScore] = useState('')
   const [notes, setNotes] = useState('')
   const [visible, setVisible] = useState(true)
+  const [draftMessage, setDraftMessage] = useState('')
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(calendarDraftKey)
+      if (!raw) return
+      const parsed: unknown = JSON.parse(raw)
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return
+      const saved = parsed as Record<string, unknown>
+      if (saved.version !== 1 || !saved.event || typeof saved.event !== 'object' || Array.isArray(saved.event)) return
+      const candidate = saved.event as MatchEvent
+      if (typeof candidate.id !== 'string' || typeof candidate.dateTime !== 'string' ||
+        typeof candidate.homeTeam !== 'string' || typeof candidate.awayTeam !== 'string' ||
+        !['scheduled', 'postponed', 'cancelled', 'completed'].includes(candidate.status)) return
+      if (validateEvent(candidate).length > 0) {
+        setDraftMessage('La bozza salvata contiene dati non validi e non è stata ripristinata.')
+        return
+      }
+      setDateTime(candidate.dateTime)
+      setHomeTeam(candidate.homeTeam)
+      setAwayTeam(candidate.awayTeam)
+      setType(candidate.type ?? '')
+      setSeason(candidate.season ?? '')
+      setCompetition(candidate.competition ?? '')
+      setRound(candidate.round ?? '')
+      setVenue(candidate.venue ?? '')
+      setStatus(candidate.status)
+      setHomeScore(candidate.homeScore === undefined ? '' : String(candidate.homeScore))
+      setAwayScore(candidate.awayScore === undefined ? '' : String(candidate.awayScore))
+      setNotes(candidate.notes ?? '')
+      setVisible(candidate.visible ?? true)
+      setDraftMessage('Bozza ripristinata da questo browser.')
+    } catch {
+      setDraftMessage('Impossibile leggere la bozza locale.')
+    }
+  }, [])
 
   const parsedHomeScore = homeScore.trim() === '' ? undefined : Number(homeScore)
   const parsedAwayScore = awayScore.trim() === '' ? undefined : Number(awayScore)
@@ -52,6 +90,32 @@ function CalendarWorkbench() {
   }
   const issues = validateEvent(event)
   const requiredFieldsComplete = Boolean(dateTime && homeTeam.trim() && awayTeam.trim() && type.trim())
+  const canSaveDraft = requiredFieldsComplete && issues.length === 0
+  const saveDraft = () => {
+    if (!canSaveDraft) {
+      setDraftMessage('Completa i campi obbligatori e correggi gli errori prima di salvare.')
+      return
+    }
+    try {
+      window.localStorage.setItem(calendarDraftKey, JSON.stringify({
+        version: 1,
+        savedAt: new Date().toISOString(),
+        event,
+      }))
+      setDraftMessage('Bozza salvata in questo browser.')
+    } catch {
+      setDraftMessage('Salvataggio non riuscito: spazio locale non disponibile.')
+    }
+  }
+  const clearDraft = () => {
+    if (!window.confirm('Eliminare la bozza del calendario salvata in questo browser?')) return
+    try {
+      window.localStorage.removeItem(calendarDraftKey)
+      setDraftMessage('Bozza locale eliminata.')
+    } catch {
+      setDraftMessage('Impossibile eliminare la bozza locale.')
+    }
+  }
   const updateStatus = (next: EventStatus) => {
     setStatus(next)
     if (next !== 'completed') {
@@ -72,9 +136,15 @@ function CalendarWorkbench() {
         </header>
 
         <section className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5" aria-labelledby="calendar-prototype-notice">
-          <h2 id="calendar-prototype-notice" className="font-bold text-amber-200">Prototipo locale — nessun salvataggio</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-300">I dati restano temporanei nel browser e non modificano il calendario pubblico. Non sono collegati autenticazione, API, revisioni o database. Inserisci esclusivamente informazioni verificate.</p>
+          <h2 id="calendar-prototype-notice" className="font-bold text-amber-200">Prototipo locale — bozza salvata solo su questo browser</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-300">Puoi salvare e ripristinare una singola bozza su questo dispositivo. Non modifica il calendario pubblico e non è condivisa con altri dispositivi. Autenticazione, API, revisioni e database non sono collegati. Inserisci esclusivamente informazioni verificate.</p>
         </section>
+
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <button type="button" onClick={saveDraft} disabled={!canSaveDraft} className="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40">Salva bozza sul dispositivo</button>
+          <button type="button" onClick={clearDraft} className="rounded-xl border border-white/20 px-4 py-3 text-sm font-semibold hover:bg-white/10">Elimina bozza salvata</button>
+          {draftMessage && <p role="status" aria-live="polite" className="text-sm text-slate-300">{draftMessage}</p>}
+        </div>
 
         <div className="mt-8 grid gap-8 xl:grid-cols-2">
           <section className="space-y-6" aria-label="Campi appuntamento">
