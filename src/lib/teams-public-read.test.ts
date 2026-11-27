@@ -26,7 +26,7 @@ describe("mapPublishedTeams", () => {
       seasons: [{ id: "season-1", label: "2026/27" }],
       members: [
         { id: "player-1", team_id: "team-1", name: "Atleta", jersey_number: 7, position: "Schiacciatrice", biography: null, photo_asset_id: "photo", is_published: true, display_order: 1 },
-        { id: "player-draft", team_id: "team-1", name: "Bozza", jersey_number: null, position: null, biography: null, photo_asset_id: null, is_published: false, display_order: 0, created_at: "", updated_at: "" },
+        { id: "player-draft", team_id: "team-1", name: "Bozza", jersey_number: null, position: null, biography: null, photo_asset_id: null, is_published: false, display_order: 0 },
       ],
       staff: [
         { id: "staff-1", team_id: "team-1", name: "Tecnico", role_label: "Allenatore", biography: null, photo_asset_id: null, is_published: true, display_order: 0, created_at: "", updated_at: "" },
