@@ -52,6 +52,8 @@ function mapRevisionDetail(row: unknown): NewsRevisionDetail | null {
 function mapReadItem(row: unknown): NewsReadItem | null {
   const detail = mapRevisionDetail(row);
   if (!detail) return null;
+  const mapped = mapNewsRevisionRecord({ revision: row, version: (row as { version?: unknown } | null)?.version });
+  if (!mapped) return null;
   return {
     articleId: detail.articleId,
     revisionId: detail.revision.id,
@@ -60,6 +62,7 @@ function mapReadItem(row: unknown): NewsReadItem | null {
     createdAt: detail.revision.createdAt,
     updatedAt: detail.revision.updatedAt,
     creatorId: detail.revision.createdBy,
+    version: mapped.version,
   };
 }
 
