@@ -10,6 +10,7 @@ const items = [
   { label: 'Squadre', href: '/admin/teams' },
   { label: 'Revisioni squadre', href: '/admin/team-review' },
   { label: 'Calendario', href: '/admin/calendar' },
+  { label: 'Revisioni calendario', href: '/admin/calendar-review' },
   { label: 'Pagine', href: '/admin/pages' },
   { label: 'Media', href: '/admin/media' },
   { label: 'Brand', href: '/admin/brand' },
