@@ -19,7 +19,7 @@ begin
       add constraint admin_users_role_check
       check (role in ('reader', 'editor', 'publisher', 'administrator'));
   end if;
-end $$;
+end; $;
 
 create schema if not exists private;
 revoke all on schema private from public, anon;
@@ -280,7 +280,7 @@ begin
       t, t
     );
   end loop;
-end $$;
+end; $;
 
 -- Updated timestamps are server-generated.
 create or replace function private.set_updated_at()
@@ -309,7 +309,7 @@ begin
       t, t
     );
   end loop;
-end $$;
+end; $;
 
 -- RLS is enabled on every exposed application table.
 alter table public.seasons enable row level security;
