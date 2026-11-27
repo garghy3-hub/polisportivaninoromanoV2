@@ -1,9 +1,18 @@
 import { useEffect, useState } from 'react'
-import { createRootRoute, HeadContent, Link, Outlet, Scripts } from '@tanstack/react-router'
+import { createRootRoute, HeadContent, Link, Outlet, Scripts, redirect } from '@tanstack/react-router'
 import '../styles.css'
 import { localContentService } from '../lib/content-service'
+import { getCurrentEditorialUserFn } from '../lib/server/editorial-auth'
 
 export const Route = createRootRoute({
+  beforeLoad: async ({ location }) => {
+    // Protect every /admin route, including routes that are not rendered as
+    // children of the dashboard file route. Keep the login page public.
+    if (location.pathname.startsWith('/admin') && location.pathname !== '/admin/login') {
+      const user = await getCurrentEditorialUserFn()
+      if (!user) throw redirect({ to: '/admin/login' })
+    }
+  },
   head: () => {
     const site = localContentService.settings().site
     return { meta: [
