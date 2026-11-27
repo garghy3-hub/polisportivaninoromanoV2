@@ -25,7 +25,7 @@ export function toPublicNewsArticle(value: unknown): NewsArticle | null {
     title: content.title,
     excerpt: content.excerpt,
     status: "published",
-    category: content.category,
+    category: content.category as NewsArticle["category"],
     body: content.body,
     createdAt: article.publishedAt,
     updatedAt: article.publishedAt,
