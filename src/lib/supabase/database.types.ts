@@ -570,6 +570,7 @@ export type Database = {
           description: string | null
           display_order: number
           id: string
+          editorial_status: string
           is_published: boolean
           logo_asset_id: string | null
           name: string
@@ -585,6 +586,7 @@ export type Database = {
           description?: string | null
           display_order?: number
           id?: string
+          editorial_status?: string
           is_published?: boolean
           logo_asset_id?: string | null
           name: string
@@ -600,6 +602,7 @@ export type Database = {
           description?: string | null
           display_order?: number
           id?: string
+          editorial_status?: string
           is_published?: boolean
           logo_asset_id?: string | null
           name?: string
@@ -647,6 +650,15 @@ export type Database = {
     }
     Functions: {
       team_editorial_command: {
+        Args: {
+          p_action: string
+          p_expected_updated_at?: string | null
+          p_payload?: Json
+          p_team_id?: string | null
+        }
+        Returns: Json
+      }
+      team_editorial_workflow_command: {
         Args: {
           p_action: string
           p_expected_updated_at?: string | null
