@@ -421,6 +421,9 @@ function actorHasPermission(
     | "archive-content"
     | "restore-content",
 ): boolean {
+  if (!actor || typeof actor !== "object") return false;
+  if (typeof actor.id !== "string" || actor.id.trim().length === 0 || actor.id.length > 128) return false;
+  if (typeof actor.sessionId !== "string" || actor.sessionId.trim().length === 0 || actor.sessionId.length > 128) return false;
   return hasEditorialPermission(actor.role, permission);
 }
 
