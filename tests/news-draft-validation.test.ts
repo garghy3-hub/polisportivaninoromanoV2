@@ -51,6 +51,7 @@ describe('validateNewsDraft', () => {
     const issues = validateNewsDraft({ ...validDraft, imageUrl: 'javascript:alert(1)' })
     expect(issues.some((issue) => issue.field === 'imageUrl')).toBe(true)
   })
+
   it('treats whitespace-only required fields as missing', () => {
     const issues = validateNewsDraft({ ...validDraft, title: '   ', category: '\n', excerpt: '  ', body: '\t' })
     expect(issues.map((issue) => issue.field)).toEqual(['title', 'category', 'excerpt', 'body'])
@@ -92,4 +93,23 @@ describe('validateNewsDraft', () => {
     expect(issues.some((issue) => issue.field === 'imageAlt')).toBe(true)
   })
 
+  it('rejects malformed runtime values without throwing', () => {
+    const malformed = {
+      ...validDraft,
+      title: 42,
+      imageUrl: { url: 'https://example.com/cover.jpg' },
+    } as unknown as NewsDraftInput
+
+    const issues = validateNewsDraft(malformed)
+    expect(issues.some(issue => issue.field === 'title')).toBe(true)
+    expect(issues.some(issue => issue.field === 'imageUrl')).toBe(true)
+  })
+
+  it('rejects a non-object runtime payload without throwing', () => {
+    const issues = validateNewsDraft(null as unknown as NewsDraftInput)
+    expect(issues.map(issue => issue.field)).toEqual([
+      'title', 'slug', 'category', 'excerpt', 'body',
+      'seoTitle', 'seoDescription', 'imageUrl', 'imageAlt',
+    ])
+  })
 })
