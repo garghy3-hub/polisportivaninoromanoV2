@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { AdminNav } from '../components/AdminNav'
 import { useEffect, useState } from 'react'
 import { saveLocalNewsDraft, loadLocalNewsDraft, clearLocalNewsDraft } from '../lib/news-local-drafts'
 import { listLocalNewsLibrary, saveLocalNewsLibraryItem } from '../lib/news-local-library'
@@ -70,6 +71,7 @@ function NewsDraftWorkbench() {
     <main id="main-content" tabIndex={-1} className="min-h-screen bg-[#090d18] px-5 py-12 text-white sm:px-8">
       <div className="mx-auto max-w-7xl">
         <Link to="/admin" className="text-sm font-semibold text-red-300 hover:text-white">← Area amministrativa</Link>
+        <AdminNav />
         <header className="mt-10"><p className="text-sm font-bold uppercase tracking-[0.2em] text-red-300">News · workbench UI</p><h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Editor articolo</h1><p className="mt-4 max-w-3xl leading-7 text-slate-300">Prototipo con anteprima in tempo reale e autosalvataggio locale dopo una breve pausa nella scrittura. Non viene sincronizzato né pubblicato.</p></header>
         <div className="mt-5 flex flex-wrap gap-3"><button type="button" onClick={saveToLibrary} className="rounded-xl bg-emerald-700 px-4 py-2 font-semibold hover:bg-emerald-600">Salva nell’archivio News</button><Link to="/admin/news-library" className="rounded-xl border border-white/20 px-4 py-2 font-semibold hover:bg-white/10">Apri archivio</Link><button type="button" onClick={saveDraft} className="rounded-xl bg-red-600 px-4 py-2 font-semibold hover:bg-red-500">Salva bozza sul dispositivo</button><button type="button" onClick={restoreDraft} className="rounded-xl border border-white/20 px-4 py-2 font-semibold hover:bg-white/10">Ripristina bozza</button><button type="button" onClick={clearDraft} className="rounded-xl border border-white/20 px-4 py-2 font-semibold hover:bg-white/10">Elimina bozza locale</button></div>{draftMessage && <p className="mt-3 text-sm text-emerald-300" role="status">{draftMessage}</p>}<p className="mt-2 text-sm text-slate-400" role="status" aria-live="polite">{autosaveStatus}</p>
         <div className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5"><h2 className="font-bold text-amber-200">Modalità prototipo · salvataggio locale</h2><p className="mt-2 text-sm leading-6 text-slate-300">La bozza locale resta in questo browser. Non è un archivio condiviso, non è autenticata e non raggiunge il server.</p></div>
