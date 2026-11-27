@@ -20,7 +20,12 @@ export function getSupabaseServerClient(): SupabaseClient<Database> | null {
       },
       setAll(cookies, headers) {
         for (const { name, value, options } of cookies) {
-          setCookie(name, value, options);
+          setCookie(name, value, {
+            ...options,
+            path: options.path ?? "/",
+            sameSite: options.sameSite ?? "lax",
+            secure: import.meta.env.PROD,
+          });
         }
         for (const [name, value] of Object.entries(headers)) {
           setResponseHeader(name, value);
