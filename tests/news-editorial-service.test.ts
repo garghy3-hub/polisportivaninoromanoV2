@@ -76,6 +76,21 @@ describe("provider-neutral News editorial service", () => {
     expect(repository.createDraft).not.toHaveBeenCalled();
   });
 
+  it("fails closed for actors with malformed identity fields", async () => {
+    const malformedActors = [
+      { ...editor, id: " " },
+      { ...editor, sessionId: "" },
+      { ...editor, id: 42 },
+    ];
+    for (const actor of malformedActors) {
+      await expect(service.createDraft(actor as never, validContent)).resolves.toMatchObject({
+        ok: false,
+        code: "forbidden",
+      });
+    }
+    expect(repository.createDraft).not.toHaveBeenCalled();
+  });
+
   it("fails closed for actors with an unrecognized runtime role", async () => {
     const malformedActor = { ...editor, role: "superuser" } as never;
     await expect(service.createDraft(malformedActor, validContent)).resolves.toMatchObject({
