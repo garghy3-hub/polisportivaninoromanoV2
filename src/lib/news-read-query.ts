@@ -54,11 +54,29 @@ export function validateNewsReadQuery(input: unknown): NewsReadQueryValidation {
   }
   const parseDate = (value: unknown, field: "createdAfter" | "createdBefore"): string | undefined => {
     if (value === undefined) return undefined;
-    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})?)?$/.test(value.trim()) || !Number.isFinite(Date.parse(value))) {
+    if (typeof value !== "string") {
       issues.push(`${field} must be a valid ISO date or date-time.`);
       return undefined;
     }
-    return new Date(Date.parse(value)).toISOString();
+    const normalized = value.trim();
+    const match = /^(\\d{4})-(\\d{2})-(\\d{2})(?:T(\\d{2}):(\\d{2})(?::(\\d{2})(?:\\.(\\d{1,3}))?)?(Z|[+-]\\d{2}:\\d{2})?)?$/.exec(normalized);
+    if (!match) {
+      issues.push(`${field} must be a valid ISO date or date-time.`);
+      return undefined;
+    }
+    const [, yearText, monthText, dayText, hourText, minuteText, secondText, , zone] = match;
+    const year = Number(yearText), month = Number(monthText), day = Number(dayText);
+    const hour = hourText === undefined ? 0 : Number(hourText);
+    const minute = minuteText === undefined ? 0 : Number(minuteText);
+    const second = secondText === undefined ? 0 : Number(secondText);
+    const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+    const zoneMatch = zone && zone !== "Z" ? /[+-](\\d{2}):(\\d{2})$/.exec(zone) : null;
+    const zoneValid = !zoneMatch || (Number(zoneMatch[1]) <= 23 && Number(zoneMatch[2]) <= 59);
+    if (month < 1 || month > 12 || day < 1 || day > daysInMonth || hour > 23 || minute > 59 || second > 59 || !zoneValid || !Number.isFinite(Date.parse(normalized))) {
+      issues.push(`${field} must be a valid ISO date or date-time.`);
+      return undefined;
+    }
+    return new Date(Date.parse(normalized)).toISOString();
   };
   const createdAfter = parseDate(query.createdAfter, "createdAfter");
   const createdBefore = parseDate(query.createdBefore, "createdBefore");
