@@ -1,4 +1,5 @@
 /** Bounded, provider-neutral read-query validation for future News adapters. */
+import { NEWS_CATEGORIES, type NewsCategory } from "./content-types";
 
 export const NEWS_READ_PAGE_SIZE_MAX = 50;
 export const NEWS_READ_PAGE_SIZE_DEFAULT = 20;
@@ -11,7 +12,7 @@ export interface NewsReadQueryInput {
   creatorId?: unknown; createdAfter?: unknown; createdBefore?: unknown;
 }
 export interface ValidNewsReadQuery {
-  pageSize: number; cursor?: string; status?: NewsReadStatus; category?: string; search?: string;
+  pageSize: number; cursor?: string; status?: NewsReadStatus; category?: NewsCategory; search?: string;
   creatorId?: string; createdAfter?: string; createdBefore?: string;
 }
 export type NewsReadQueryValidation =
@@ -45,7 +46,8 @@ export function validateNewsReadQuery(input: unknown): NewsReadQueryValidation {
   let category: string | undefined;
   if (query.category !== undefined) {
     if (typeof query.category !== "string" || !query.category.trim() || query.category.length > 60) issues.push("category must be a non-empty string of at most 60 characters.");
-    else category = query.category.trim();
+    else if (!NEWS_CATEGORIES.includes(query.category.trim() as NewsCategory)) issues.push("category is not recognized.");
+    else category = query.category.trim() as NewsCategory;
   }
   let creatorId: string | undefined;
   if (query.creatorId !== undefined) {
