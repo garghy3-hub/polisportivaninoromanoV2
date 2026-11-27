@@ -450,7 +450,8 @@ async function callRepository<T>(
       "invalid-transition": "L'operazione non è consentita nello stato corrente.",
       internal: "Operazione editoriale non riuscita. Riprova o contatta un amministratore.",
     };
-    return { ok: false, code: result.code, message: messages[result.code] };
+    const code = Object.hasOwn(messages, result.code) ? result.code : "internal";
+    return { ok: false, code, message: messages[code] };
   } catch {
     return {
       ok: false,
