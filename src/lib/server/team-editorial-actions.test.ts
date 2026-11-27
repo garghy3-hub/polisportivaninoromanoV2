@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isValidTeamDraftPayload } from "./team-editorial-actions";
+import { isValidTeamDraftPayload } from "../team-draft-validation";
 
 const valid = {
   name: "Prima squadra",
