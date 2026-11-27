@@ -45,6 +45,7 @@ describe("validateNewsReadQuery", () => {
     expect(validateNewsReadQuery({ status: "superuser" }).ok).toBe(false);
     expect(validateNewsReadQuery({ category: " " }).ok).toBe(false);
     expect(validateNewsReadQuery({ category: "x".repeat(61) }).ok).toBe(false);
+    expect(validateNewsReadQuery({ category: "not-a-category" }).ok).toBe(false);
   });
 
   it("bounds search text and normalizes whitespace", () => {
