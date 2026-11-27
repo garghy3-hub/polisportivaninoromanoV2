@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { validateArticle, validateEvent, validateContentCollections, validateMediaAsset, validateSiteSettings, validateClubProfile } from "../src/lib/content-validation";
 import { siteSettings } from "../src/lib/site-data";
 import { clubProfile } from "../src/lib/club-data";
-import type { NewsArticle, MatchEvent, MediaAsset } from "../src/lib/content-types";
+import type { NewsArticle, MatchEvent, MediaAsset, Team } from "../src/lib/content-types";
 
 const article: NewsArticle = {
   id: "article-1", slug: "test-news", title: "Test", body: "Body",
@@ -26,6 +26,14 @@ describe("editorial content validation", () => {
     expect(validateMediaAsset(media)).toEqual([]);
   });
 
+  it("requires normalized URL-safe slugs for articles and teams", () => {
+    expect(validateArticle({ ...article, slug: "Titolo articolo" }).some(issue => issue.includes("Article slug must contain"))).toBe(true);
+    expect(validateArticle({ ...article, slug: "titolo--articolo" }).some(issue => issue.includes("Article slug must contain"))).toBe(true);
+    const team: Team = { id: "team-1", name: "Prima squadra", slug: "prima-squadra", category: "senior" };
+    expect(validateContentCollections({ teams: [{ ...team, slug: "Prima Squadra" }] }).some(issue => issue.includes("Team slug must contain"))).toBe(true);
+    expect(validateContentCollections({ teams: [{ ...team, slug: "prima--squadra" }] }).some(issue => issue.includes("Team slug must contain"))).toBe(true);
+  });
+
   it("rejects published articles without publication dates and unsafe image links", () => {
     expect(validateArticle({ ...article, publishedAt: undefined }).some(issue => issue.includes("publishedAt"))).toBe(true);
     expect(validateArticle({ ...article, coverImageUrl: "javascript:alert(1)", coverImageAlt: "x" }).length).toBeGreaterThan(0);
@@ -34,6 +42,7 @@ describe("editorial content validation", () => {
   it("rejects event score/outcome inconsistencies", () => {
     expect(validateEvent({ ...event, outcome: "loss" }).some(issue => issue.includes("outcome"))).toBe(true);
     expect(validateEvent({ ...event, homeScore: -1 }).length).toBeGreaterThan(0);
+    expect(validateEvent({ ...event, status: "scheduled", homeScore: undefined, awayScore: undefined, outcome: "win" }).some(issue => issue.includes("only be set for completed"))).toBe(true);
   });
 
   it("requires scores only for completed events and rejects scores for other statuses", () => {
