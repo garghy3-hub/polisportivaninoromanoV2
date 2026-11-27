@@ -70,6 +70,7 @@ declare
   v_entity text;
   v_row record;
   v_now timestamptz := pg_catalog.clock_timestamp();
+  v_rows bigint;
   v_status text;
   v_audit_action text;
   v_note text := pg_catalog.btrim(coalesce(p_note, ''));
@@ -134,8 +135,9 @@ begin
       'select id, updated_at, editorial_status, is_published from public.%I where id = $1 for update',
       v_table
     ) into v_row using 'main';
+    get diagnostics v_rows = row_count;
 
-    if not found then
+    if v_rows = 0 then
       if p_expected_updated_at is not null then
         return pg_catalog.jsonb_build_object('ok', false, 'code', 'conflict');
       end if;
@@ -181,7 +183,8 @@ begin
       'select id, updated_at, editorial_status, draft_created_by, draft_content, content from public.%I where id = $1 for update',
       v_table
     ) into v_row using 'main';
-    if not found then
+    get diagnostics v_rows = row_count;
+    if v_rows = 0 then
       return pg_catalog.jsonb_build_object('ok', false, 'code', 'not_found');
     end if;
     if v_row.updated_at <> p_expected_updated_at then
