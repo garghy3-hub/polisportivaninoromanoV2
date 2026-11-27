@@ -141,15 +141,31 @@ export function createSupabaseNewsReadRepository(
       if (!canReadAllEditorial && query.creatorId && query.creatorId !== actor.id) {
         return { items: [], nextCursor: null };
       }
+
+      // Read only each article's current revision. Superseded drafts remain
+      // available in revision history but never appear as resumable drafts.
+      let articleRequest = supabase
+        .from("news_articles")
+        .select("id, current_revision_id, created_by")
+        .not("current_revision_id", "is", null)
+        .limit(500);
+      if (!canReadAllEditorial) articleRequest = articleRequest.eq("created_by", actor.id);
+      const { data: articles, error: articleError } = await articleRequest;
+      if (articleError || !articles) throw new Error("news_read_failed");
+      const currentRevisionIds = articles
+        .map(article => article.current_revision_id)
+        .filter((id): id is string => typeof id === "string");
+      if (currentRevisionIds.length === 0) return { items: [], nextCursor: null };
+
       let request = supabase
         .from("news_revisions")
         .select("*")
+        .in("id", currentRevisionIds)
         .order("created_at", { ascending: false })
         .order("id", { ascending: true })
         .limit(query.pageSize + 1);
 
-      if (!canReadAllEditorial) request = request.eq("created_by", actor.id);
-      else if (query.creatorId) request = request.eq("created_by", query.creatorId);
+      if (query.creatorId) request = request.eq("created_by", query.creatorId);
       if (query.status) request = request.eq("status", query.status);
       if (query.category) request = request.eq("category", query.category);
       if (query.search) request = request.ilike("title", `%${escapeLike(query.search)}%`);
