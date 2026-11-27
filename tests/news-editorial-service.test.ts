@@ -76,6 +76,15 @@ describe("provider-neutral News editorial service", () => {
     expect(repository.createDraft).not.toHaveBeenCalled();
   });
 
+  it("rejects actors carrying unexpected runtime fields", async () => {
+    const extendedActor = { ...editor, administrator: true };
+    await expect(service.createDraft(extendedActor as never, validContent)).resolves.toMatchObject({
+      ok: false,
+      code: "forbidden",
+    });
+    expect(repository.createDraft).not.toHaveBeenCalled();
+  });
+
   it("fails closed for actors with malformed identity fields", async () => {
     const malformedActors = [
       { ...editor, id: " " },
