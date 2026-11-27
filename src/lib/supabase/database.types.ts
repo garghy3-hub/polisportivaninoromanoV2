@@ -185,13 +185,6 @@ export type Database = {
             referencedRelation: "seasons"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "events_reviewer_id_fkey"
-            columns: ["reviewer_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
         ]
       }
       media_assets: {
