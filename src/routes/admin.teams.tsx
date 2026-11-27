@@ -7,7 +7,7 @@ import { slugifyEditorialTitle } from '../lib/editorial-slug'
 import { validateTeam } from '../lib/content-validation'
 import { isSafeEditorialImageUrl } from '../lib/editorial-media'
 
-export const Route = createFileRoute('/admin/teams')({ component: TeamsWorkbench })
+export const Route = createFileRoute('/admin/teams')({ headers: () => ({ 'Cache-Control': 'private, no-store' }), component: TeamsWorkbench })
 
 type PlayerDraft = { name: string; jerseyNumber: string; role: string; photoUrl: string; photoAlt: string }
 type StaffDraft = { name: string; role: string; photoUrl: string; photoAlt: string }
