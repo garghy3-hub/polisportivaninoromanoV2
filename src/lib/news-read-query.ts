@@ -18,6 +18,9 @@ export interface NewsReadQueryInput {
   status?: unknown;
   category?: unknown;
   search?: unknown;
+  creatorId?: unknown;
+  createdAfter?: unknown;
+  createdBefore?: unknown;
 }
 
 export interface ValidNewsReadQuery {
@@ -26,6 +29,9 @@ export interface ValidNewsReadQuery {
   status?: NewsReadStatus;
   category?: string;
   search?: string;
+  creatorId?: string;
+  createdAfter?: string;
+  createdBefore?: string;
 }
 
 export type NewsReadQueryValidation =
@@ -77,6 +83,27 @@ export function validateNewsReadQuery(input: NewsReadQueryInput): NewsReadQueryV
     }
   }
 
+  let creatorId: string | undefined;
+  if (input.creatorId !== undefined) {
+    if (typeof input.creatorId !== 'string' || !input.creatorId.trim() || input.creatorId.length > 128) {
+      issues.push('creatorId must be a non-empty string of at most 128 characters.');
+    } else { creatorId = input.creatorId.trim(); }
+  }
+
+  const parseDateFilter = (value: unknown, field: 'createdAfter' | 'createdBefore'): string | undefined => {
+    if (value === undefined) return undefined;
+    if (typeof value !== 'string' || !value.trim() || !Number.isFinite(Date.parse(value))) {
+      issues.push(`${field} must be a valid date string.`);
+      return undefined;
+    }
+    return new Date(Date.parse(value)).toISOString();
+  };
+  const createdAfter = parseDateFilter(input.createdAfter, 'createdAfter');
+  const createdBefore = parseDateFilter(input.createdBefore, 'createdBefore');
+  if (createdAfter && createdBefore && Date.parse(createdAfter) > Date.parse(createdBefore)) {
+    issues.push('createdAfter must not be later than createdBefore.');
+  }
+
   let search: string | undefined;
   if (input.search !== undefined) {
     if (typeof input.search !== "string" || input.search.length > 200) {
@@ -88,5 +115,5 @@ export function validateNewsReadQuery(input: NewsReadQueryInput): NewsReadQueryV
 
   return issues.length
     ? { ok: false, issues }
-    : { ok: true, value: { pageSize, ...(cursor ? { cursor } : {}), ...(status ? { status } : {}), ...(category ? { category } : {}), ...(search ? { search } : {}) } };
+    : { ok: true, value: { pageSize, ...(cursor ? { cursor } : {}), ...(status ? { status } : {}), ...(category ? { category } : {}), ...(search ? { search } : {}), ...(creatorId ? { creatorId } : {}), ...(createdAfter ? { createdAfter } : {}), ...(createdBefore ? { createdBefore } : {}) } };
 }
