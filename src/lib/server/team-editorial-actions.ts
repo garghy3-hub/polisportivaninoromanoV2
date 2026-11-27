@@ -57,7 +57,7 @@ const readTeamDraft = createServerOnlyFn(async (teamId: string) => {
 
   const { data: team, error: teamError } = await supabase
     .from("teams")
-    .select("id, name, slug, category, season_id, description, logo_asset_id, updated_at")
+    .select("id, name, slug, category, season_id, description, logo_asset_id, updated_at, editorial_status")
     .eq("id", teamId)
     .eq("is_published", false)
     .maybeSingle();
@@ -85,6 +85,7 @@ const readTeamDraft = createServerOnlyFn(async (teamId: string) => {
     ok: true as const,
     teamId: team.id,
     updatedAt: team.updated_at,
+    editorialStatus: team.editorial_status,
     hasMedia,
     payload: {
       name: team.name,
