@@ -22,3 +22,10 @@ Non aggiungere form che fingano di salvare o pubblicare contenuti. Le UI interat
 
 ## Primo vertical slice
 Implementare News come primo modulo, rispettando `docs/news-admin-contract.md`, `docs/news-revision-data-contract.md` e `docs/editorial-server-boundary.md`. Prima di scegliere provider per sessioni, database e storage, risolvere le decisioni aperte in `docs/editorial-panel-decision-register.md`.
+
+## Checkpoint di sicurezza — 27 novembre 2026
+- Il servizio editoriale News valida input, autorizzazioni, identificativi/versioni e transizioni prima di delegare al repository.
+- Il servizio normalizza le risposte di errore del repository, non espone messaggi arbitrari del provider e tratta codici sconosciuti come errore interno.
+- Queste protezioni non sostituiscono un repository transazionale, autenticazione verificata, enforcement della separazione dei compiti o API server: sono ancora da implementare.
+- La CI GitHub Actions sul commit `d48d41c1f7b72094aee42dfcf306f892fc83f462` è risultata completata con esito positivo (build check).
+- PR #1 resta draft: nessun merge o deploy eseguito.
