@@ -205,7 +205,7 @@ export function createSupabaseNewsReadRepository(
         .order("occurred_at", { ascending: false })
         .order("id", { ascending: false })
         .limit(query.pageSize + 1);
-      const cursor = decodeCursor(query.cursor, /^\\d{1,20}$/);
+      const cursor = decodeCursor(query.cursor, /^\d{1,20}$/);
       if (query.cursor && !cursor) return { items: [], nextCursor: null };
       if (cursor) request = request.or(`occurred_at.lt.${cursor.timestamp},and(occurred_at.eq.${cursor.timestamp},id.lt.${cursor.id})`);
       const { data, error } = await request;
