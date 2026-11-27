@@ -51,6 +51,8 @@ This plan is a prerequisite for implementing authenticated editorial mutations. 
 
 The session helper is not an authentication implementation: it does not verify cookies, signatures, passwords, session storage or the source of the supplied record. Its input must come from a future trusted server-side authentication adapter.
 
+The read-side contract in `docs/news-repository-read-contract.md` also defines required future tests for pagination, preview read-only behavior, public projection filtering, audit access restrictions and deterministic history.
+
 ## Remaining CI and security work
 
 1. Keep unit tests and build/type-check as required CI gates.
