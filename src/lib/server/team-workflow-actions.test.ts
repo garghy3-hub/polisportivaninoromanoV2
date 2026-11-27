@@ -24,7 +24,18 @@ describe("team workflow request validation", () => {
   });
   it("rejects malformed identifiers, dates and unsupported actions", () => {
     expect(isValidTeamWorkflowRequest({ ...base, teamId: "not-a-uuid" })).toBe(false);
-    expect(isValidTeamWorkflowRequest({ ...base, expectedUpdatedAt: "invalid" })).toBe(false);
+    for (const expectedUpdatedAt of [
+      "invalid",
+      "November 27, 2026",
+      "2026-11-27",
+      "2026-11-27T21:00:00",
+      "2026-02-31T21:00:00Z",
+      "2026-11-27T25:00:00Z",
+      "2026-11-27T21:00:00+99:00",
+    ]) {
+      expect(isValidTeamWorkflowRequest({ ...base, expectedUpdatedAt })).toBe(false);
+    }
+    expect(isValidTeamWorkflowRequest({ ...base, expectedUpdatedAt: "2024-02-29T21:00:00+01:00" })).toBe(true);
     expect(isValidTeamWorkflowRequest({ ...base, action: "delete" })).toBe(false);
     expect(isValidTeamWorkflowRequest(null)).toBe(false);
   });
