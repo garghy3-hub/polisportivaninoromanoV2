@@ -6,7 +6,6 @@ import type { NewsArticle } from "./content-types";
 import {
   isValidNewsReadPageEnvelope,
   NEWS_READ_PAGE_SIZE_MAX,
-  type NewsPublishedArticle,
   type NewsReadPage,
 } from "./news-read-repository";
 import { toPublicNewsArticle } from "./news-public-view";
