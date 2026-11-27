@@ -3,7 +3,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 export const Route = createFileRoute('/admin')({ component: AdminOverview })
 
 const areas = [
-  { title: 'News', description: 'Editor prototipo: contenuto, slug, SEO e anteprima.', status: 'Prototipo disponibile', icon: '✍️', href: '/admin/news' },
+  { title: 'News', description: 'Editor articolo e archivio locale multi-bozza.', status: 'Prototipo disponibile', icon: '✍️', href: '/admin/news' },
   { title: 'Squadre e roster', description: 'Editor prototipo per schede squadra, atlete, staff e anteprima.', status: 'Prototipo disponibile', icon: '🏐', href: '/admin/teams' },
   { title: 'Calendario e risultati', description: 'Editor prototipo per appuntamenti, partite, stati e punteggi.', status: 'Prototipo disponibile', icon: '📅', href: '/admin/calendar' },
   { title: 'Pagine e homepage', description: 'Editor prototipo per testi, sezioni, CTA, menu e SEO.', status: 'Prototipo disponibile', icon: '🧩', href: '/admin/pages' },
@@ -29,7 +29,7 @@ function AdminOverview() {
           <p className="mt-2 leading-7 text-slate-300">Non è presente autenticazione, salvataggio, API o database. Questa pagina non consente modifiche e non deve essere usata per pubblicare contenuti. Le funzioni saranno attivate dopo aver definito e implementato i servizi server e i controlli di sicurezza.</p>
         </section>
 
-        <section className="mt-10" aria-labelledby="content-areas">
+        <div className="mt-5 flex flex-wrap gap-3"><Link to="/admin/news-library" className="rounded-xl bg-red-600 px-4 py-2 font-semibold">Apri archivio bozze News</Link><Link to="/admin/news" className="rounded-xl border border-white/20 px-4 py-2 font-semibold">Scrivi una News</Link></div>\n\n        <section className="mt-10" aria-labelledby="content-areas">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div><h2 id="content-areas" className="text-2xl font-bold">Moduli editoriali</h2><p className="mt-2 text-slate-400">Obiettivo: rendere modificabile dal pannello ogni elemento del sito.</p></div>
             <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400">8 aree previste</span>
