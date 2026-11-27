@@ -52,3 +52,20 @@ export function isValidNewsReadPageEnvelope(value: unknown, requestedPageSize: n
   if (page.nextCursor !== null && (typeof page.nextCursor !== "string" || !page.nextCursor.trim() || page.nextCursor.length > NEWS_READ_CURSOR_MAX_LENGTH)) return false;
   return true;
 }
+
+/** Validate the minimal shape of an editorial queue item before consuming adapter data. */
+export function isValidNewsReadItem(value: unknown): value is NewsReadItem {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const item = value as Partial<NewsReadItem>;
+  const statuses = ["draft", "in-review", "approved", "rejected", "published", "archived"];
+  if (typeof item.articleId !== "string" || !item.articleId.trim() || item.articleId.length > 128) return false;
+  if (typeof item.revisionId !== "string" || !item.revisionId.trim() || item.revisionId.length > 128) return false;
+  if (typeof item.creatorId !== "string" || !item.creatorId.trim() || item.creatorId.length > 128) return false;
+  if (typeof item.status !== "string" || !statuses.includes(item.status)) return false;
+  if (typeof item.createdAt !== "string" || !Number.isFinite(Date.parse(item.createdAt)) || typeof item.updatedAt !== "string" || !Number.isFinite(Date.parse(item.updatedAt))) return false;
+  if (!item.content || typeof item.content !== "object" || Array.isArray(item.content)) return false;
+  const content = item.content as Partial<NewsDraftContent>;
+  return typeof content.title === "string" && content.title.trim().length > 0 && typeof content.slug === "string" && content.slug.trim().length > 0
+    && typeof content.category === "string" && typeof content.excerpt === "string" && typeof content.body === "string"
+    && typeof content.seoTitle === "string" && typeof content.seoDescription === "string";
+}
