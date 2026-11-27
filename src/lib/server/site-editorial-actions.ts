@@ -29,7 +29,7 @@ function isResource(value: unknown): value is SiteEditorialResource {
 
 function validatePayload(resource: SiteEditorialResource, payload: unknown): payload is SiteSettings | ClubProfile {
   if (!isRecord(payload)) return false;
-  let serialized: string;
+  let serialized: string | undefined;
   try {
     serialized = JSON.stringify(payload);
   } catch {
