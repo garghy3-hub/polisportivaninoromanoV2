@@ -46,6 +46,7 @@ export function validateNewsDraft(input: NewsDraftInput, allowedCategories?: rea
   if (input.seoTitle.length > 70) issues.push({ field: 'seoTitle', message: 'Massimo 70 caratteri.' })
   if (input.seoDescription.length > 160) issues.push({ field: 'seoDescription', message: 'Massimo 160 caratteri.' })
   if (input.imageAlt.length > 200) issues.push({ field: 'imageAlt', message: 'Massimo 200 caratteri.' })
+  if (input.imageUrl.length > 2048) issues.push({ field: 'imageUrl', message: 'Massimo 2048 caratteri.' })
   if (input.imageUrl.trim() && !isSafeEditorialImageUrl(input.imageUrl)) {
     issues.push({ field: 'imageUrl', message: 'Inserisci un URL HTTP o HTTPS valido.' })
   }
