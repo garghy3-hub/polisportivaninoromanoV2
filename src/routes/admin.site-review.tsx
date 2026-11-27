@@ -82,7 +82,7 @@ function SiteReviewPage() {
 
   const sections = [
     { status: "in-review", title: "Da revisionare" },
-    { status: "approved", title: "Approvati · da pubblicare" },
+    { status: "approved", title: "Approvati · pubblicazione sospesa" },
     { status: "published", title: "Pubblicati · ritira pubblicazione" },
   ];
 
@@ -93,7 +93,7 @@ function SiteReviewPage() {
       <header className="mt-10">
         <p className="text-sm font-bold uppercase tracking-[0.2em] text-red-300">Contenuti istituzionali · flusso editoriale</p>
         <h1 className="mt-3 text-4xl font-black sm:text-5xl">Revisioni pagine e Società</h1>
-        <p className="mt-4 max-w-3xl leading-7 text-slate-300">Coda riservata a publisher e amministratori. La pubblicazione sostituisce il contenuto pubblico soltanto dopo approvazione.</p>
+        <p className="mt-4 max-w-3xl leading-7 text-slate-300">Coda riservata a publisher e amministratori. L'approvazione è attiva; la pubblicazione resta sospesa finché il sito pubblico non leggerà la proiezione server-side.</p>
       </header>
       {message && <p role="status" aria-live="polite" className="mt-6 rounded-xl border border-white/10 p-4 text-sm">{message}</p>}
       {!queue.ok ? <p className="mt-8 rounded-xl border border-amber-300/30 p-5 text-amber-100">
