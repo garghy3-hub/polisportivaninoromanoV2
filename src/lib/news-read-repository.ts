@@ -2,6 +2,7 @@
 import type { EditorialRevision } from "./content-types";
 import { NEWS_READ_PAGE_SIZE_MAX, NEWS_READ_CURSOR_MAX_LENGTH, type ValidNewsReadQuery } from "./news-read-query";
 import type { NewsDraftContent } from "./server/news-editorial-service";
+import { isValidNewsReadOrderRecord } from "./news-read-order";
 
 export interface NewsReadItem {
   articleId: string;
@@ -62,7 +63,7 @@ export function isValidNewsReadItem(value: unknown): value is NewsReadItem {
   if (typeof item.revisionId !== "string" || !item.revisionId.trim() || item.revisionId.length > 128) return false;
   if (typeof item.creatorId !== "string" || !item.creatorId.trim() || item.creatorId.length > 128) return false;
   if (typeof item.status !== "string" || !statuses.includes(item.status)) return false;
-  if (typeof item.createdAt !== "string" || !Number.isFinite(Date.parse(item.createdAt)) || typeof item.updatedAt !== "string" || !Number.isFinite(Date.parse(item.updatedAt))) return false;
+  if (!isValidNewsReadOrderRecord({ id: item.articleId, createdAt: item.createdAt }) || !isValidNewsReadOrderRecord({ id: item.revisionId, createdAt: item.updatedAt })) return false;
   if (!item.content || typeof item.content !== "object" || Array.isArray(item.content)) return false;
   const content = item.content as Partial<NewsDraftContent>;
   return typeof content.title === "string" && content.title.trim().length > 0 && typeof content.slug === "string" && content.slug.trim().length > 0
