@@ -115,6 +115,67 @@ describe("provider-neutral News editorial service", () => {
     });
   });
 
+  it("rejects unexpected fields in draft content before repository access", async () => {
+    const extended = { ...validContent, isAdmin: true } as NewsDraftContent;
+    await expect(service.createDraft(editor, extended)).resolves.toMatchObject({
+      ok: false,
+      code: "invalid",
+    });
+    expect(repository.createDraft).not.toHaveBeenCalled();
+  });
+
+  it("rejects unexpected fields in update and lifecycle command envelopes", async () => {
+    const extendedUpdate = {
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 1,
+      content: validContent,
+      actor: publisher,
+    };
+    await expect(service.updateDraft(editor, extendedUpdate)).resolves.toMatchObject({
+      ok: false,
+      code: "invalid",
+    });
+
+    const extendedCommand = {
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 1,
+      role: "administrator",
+    };
+    await expect(service.submitForReview(editor, extendedCommand)).resolves.toMatchObject({
+      ok: false,
+      code: "invalid",
+    });
+    expect(repository.updateDraft).not.toHaveBeenCalled();
+    expect(repository.submitForReview).not.toHaveBeenCalled();
+  });
+
+  it("allows an omitted optional review note while rejecting unknown review fields", async () => {
+    await expect(service.approve(publisher, {
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 1,
+    })).resolves.toEqual({ ok: true, value: record });
+    expect(repository.reviewDecision).toHaveBeenCalledWith({
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 1,
+      decision: "approved",
+      actor: publisher,
+    });
+
+    vi.mocked(repository.reviewDecision).mockClear();
+    await expect(service.approve(publisher, {
+      articleId: "article-1",
+      revisionId: "revision-1",
+      expectedVersion: 1,
+      reviewNote: "Ok",
+      actor: editor,
+    } as never)).resolves.toMatchObject({ ok: false, code: "invalid" });
+    expect(repository.reviewDecision).not.toHaveBeenCalled();
+  });
+
   it("rejects malformed command objects without throwing or calling the repository", async () => {
     const malformed = null as unknown as {
       articleId: string;
