@@ -16,7 +16,7 @@ import {
   type NewsReadRepository,
   type NewsRevisionDetail,
 } from "./news-read-repository";
-import { validateNewsReadQuery, type ValidNewsReadQuery } from "./news-read-query";
+import { validateNewsPublicListQuery, validateNewsReadQuery, type ValidNewsReadQuery } from "./news-read-query";
 import { isValidNewsReadOrderRecord } from "./news-read-order";
 
 export type NewsReadFailureCode = "invalid" | "internal";
@@ -29,7 +29,7 @@ export interface NewsReadService {
   getRevision(articleId: string, revisionId: string): Promise<NewsReadResult<NewsRevisionDetail | null>>;
   listRevisionHistory(articleId: string, query: unknown): Promise<NewsReadResult<NewsReadPage<NewsRevisionDetail>>>;
   listAudit(articleId: string, query: unknown): Promise<NewsReadResult<NewsReadPage<unknown>>>;
-  getPublishedBySlug(slug: string): Promise<NewsReadResult<NewsPublishedArticle | null>>;
+  listPublished(query: unknown): Promise<NewsReadResult<NewsReadPage<NewsPublishedArticle>>>;\n  getPublishedBySlug(slug: string): Promise<NewsReadResult<NewsPublishedArticle | null>>;
 }
 
 const INTERNAL_MESSAGE = "Impossibile recuperare i contenuti. Riprova o contatta un amministratore.";
@@ -78,6 +78,20 @@ export function createNewsReadService(repository: NewsReadRepository): NewsReadS
         const page = await repository.listAudit(articleId, parsed.value);
         if (!isValidNewsReadPageEnvelope(page, parsed.value.pageSize)) return failure();
         return success(page);
+      });
+    },
+
+    async listPublished(query) {
+      const parsed = validateNewsPublicListQuery(query);
+      if (!parsed.ok) return invalid(parsed.issues);
+      return run(async () => {
+        const page = await repository.listPublished(parsed.value);
+        if (!isValidNewsReadPageEnvelope(page, parsed.value.pageSize)
+          || !page.items.every(isValidNewsPublishedArticle)) return failure();
+        const articleIds = page.items.map(item => item.articleId);
+        const slugs = page.items.map(item => item.content.slug);
+        if (new Set(articleIds).size !== articleIds.length || new Set(slugs).size !== slugs.length) return failure();
+        return success(page as NewsReadPage<NewsPublishedArticle>);
       });
     },
 
