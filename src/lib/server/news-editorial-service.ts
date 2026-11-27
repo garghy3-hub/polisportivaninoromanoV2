@@ -443,8 +443,12 @@ async function callRepository<T>(
   operation: () => Promise<NewsRepositoryResult<T>>,
 ): Promise<NewsEditorialResult<T>> {
   try {
-    const result = await operation();
-    if (result.ok) return result;
+    const result: unknown = await operation();
+    if (!isRepositoryResult(result)) return internalFailure();
+    if (result.ok) {
+      if (!isValidNewsRevisionRecord(result.value)) return internalFailure();
+      return result;
+    }
     // Repository adapters are trusted server code, but their failure messages
     // may contain provider/SQL details. Expose only stable codes and safe copy.
     const messages: Record<NewsRepositoryFailureCode, string> = {
@@ -463,6 +467,45 @@ async function callRepository<T>(
       message: "Operazione editoriale non riuscita. Riprova o contatta un amministratore.",
     };
   }
+}
+
+function isRepositoryResult(value: unknown): value is NewsRepositoryResult<unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const result = value as Record<string, unknown>;
+  if (result.ok === true) {
+    return Object.keys(result).length === 2 && Object.hasOwn(result, "value");
+  }
+  if (result.ok !== false) return false;
+  return Object.keys(result).every(key => key === "ok" || key === "code" || key === "message")
+    && typeof result.code === "string";
+}
+
+function isValidNewsRevisionRecord(value: unknown): value is NewsRevisionRecord {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  if (!Number.isSafeInteger(record.version) || (record.version as number) < 1) return false;
+  if (!record.revision || typeof record.revision !== "object" || Array.isArray(record.revision)) return false;
+  const revision = record.revision as Record<string, unknown>;
+  const requiredStrings = ["id", "entityId", "createdAt", "createdBy", "updatedAt", "updatedBy"];
+  if (revision.entityType !== "article" || !requiredStrings.every(key =>
+    typeof revision[key] === "string" && (revision[key] as string).trim().length > 0
+  )) return false;
+  if (!["draft", "in-review", "approved", "rejected", "published", "archived"].includes(String(revision.status))) return false;
+  if (!Number.isFinite(Date.parse(revision.createdAt as string)) || !Number.isFinite(Date.parse(revision.updatedAt as string))) return false;
+  const content = revision.content;
+  const contentKeys = ["title", "slug", "category", "excerpt", "body", "seoTitle", "seoDescription", "imageUrl", "imageAlt"];
+  if (!content || typeof content !== "object" || Array.isArray(content)) return false;
+  const draft = content as Record<string, unknown>;
+  return Object.keys(draft).length === contentKeys.length
+    && contentKeys.every(key => typeof draft[key] === "string" && Object.hasOwn(draft, key));
+}
+
+function internalFailure(): NewsEditorialResult<never> {
+  return {
+    ok: false,
+    code: "internal",
+    message: "Operazione editoriale non riuscita. Riprova o contatta un amministratore.",
+  };
 }
 
 function hasExactKeys(value: unknown, keys: readonly string[]): boolean {
