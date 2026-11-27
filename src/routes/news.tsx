@@ -1,11 +1,28 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { localContentService } from '../lib/content-service'
 import { getPageHead } from '../lib/page-seo'
+import { newsPublicListFn } from '../lib/server/news-read-actions'
+import { toPublicNewsArticlePage } from '../lib/news-public-list-view'
 
-export const Route = createFileRoute('/news')({ head: () => getPageHead(localContentService.settings().news), component: NewsPage })
+export const Route = createFileRoute('/news')({
+  loader: async () => {
+    const result = await newsPublicListFn({ data: { pageSize: 20 } })
+    if (result.ok) {
+      const page = toPublicNewsArticlePage(result.value)
+      return { articles: page?.items ?? [], unavailable: page === null, localFallback: false }
+    }
+    if (result.code === 'not-configured') {
+      return { articles: localContentService.news(), unavailable: false, localFallback: true }
+    }
+    return { articles: [], unavailable: true, localFallback: false }
+  },
+  head: () => getPageHead(localContentService.settings().news),
+  component: NewsPage,
+})
 
 function NewsPage() {
-  const published = localContentService.news()
+  const newsData = Route.useLoaderData()
+  const published = newsData.articles
   const settings = localContentService.settings()
   const content = settings.news
   const topics = content.topics.filter((topic) => topic.visible).slice().sort((a, b) => a.order - b.order)
@@ -18,7 +35,12 @@ function NewsPage() {
           <h1 className="mt-4 text-5xl font-black tracking-tight sm:text-7xl">{content.title}<br /><span className="text-[#e53949]">{content.accent}</span></h1>
           <p className="mt-8 text-lg leading-8 text-slate-300">{content.description}</p>
         </header>
-        {published.length === 0 ? (
+        {newsData.unavailable ? (
+          <section className="mt-14 rounded-3xl border border-amber-300/25 bg-amber-300/5 p-7" role="status">
+            <h2 className="text-xl font-bold text-amber-100">Notizie momentaneamente non disponibili</h2>
+            <p className="mt-3 leading-7 text-slate-300">Non è stato possibile recuperare l'archivio pubblicato. Riprova più tardi.</p>
+          </section>
+        ) : published.length === 0 ? (
           <section className="mt-14 rounded-3xl border border-red-400/20 bg-gradient-to-br from-red-500/10 to-white/[0.02] p-7 sm:p-10" aria-live="polite">
             <span className="text-xs font-bold uppercase tracking-[0.2em] text-red-300">{content.emptyEyebrow}</span>
             <h2 className="mt-4 text-2xl font-bold sm:text-3xl">{content.emptyTitle}</h2>
@@ -34,6 +56,7 @@ function NewsPage() {
             </article>)}
           </section>
         )}
+        {newsData.localFallback && <p className="mt-8 text-xs text-slate-500">Archivio dimostrativo locale: il collegamento al database pubblico non è ancora configurato.</p>}
         {topics.length > 0 && <section className="mt-12 grid gap-5 md:grid-cols-3" aria-label={localContentService.settings().interface.newsTopicsLabel}>
           {topics.map((topic) => <article key={topic.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <span className="text-xs font-semibold uppercase tracking-widest text-red-300">{topic.label}</span>
