@@ -12,6 +12,9 @@
 - `/admin/login` provides the login screen. There is no public sign-up route.
 - The root route checks every `/admin/*` URL server-side, excluding only `/admin/login`. Admin responses are marked `private, no-store`.
 - The admin navigation includes sign-out.
+- News create/update/submit/review/publish/unpublish/archive/restore server functions use the transactional Supabase RPC. The RPC independently verifies `auth.uid()` and the active database role.
+- Public News list/detail routes read only the `news_public_articles` published projection when Supabase is configured.
+- The Publisher/Administrator review queue supports approval, rejection with a reason, and a separate publication action.
 
 ## Configuration still required
 
@@ -26,6 +29,6 @@
 - No user self-registration, invitation or password-reset UI yet.
 - No role-management screen.
 - The login flow has Supabase Auth's configured rate limits; application-level throttling/CAPTCHA has not been added.
-- Admin content editors still use local browser storage and demo data. Authentication does not make those editors database-backed.
-- The editorial news write workflow remains disabled at the database privilege layer until transactional server-side commands and audit writes are implemented.
+- The News editor can save a shared draft and submit it for review. The remote draft library/reopen flow is not yet implemented; its revision reference is currently kept in memory during the editing session. Other admin editors still use local browser storage and demo data.
+- News revision and audit table writes remain disabled for browser clients. The authenticated public RPC wrapper delegates to a private SECURITY DEFINER implementation with explicit role checks and transactional audit writes.
 - No deployment, publication or PR merge was performed.
