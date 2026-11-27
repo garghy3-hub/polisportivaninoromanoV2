@@ -76,6 +76,25 @@ describe("News read item guard", () => {
     expect(isValidNewsReadItem({ ...validItem, createdAt: "2026-11-27" })).toBe(false);
   });
 
+
+  it("enforces the same normalized slug and content bounds as the editorial form", () => {
+    const invalidContent = [
+      { ...validContent, slug: "Titolo non valido" },
+      { ...validContent, slug: "titolo--non-valido" },
+      { ...validContent, title: "t".repeat(141) },
+      { ...validContent, excerpt: "e".repeat(301) },
+      { ...validContent, body: "b".repeat(20001) },
+      { ...validContent, seoTitle: "s".repeat(71) },
+      { ...validContent, seoDescription: "d".repeat(161) },
+      { ...validContent, excerpt: " " },
+      { ...validContent, body: " " },
+    ];
+    for (const content of invalidContent) {
+      expect(isValidNewsReadItem({ ...validItem, content })).toBe(false);
+      expect(isValidNewsPublishedArticle({ ...validPublishedArticle, content })).toBe(false);
+    }
+  });
+
   it("rejects non-object payloads", () => {
     for (const value of [null, [], "news", 42]) {
       expect(isValidNewsReadItem(value)).toBe(false);
