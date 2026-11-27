@@ -47,6 +47,9 @@ export function resolveEditorialActor(
   }
 
   const candidate = session as Record<string, unknown>;
+  const allowedKeys = ["id", "actorId", "role", "expiresAt", "revokedAt"];
+  const actualKeys = Object.keys(candidate);
+  if (actualKeys.some(key => !allowedKeys.includes(key))) return null;
   const id = candidate.id;
   const actorId = candidate.actorId;
   const role = candidate.role;
