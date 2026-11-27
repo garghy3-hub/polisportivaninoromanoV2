@@ -1,5 +1,5 @@
 /** Provider-neutral contracts for the future News read repository. No adapter is implemented here. */
-import { NEWS_CATEGORIES, type EditorialRevision, type NewsCategory } from "./content-types";
+import { NEWS_CATEGORIES, type EditorialAuditEntry, type EditorialRevision, type NewsCategory } from "./content-types";
 import { NEWS_READ_PAGE_SIZE_MAX, NEWS_READ_CURSOR_MAX_LENGTH, type ValidNewsReadQuery, type ValidNewsPublicListQuery } from "./news-read-query";
 import type { NewsDraftContent } from "./server/news-editorial-service";
 import { isValidNewsReadOrderRecord } from "./news-read-order";
@@ -42,7 +42,7 @@ export interface NewsReadRepository {
   /** Stable, bounded revision history for one article. */
   listRevisionHistory(articleId: string, query: Pick<ValidNewsReadQuery, "pageSize" | "cursor">): Promise<NewsReadPage<NewsRevisionDetail>>;
   /** Audit reads must be restricted to authorized publisher/admin actors. */
-  listAudit(articleId: string, query: Pick<ValidNewsReadQuery, "pageSize" | "cursor">): Promise<NewsReadPage<unknown>>;
+  listAudit(articleId: string, query: Pick<ValidNewsReadQuery, "pageSize" | "cursor">): Promise<NewsReadPage<EditorialAuditEntry>>;
   /** Must return only current published projections in stable, bounded order. */
   listPublished(query: ValidNewsPublicListQuery): Promise<NewsReadPage<NewsPublishedArticle>>;
   /** Must read only the current published projection, never editorial revisions. */
@@ -60,6 +60,26 @@ const hasExactKeys = (value: object, keys: readonly string[]): boolean => {
   const expected = [...keys].sort();
   return actual.length === expected.length && actual.every((key, index) => key === expected[index]);
 };
+
+const auditRoles = ["reader", "editor", "publisher", "administrator"] as const
+const auditActions = ["create", "update", "submit", "approve", "reject", "publish", "unpublish", "archive", "restore", "delete"] as const
+
+export function isValidNewsAuditEntry(value: unknown): value is EditorialAuditEntry {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false
+  const item = value as Record<string, unknown>
+  if (!hasExactKeys(item, ["id", "actorId", "actorRole", "action", "entityType", "entityId", "occurredAt", "summary"])) return false
+  if (
+    typeof item.id !== "string" || !item.id.trim() ||
+    typeof item.actorId !== "string" || !item.actorId.trim() ||
+    typeof item.actorRole !== "string" || !auditRoles.includes(item.actorRole as typeof auditRoles[number]) ||
+    typeof item.action !== "string" || !auditActions.includes(item.action as typeof auditActions[number]) ||
+    typeof item.entityType !== "string" || !item.entityType.trim() ||
+    typeof item.entityId !== "string" || !item.entityId.trim() ||
+    typeof item.occurredAt !== "string" ||
+    typeof item.summary !== "string"
+  ) return false
+  return isValidNewsReadOrderRecord({ id: item.id, createdAt: item.occurredAt })
+}
 
 /** Runtime guard for adapter page envelopes; item-specific validation remains separate. */
 export function isValidNewsReadPageEnvelope(value: unknown, requestedPageSize: number): value is NewsReadPage<unknown> {
