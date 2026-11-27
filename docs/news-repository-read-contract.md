@@ -34,7 +34,7 @@ A repository implementation should provide these server-side operations before t
 
 ## Query validation foundation
 
-`src/lib/news-read-query.ts` provides a provider-neutral validator for bounded page size, opaque cursor length, status, category, search, creator and date-range filters. Unit tests cover defaults, invalid values and malformed top-level payloads; the validator fails closed when the query payload is not an object. This is input validation only; it does not query data, enforce permissions, or implement pagination.
+`src/lib/news-read-query.ts` provides a provider-neutral validator for bounded page size, opaque cursor length, status, category, search, creator and date-range filters. Unit tests cover defaults, invalid values, malformed top-level payloads and impossible calendar/clock components; date filters are restricted to ISO-shaped values and checked for valid ranges. The validator fails closed when the query payload is not an object. This is input validation only; it does not query data, enforce permissions, or implement pagination.
 
 ## Acceptance checklist for the adapter
 
