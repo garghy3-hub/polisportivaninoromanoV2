@@ -128,11 +128,12 @@ export function createSupabaseNewsReadRepository(
   async function canReadArticle(articleId: string): Promise<boolean> {
     if (canReadAllEditorial) return true;
     const { data, error } = await supabase
-      .from("news_articles")
-      .select("created_by")
-      .eq("id", articleId)
-      .maybeSingle();
-    return !error && data?.created_by === actor.id;
+      .from("news_revisions")
+      .select("id")
+      .eq("article_id", articleId)
+      .eq("created_by", actor.id)
+      .limit(1);
+    return !error && Boolean(data?.length);
   }
 
   return {
@@ -151,7 +152,6 @@ export function createSupabaseNewsReadRepository(
         .order("updated_at", { ascending: false })
         .order("id", { ascending: true })
         .limit(500);
-      if (!canReadAllEditorial) articleRequest = articleRequest.eq("created_by", actor.id);
       const { data: articles, error: articleError } = await articleRequest;
       if (articleError || !articles) throw new Error("news_read_failed");
       const currentRevisionIds = articles
@@ -167,7 +167,8 @@ export function createSupabaseNewsReadRepository(
         .order("id", { ascending: true })
         .limit(query.pageSize + 1);
 
-      if (query.creatorId) request = request.eq("created_by", query.creatorId);
+      if (!canReadAllEditorial) request = request.eq("created_by", actor.id);
+      else if (query.creatorId) request = request.eq("created_by", query.creatorId);
       if (query.status) request = request.eq("status", query.status);
       if (query.category) request = request.eq("category", query.category);
       if (query.search) request = request.ilike("title", `%${escapeLike(query.search)}%`);
