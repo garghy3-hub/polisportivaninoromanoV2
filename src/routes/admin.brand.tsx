@@ -5,7 +5,7 @@ import { localContentService } from '../lib/content-service'
 import { validateSiteSettings } from '../lib/content-validation'
 import type { SiteSettings } from '../lib/content-types'
 
-export const Route = createFileRoute('/admin/brand')({ component: BrandWorkbench })
+export const Route = createFileRoute('/admin/brand')({ headers: () => ({ 'Cache-Control': 'private, no-store' }), component: BrandWorkbench })
 
 function BrandWorkbench() {
   const initial = localContentService.settings()
