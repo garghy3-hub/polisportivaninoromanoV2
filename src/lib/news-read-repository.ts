@@ -63,6 +63,7 @@ const hasExactKeys = (value: object, keys: readonly string[]): boolean => {
 export function isValidNewsReadPageEnvelope(value: unknown, requestedPageSize: number): value is NewsReadPage<unknown> {
   if (!Number.isInteger(requestedPageSize) || requestedPageSize < 1 || requestedPageSize > NEWS_READ_PAGE_SIZE_MAX) return false;
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  if (!hasExactKeys(value, ["items", "nextCursor"])) return false;
   const page = value as Partial<NewsReadPage<unknown>>;
   if (!Array.isArray(page.items) || page.items.length > requestedPageSize) return false;
   if (page.nextCursor !== null && (typeof page.nextCursor !== "string" || !page.nextCursor.trim() || page.nextCursor.length > NEWS_READ_CURSOR_MAX_LENGTH)) return false;
@@ -89,6 +90,7 @@ function isValidNewsDraftContent(value: unknown): value is NewsDraftContent {
 /** Validate the minimal shape of an editorial queue item before consuming adapter data. */
 export function isValidNewsReadItem(value: unknown): value is NewsReadItem {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  if (!hasExactKeys(value, ["articleId", "revisionId", "creatorId", "status", "createdAt", "updatedAt", "content"])) return false;
   const item = value as Partial<NewsReadItem>;
   const statuses = ["draft", "in-review", "approved", "published", "rejected", "archived"];
   if (typeof item.articleId !== "string" || !item.articleId.trim() || item.articleId.length > 128) return false;
