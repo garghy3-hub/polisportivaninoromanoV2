@@ -5,7 +5,7 @@ import { mapPublishedTeams } from "./teams-public-read";
 const team = (overrides: Partial<Tables<"teams">> = {}): Tables<"teams"> => ({
   id: "team-1", name: "Prima squadra", slug: "prima-squadra", category: "senior",
   season_id: "season-1", description: null, logo_asset_id: null, is_published: true,
-  display_order: 0, created_at: "", updated_at: "", created_by: null, updated_by: null,
+  display_order: 0, created_by: null, updated_by: null,
   ...overrides,
 });
 
@@ -32,8 +32,8 @@ describe("mapPublishedTeams", () => {
         { id: "staff-1", team_id: "team-1", name: "Tecnico", role_label: "Allenatore", biography: null, photo_asset_id: null, is_published: true, display_order: 0, created_at: "", updated_at: "" },
       ],
       media: [
-        { id: "logo", bucket_id: "nrm-media", storage_key: "logo.webp", alt_text: "Logo squadra", is_public: true, file_name: "logo.webp", mime_type: "image/webp", size_bytes: 100, is_decorative: false, caption: null, uploaded_at: "", uploaded_by: null },
-        { id: "photo", bucket_id: "nrm-media", storage_key: "player.webp", alt_text: "Ritratto atleta", is_public: true, file_name: "player.webp", mime_type: "image/webp", size_bytes: 100, is_decorative: false, caption: null, uploaded_at: "", uploaded_by: null },
+        { id: "logo", bucket_id: "nrm-media", storage_key: "logo.webp", alt_text: "Logo squadra", is_public: true },
+        { id: "photo", bucket_id: "nrm-media", storage_key: "player.webp", alt_text: "Ritratto atleta", is_public: true },
       ],
     }, (bucket, key) => `/${bucket}/${key}`);
     expect(result[0]?.logoUrl).toBe("/nrm-media/logo.webp");
@@ -47,7 +47,7 @@ describe("mapPublishedTeams", () => {
       teams: [team({ logo_asset_id: "private-logo" })],
       seasons: [{ id: "season-1", label: "2026/27" }],
       members: [], staff: [],
-      media: [{ id: "private-logo", bucket_id: "nrm-media", storage_key: "private.webp", alt_text: "Privato", is_public: false, file_name: "private.webp", mime_type: "image/webp", size_bytes: 100, is_decorative: false, caption: null, uploaded_at: "", uploaded_by: null }],
+      media: [{ id: "private-logo", bucket_id: "nrm-media", storage_key: "private.webp", alt_text: "Privato", is_public: false }],
     }, (bucket, key) => `/${bucket}/${key}`);
     expect(result[0]?.logoUrl).toBeUndefined();
   });
