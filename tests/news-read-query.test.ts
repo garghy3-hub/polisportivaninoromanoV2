@@ -59,6 +59,11 @@ describe("validateNewsReadQuery", () => {
   it("rejects loosely formatted date strings", () => {
     expect(validateNewsReadQuery({ createdAfter: "March 1, 2026" }).ok).toBe(false);
     expect(validateNewsReadQuery({ createdAfter: "2026-99-99" }).ok).toBe(false);
+    expect(validateNewsReadQuery({ createdAfter: "2026-02-31" }).ok).toBe(false);
+    expect(validateNewsReadQuery({ createdAfter: "2026-04-31T12:00:00Z" }).ok).toBe(false);
+    expect(validateNewsReadQuery({ createdAfter: "2026-01-01T25:00:00Z" }).ok).toBe(false);
+    expect(validateNewsReadQuery({ createdAfter: "2026-01-01T12:00:00+99:00" }).ok).toBe(false);
+    expect(validateNewsReadQuery({ createdAfter: "2024-02-29" }).ok).toBe(true);
   });
 
   it("rejects malformed creator/date filters and reversed date ranges", () => {
