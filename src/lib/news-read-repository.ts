@@ -1,5 +1,5 @@
 /** Provider-neutral contracts for the future News read repository. No adapter is implemented here. */
-import type { EditorialRevision } from "./content-types";
+import type { EditorialRevision, NewsCategory } from "./content-types";
 import { NEWS_READ_PAGE_SIZE_MAX, NEWS_READ_CURSOR_MAX_LENGTH, type ValidNewsReadQuery } from "./news-read-query";
 import type { NewsDraftContent } from "./server/news-editorial-service";
 import { isValidNewsReadOrderRecord } from "./news-read-order";
@@ -25,7 +25,7 @@ export interface NewsRevisionDetail {
   revision: EditorialRevision<NewsDraftContent>;
 }
 
-/** Public projection: contains only the approved content and publication identity/time. */
+/** Public projection: contains only approved content and publication identity/time. */
 export interface NewsPublishedArticle {
   articleId: string;
   revisionId: string;
@@ -52,6 +52,12 @@ export interface NewsReadRepository {
  * Never use a client-supplied actor ID as proof of authorization.
  */
 
+const hasExactKeys = (value: object, keys: readonly string[]): boolean => {
+  const actual = Object.keys(value).sort();
+  const expected = [...keys].sort();
+  return actual.length === expected.length && actual.every((key, index) => key === expected[index]);
+};
+
 /** Runtime guard for adapter page envelopes; item-specific validation remains separate. */
 export function isValidNewsReadPageEnvelope(value: unknown, requestedPageSize: number): value is NewsReadPage<unknown> {
   if (!Number.isInteger(requestedPageSize) || requestedPageSize < 1 || requestedPageSize > NEWS_READ_PAGE_SIZE_MAX) return false;
@@ -64,10 +70,12 @@ export function isValidNewsReadPageEnvelope(value: unknown, requestedPageSize: n
 
 function isValidNewsDraftContent(value: unknown): value is NewsDraftContent {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  if (!hasExactKeys(value, ["title", "slug", "category", "excerpt", "body", "seoTitle", "seoDescription"])) return false;
   const content = value as Partial<NewsDraftContent>;
+  const categories: NewsCategory[] = ["official", "match-report", "interview", "youth", "club-life"];
   return typeof content.title === "string" && content.title.trim().length > 0
     && typeof content.slug === "string" && content.slug.trim().length > 0
-    && typeof content.category === "string" && content.category.trim().length > 0
+    && typeof content.category === "string" && categories.includes(content.category as NewsCategory)
     && typeof content.excerpt === "string" && typeof content.body === "string"
     && typeof content.seoTitle === "string" && typeof content.seoDescription === "string";
 }
@@ -85,9 +93,13 @@ export function isValidNewsReadItem(value: unknown): value is NewsReadItem {
   return isValidNewsDraftContent(item.content);
 }
 
-/** Reject anything that is not an explicit, structurally valid public projection. */
+/**
+ * Public projection is deliberately allow-listed: extra top-level or content keys
+ * are rejected so workflow/audit metadata cannot accidentally pass as public data.
+ */
 export function isValidNewsPublishedArticle(value: unknown): value is NewsPublishedArticle {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  if (!hasExactKeys(value, ["articleId", "revisionId", "publishedAt", "content"])) return false;
   const article = value as Partial<NewsPublishedArticle>;
   if (typeof article.articleId !== "string" || !article.articleId.trim() || article.articleId.length > 128) return false;
   if (typeof article.revisionId !== "string" || !article.revisionId.trim() || article.revisionId.length > 128) return false;
