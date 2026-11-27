@@ -27,6 +27,8 @@ const validContent: NewsDraftContent = {
   body: "Testo della notizia di prova.",
   seoTitle: "",
   seoDescription: "",
+  imageUrl: "",
+  imageAlt: "",
 };
 
 const record: NewsRevisionRecord = {
