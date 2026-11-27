@@ -7,7 +7,7 @@ Aggiornato al 27 novembre 2026. Questo documento distingue il codice presente ne
 - La colonna `content` conserva la versione pubblica; `draft_content` contiene la bozza. La pubblicazione copia la bozza in `content`; il ritiro preserva il contenuto come nuova bozza e rimuove la visibilità pubblica.
 - I privilegi browser di scrittura diretta sulle due tabelle sono revocati nella migrazione; anon può leggere soltanto le colonne della proiezione pubblica e resta soggetto a RLS.
 - Server actions per salvataggio, lettura bozze e workflow, con verifica server-side dell'identità e del ruolo, validazione payload e normalizzazione degli esiti RPC.
-- Editor Pagine collegato al salvataggio condiviso e all'invio in revisione; la coda Publisher/Admin consente approvazione, rifiuto motivato, pubblicazione e ritiro.
+- Editor Pagine collegato al salvataggio condiviso e all'invio in revisione; la rotta `/admin/site-review` consente a Publisher/Admin approvazione, rifiuto motivato, pubblicazione e ritiro.
 - Tipi Supabase aggiornati e voce di navigazione amministrativa aggiunta.
 
 ## Non ancora completato
@@ -15,6 +15,7 @@ Aggiornato al 27 novembre 2026. Questo documento distingue il codice presente ne
 - La pagina pubblica non è ancora collegata a una lettura server-side delle revisioni pubblicate di `site_settings`; la pubblicazione DB non va quindi considerata già visibile nel sito.
 - L'editor Società resta un prototipo locale. Il salvataggio congiunto di profilo e testi della pagina Società deve essere realizzato come aggregate atomico prima di dichiararlo condiviso.
 - Mancano account Auth editoriali reali, test integrati per ruoli Editor/Publisher/Admin, test SQL di rollback/concorrenza/RLS e verifica cross-device.
+- Per l'head corrente GitHub non restituisce workflow run né combined status: build, typecheck e test non sono quindi dichiarabili superati per questo blocco.
 - Il media management resta separato: URL e metadati non sostituiscono un upload remoto verificato.
 
 ## Gate prima dell'uso operativo
