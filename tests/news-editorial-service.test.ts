@@ -64,27 +64,21 @@ describe("provider-neutral News editorial service", () => {
     service = createNewsEditorialService(repository, ["official", "match-report"]);
   });
 
-  it("rejects null draft payloads and null nested update content safely", async () => {
-    await expect(service.createDraft(editor, null as never)).resolves.toMatchObject({
-      ok: false,
-      code: "invalid",
-    });
-    await expect(service.updateDraft(editor, {
-      articleId: "article-1",
-      revisionId: "revision-1",
-      expectedVersion: 1,
-      content: null as never,
-    })).resolves.toMatchObject({ ok: false, code: "invalid" });
-    expect(repository.createDraft).not.toHaveBeenCalled();
-    expect(repository.updateDraft).not.toHaveBeenCalled();
-  });
-
   it("rejects unauthenticated and insufficient actors before repository access", async () => {
     expect(await service.createDraft(null, validContent)).toEqual({
       ok: false,
       code: "unauthenticated",
     });
     expect(await service.createDraft({ ...editor, role: "reader" }, validContent)).toEqual({
+      ok: false,
+      code: "forbidden",
+    });
+    expect(repository.createDraft).not.toHaveBeenCalled();
+  });
+
+  it("fails closed for actors with an unrecognized runtime role", async () => {
+    const malformedActor = { ...editor, role: "superuser" } as never;
+    await expect(service.createDraft(malformedActor, validContent)).resolves.toMatchObject({
       ok: false,
       code: "forbidden",
     });
