@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { AdminNav } from '../components/AdminNav'
 
 export const Route = createFileRoute('/admin')({ component: AdminOverview })
 
@@ -23,6 +24,7 @@ function AdminOverview() {
           <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">Content management</h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-300">Struttura dell'area editoriale per gestire tutti i contenuti pubblici della Polisportiva Nino Romano.</p>
         </header>
+        <AdminNav />
 
         <section className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5 sm:p-7" aria-labelledby="prototype-notice">
           <h2 id="prototype-notice" className="font-bold text-amber-200">Prototipo strutturale — non è ancora un pannello operativo</h2>
