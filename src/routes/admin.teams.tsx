@@ -6,7 +6,7 @@ import type { Player, Team, TeamStaff } from '../lib/content-types'
 import { slugifyEditorialTitle } from '../lib/editorial-slug'
 import { validateTeam } from '../lib/content-validation'
 import { isSafeEditorialImageUrl } from '../lib/editorial-media'
-import { saveTeamDraftFn } from '../lib/server/team-editorial-actions'
+import { getTeamDraftFn, saveTeamDraftFn } from '../lib/server/team-editorial-actions'
 
 export const Route = createFileRoute('/admin/teams')({ headers: () => ({ 'Cache-Control': 'private, no-store' }), component: TeamsWorkbench })
 
@@ -32,6 +32,7 @@ function TeamsWorkbench() {
   const [serverTeamId, setServerTeamId] = useState<string | null>(null)
   const [serverUpdatedAt, setServerUpdatedAt] = useState<string | null>(null)
   const [serverSaving, setServerSaving] = useState(false)
+  const [serverHasMedia, setServerHasMedia] = useState(false)
   const draftKey = 'nino-romano-v2-team-draft'
   useEffect(() => {
     try {
@@ -52,17 +53,48 @@ function TeamsWorkbench() {
     } catch { setDraftMessage('Impossibile leggere la bozza locale.') }
   }, [])
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem('nino-romano-v2-team-server-ref')
-      if (!raw) return
-      const parsed: unknown = JSON.parse(raw)
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return
-      const reference = parsed as Record<string, unknown>
-      if (typeof reference.teamId === 'string' && typeof reference.updatedAt === 'string' && Number.isFinite(Date.parse(reference.updatedAt))) {
+    let cancelled = false
+    const restoreServerDraft = async () => {
+      try {
+        const raw = window.localStorage.getItem('nino-romano-v2-team-server-ref')
+        if (!raw) return
+        const parsed: unknown = JSON.parse(raw)
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return
+        const reference = parsed as Record<string, unknown>
+        if (typeof reference.teamId !== 'string' || typeof reference.updatedAt !== 'string' || !Number.isFinite(Date.parse(reference.updatedAt))) return
         setServerTeamId(reference.teamId)
         setServerUpdatedAt(reference.updatedAt)
+        const result = await getTeamDraftFn({ data: { teamId: reference.teamId } })
+        if (cancelled || !result.ok) return
+        setServerUpdatedAt(result.updatedAt)
+        setServerHasMedia(result.hasMedia)
+        setName(result.payload.name)
+        setSlug(result.payload.slug)
+        setSlugEdited(true)
+        setCategory(result.payload.category)
+        setSeason(result.payload.seasonLabel)
+        setDescription(result.payload.description)
+        setLogoUrl('')
+        setLogoAlt('')
+        setPlayers(result.payload.roster.map((player) => ({
+          name: player.name,
+          jerseyNumber: player.jerseyNumber === null ? '' : String(player.jerseyNumber),
+          role: player.role,
+          photoUrl: '',
+          photoAlt: '',
+        })))
+        setStaff(result.payload.staff.map((member) => ({
+          name: member.name, role: member.role, photoUrl: '', photoAlt: '',
+        })))
+        setDraftMessage(result.hasMedia
+          ? 'Bozza condivisa ripristinata. Sono presenti immagini collegate: per evitare di perderle, la modifica è temporaneamente bloccata.'
+          : 'Bozza condivisa ripristinata dal database.')
+      } catch {
+        if (!cancelled) setDraftMessage('Non è stato possibile ripristinare la bozza condivisa.')
       }
-    } catch { /* Invalid local reference is ignored; the database remains authoritative. */ }
+    }
+    void restoreServerDraft()
+    return () => { cancelled = true }
   }, [])
   const updateName = (value: string) => {
     setName(value)
@@ -115,7 +147,7 @@ function TeamsWorkbench() {
       setDraftMessage('Completa i dati obbligatori e correggi gli errori prima di salvare.')
       return
     }
-    if (logoUrl.trim() || players.some((player) => player.photoUrl.trim()) || staff.some((member) => member.photoUrl.trim())) {
+    if (serverHasMedia || logoUrl.trim() || players.some((player) => player.photoUrl.trim()) || staff.some((member) => member.photoUrl.trim())) {
       setDraftMessage('Le immagini inserite tramite URL non sono ancora collegabili al database: completa prima il caricamento nella Libreria media.')
       return
     }
@@ -144,6 +176,7 @@ function TeamsWorkbench() {
       if (result.ok) {
         setServerTeamId(result.teamId)
         setServerUpdatedAt(result.updatedAt)
+        setServerHasMedia(false)
         window.localStorage.setItem('nino-romano-v2-team-server-ref', JSON.stringify({ teamId: result.teamId, updatedAt: result.updatedAt }))
         setDraftMessage('Bozza condivisa salvata nel database. Non è ancora pubblicata.')
       } else {
