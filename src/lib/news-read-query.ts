@@ -46,7 +46,7 @@ export function validateNewsReadQuery(input: NewsReadQueryInput): NewsReadQueryV
   const issues: string[] = [];
   let pageSize = NEWS_READ_PAGE_SIZE_DEFAULT;
 
-  if (input.pageSize !== undefined) {
+  if (query.pageSize !== undefined) {
     if (typeof input.pageSize !== "number" || !Number.isInteger(input.pageSize) || input.pageSize < 1) {
       issues.push("pageSize must be a positive integer.");
     } else if (input.pageSize > NEWS_READ_PAGE_SIZE_MAX) {
@@ -57,7 +57,7 @@ export function validateNewsReadQuery(input: NewsReadQueryInput): NewsReadQueryV
   }
 
   let cursor: string | undefined;
-  if (input.cursor !== undefined) {
+  if (query.cursor !== undefined) {
     if (typeof input.cursor !== "string" || !input.cursor.trim() || input.cursor.length > NEWS_READ_CURSOR_MAX_LENGTH) {
       issues.push("cursor must be a non-empty bounded string.");
     } else {
@@ -66,7 +66,7 @@ export function validateNewsReadQuery(input: NewsReadQueryInput): NewsReadQueryV
   }
 
   let status: NewsReadStatus | undefined;
-  if (input.status !== undefined) {
+  if (query.status !== undefined) {
     if (typeof input.status !== "string" || !statuses.includes(input.status as NewsReadStatus)) {
       issues.push("status is not recognized.");
     } else {
@@ -75,7 +75,7 @@ export function validateNewsReadQuery(input: NewsReadQueryInput): NewsReadQueryV
   }
 
   let category: string | undefined;
-  if (input.category !== undefined) {
+  if (query.category !== undefined) {
     if (typeof input.category !== "string" || !input.category.trim() || input.category.length > 60) {
       issues.push("category must be a non-empty string of at most 60 characters.");
     } else {
@@ -84,7 +84,7 @@ export function validateNewsReadQuery(input: NewsReadQueryInput): NewsReadQueryV
   }
 
   let creatorId: string | undefined;
-  if (input.creatorId !== undefined) {
+  if (query.creatorId !== undefined) {
     if (typeof input.creatorId !== 'string' || !input.creatorId.trim() || input.creatorId.length > 128) {
       issues.push('creatorId must be a non-empty string of at most 128 characters.');
     } else { creatorId = input.creatorId.trim(); }
@@ -98,14 +98,14 @@ export function validateNewsReadQuery(input: NewsReadQueryInput): NewsReadQueryV
     }
     return new Date(Date.parse(value)).toISOString();
   };
-  const createdAfter = parseDateFilter(input.createdAfter, 'createdAfter');
-  const createdBefore = parseDateFilter(input.createdBefore, 'createdBefore');
+  const createdAfter = parseDateFilter(query.createdAfter, 'createdAfter');
+  const createdBefore = parseDateFilter(query.createdBefore, 'createdBefore');
   if (createdAfter && createdBefore && Date.parse(createdAfter) > Date.parse(createdBefore)) {
     issues.push('createdAfter must not be later than createdBefore.');
   }
 
   let search: string | undefined;
-  if (input.search !== undefined) {
+  if (query.search !== undefined) {
     if (typeof input.search !== "string" || input.search.length > 200) {
       issues.push("search must be a string of at most 200 characters.");
     } else if (input.search.trim()) {
