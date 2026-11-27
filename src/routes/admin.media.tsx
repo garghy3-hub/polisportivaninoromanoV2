@@ -16,8 +16,8 @@ function MediaLibraryWorkbench() {
   const [caption, setCaption] = useState('')
   const [message, setMessage] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => () => { if (preview) URL.revokeObjectURL(preview) }, [preview])
+  const urlsRef = useRef<string[]>([])
+  useEffect(() => () => { urlsRef.current.forEach(url => URL.revokeObjectURL(url)) }, [])
 
   const choose = (file: File | null) => {
     setMessage('')
@@ -26,8 +26,10 @@ function MediaLibraryWorkbench() {
     if (file.size <= 0 || file.size > MAX_BYTES) { setMessage('File vuoto o troppo grande: limite 10 MiB.'); return }
     if (items.length >= 20) { setMessage('Limite temporaneo: 20 immagini per sessione.'); return }
     if (preview) URL.revokeObjectURL(preview)
+    const nextUrl = URL.createObjectURL(file)
+    urlsRef.current.push(nextUrl)
     setSelected(file)
-    setPreview(URL.createObjectURL(file))
+    setPreview(nextUrl)
     setAlt('')
     setCaption('')
   }
@@ -42,7 +44,7 @@ function MediaLibraryWorkbench() {
   const remove = (id: string) => {
     setItems(prev => {
       const item = prev.find(x => x.id === id)
-      if (item) URL.revokeObjectURL(item.url)
+      if (item) { URL.revokeObjectURL(item.url); urlsRef.current = urlsRef.current.filter(url => url !== item.url) }
       return prev.filter(x => x.id !== id)
     })
   }
