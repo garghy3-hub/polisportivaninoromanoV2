@@ -41,22 +41,46 @@ export type Database = {
       club_profile: {
         Row: {
           content: Json
+          draft_content: Json | null
+          draft_created_by: string | null
+          editorial_status: string
           id: string
           is_published: boolean
+          published_at: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewer_id: string | null
+          submitted_at: string | null
           updated_at: string
           updated_by: string | null
         }
         Insert: {
           content?: Json
+          draft_content?: Json | null
+          draft_created_by?: string | null
+          editorial_status?: string
           id?: string
           is_published?: boolean
+          published_at?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          submitted_at?: string | null
           updated_at?: string
           updated_by?: string | null
         }
         Update: {
           content?: Json
+          draft_content?: Json | null
+          draft_created_by?: string | null
+          editorial_status?: string
           id?: string
           is_published?: boolean
+          published_at?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          submitted_at?: string | null
           updated_at?: string
           updated_by?: string | null
         }
@@ -448,22 +472,46 @@ export type Database = {
       site_settings: {
         Row: {
           content: Json
+          draft_content: Json | null
+          draft_created_by: string | null
+          editorial_status: string
           id: string
           is_published: boolean
+          published_at: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewer_id: string | null
+          submitted_at: string | null
           updated_at: string
           updated_by: string | null
         }
         Insert: {
           content?: Json
+          draft_content?: Json | null
+          draft_created_by?: string | null
+          editorial_status?: string
           id?: string
           is_published?: boolean
+          published_at?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          submitted_at?: string | null
           updated_at?: string
           updated_by?: string | null
         }
         Update: {
           content?: Json
+          draft_content?: Json | null
+          draft_created_by?: string | null
+          editorial_status?: string
           id?: string
           is_published?: boolean
+          published_at?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          submitted_at?: string | null
           updated_at?: string
           updated_by?: string | null
         }
@@ -673,6 +721,16 @@ export type Database = {
       }
       calendar_editorial_workflow_command: {
         Args: { p_action: string; p_event_id: string; p_expected_updated_at: string; p_payload?: Json }
+        Returns: Json
+      }
+      site_editorial_command: {
+        Args: {
+          p_action: string
+          p_expected_updated_at?: string | null
+          p_note?: string
+          p_payload?: Json
+          p_resource: string
+        }
         Returns: Json
       }
       team_editorial_command: {
