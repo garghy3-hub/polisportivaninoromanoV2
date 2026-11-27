@@ -76,6 +76,24 @@ describe("provider-neutral News editorial service", () => {
     expect(repository.createDraft).not.toHaveBeenCalled();
   });
 
+  it("enforces actor identifier bounds at the service boundary", async () => {
+    const maxLengthActor = { ...editor, id: "x".repeat(128), sessionId: "s".repeat(128) };
+    await expect(service.createDraft(maxLengthActor, validContent)).resolves.toMatchObject({ ok: true });
+    vi.mocked(repository.createDraft).mockClear();
+
+    const oversizedActor = { ...editor, id: "x".repeat(129) };
+    await expect(service.createDraft(oversizedActor, validContent)).resolves.toMatchObject({
+      ok: false,
+      code: "forbidden",
+    });
+    const oversizedSession = { ...editor, sessionId: "s".repeat(129) };
+    await expect(service.createDraft(oversizedSession, validContent)).resolves.toMatchObject({
+      ok: false,
+      code: "forbidden",
+    });
+    expect(repository.createDraft).not.toHaveBeenCalled();
+  });
+
   it("rejects actors carrying unexpected runtime fields", async () => {
     const extendedActor = { ...editor, administrator: true };
     await expect(service.createDraft(extendedActor as never, validContent)).resolves.toMatchObject({
