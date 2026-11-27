@@ -36,9 +36,14 @@ function validatePayload(resource: SiteEditorialResource, payload: unknown): pay
     return false;
   }
   if (new TextEncoder().encode(serialized).byteLength > 262144) return false;
-  return resource === "site-settings"
-    ? validateSiteSettings(payload as unknown as SiteSettings).length === 0
-    : validateClubProfile(payload as unknown as ClubProfile).length === 0;
+  if (typeof serialized !== "string") return false;
+  try {
+    return resource === "site-settings"
+      ? validateSiteSettings(payload as unknown as SiteSettings).length === 0
+      : validateClubProfile(payload as unknown as ClubProfile).length === 0;
+  } catch {
+    return false;
+  }
 }
 
 const saveDraft = createServerOnlyFn(async (request: {
