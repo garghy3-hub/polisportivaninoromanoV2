@@ -27,18 +27,22 @@ grant usage on schema private to authenticated;
 
 create or replace function private.current_editorial_role()
 returns text
-language sql
+language plpgsql
 stable
 security definer
 set search_path = ''
 as $$
-  select au.role
+declare
+  resolved_role text;
+begin
+  select au.role into resolved_role
   from public.admin_users as au
   where au.user_id = (select auth.uid())
     and au.is_active = true
   limit 1;
-$;
-
+  return resolved_role;
+end;
+$$;
 revoke all on function private.current_editorial_role() from public, anon;
 grant execute on function private.current_editorial_role() to authenticated;
 
