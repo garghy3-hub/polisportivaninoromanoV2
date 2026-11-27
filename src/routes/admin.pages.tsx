@@ -159,6 +159,7 @@ function PagesWorkbench() {
         </section>
 
         <div className="mt-6 flex flex-wrap items-center gap-3"><button type="button" onClick={() => void saveSettings()} disabled={issues.length > 0 || editorialStatus === 'in-review' || editorialStatus === 'approved'} className="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40">Salva bozza condivisa</button><button type="button" onClick={() => void submitForReview()} disabled={!expectedUpdatedAt || editorialStatus !== 'draft' || issues.length > 0} className="rounded-xl bg-red-700 px-4 py-3 text-sm font-bold hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40">Invia in revisione</button><button type="button" onClick={resetSettings} className="rounded-xl border border-white/20 px-4 py-3 text-sm font-semibold hover:bg-white/10">Ripristina contenuti iniziali</button><span className="rounded-full border border-white/15 px-3 py-1 text-xs text-slate-300">Stato: {editorialStatus}</span>{saveMessage && <p role="status" aria-live="polite" className="text-sm text-slate-300">{saveMessage}</p>}</div>
+        <fieldset disabled={editorialStatus === 'in-review' || editorialStatus === 'approved'} className="contents">
         <div className="mt-8 flex flex-wrap gap-2" role="tablist" aria-label="Sezioni editor pagine">
           {([{ id: 'home', label: 'Homepage' }, { id: 'pages', label: 'Pagine interne' }, { id: 'navigation', label: 'Menu' }, { id: 'seo', label: 'SEO sito' }] as const).map((tab) => <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => setActiveTab(tab.id)} className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${activeTab === tab.id ? 'border-red-400 bg-red-500/15 text-white' : 'border-white/15 text-slate-400 hover:border-white/30 hover:text-white'}`}>{tab.label}</button>)}
         </div>
@@ -230,6 +231,7 @@ function PagesWorkbench() {
           {issues.length > 0 && <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-amber-200">{issues.slice(0, 20).map((issue, index) => <li key={index}>{issue}</li>)}</ul>}
           <p className="mt-4 text-xs leading-6 text-slate-500">La validazione controlla link, campi obbligatori, identificativi, ordine e visibilità. Il server ripete i controlli e registra le operazioni editoriali.</p>
         </section>
+        </fieldset>
       </div>
     </main>
   )
