@@ -166,6 +166,37 @@ export const siteEditorialWorkflowFn = createServerFn({ method: "POST" })
     });
   });
 
+const readEditorialQueue = createServerOnlyFn(async () => {
+  const actor = await getActiveEditorialActor();
+  if (!actor) return { ok: false as const, code: "unauthenticated" as const };
+  if (!["publisher", "administrator"].includes(actor.role)) {
+    return { ok: false as const, code: "forbidden" as const };
+  }
+  const supabase = getSupabaseServerClient();
+  if (!supabase) return { ok: false as const, code: "not-configured" as const };
+
+  const statuses = ["in-review", "approved", "published"];
+  const [settingsResult, profileResult] = await Promise.all([
+    supabase.from("site_settings")
+      .select("id, draft_content, content, updated_at, editorial_status, is_published, review_note, submitted_at, draft_created_by, reviewer_id")
+      .eq("id", "main").in("editorial_status", statuses),
+    supabase.from("club_profile")
+      .select("id, draft_content, content, updated_at, editorial_status, is_published, review_note, submitted_at, draft_created_by, reviewer_id")
+      .eq("id", "main").in("editorial_status", statuses),
+  ]);
+  if (settingsResult.error || profileResult.error) {
+    return { ok: false as const, code: "internal" as const };
+  }
+  const items = [
+    ...(settingsResult.data ?? []).map(item => ({ ...item, resource: "site-settings" as const })),
+    ...(profileResult.data ?? []).map(item => ({ ...item, resource: "club-profile" as const })),
+  ].sort((a, b) => b.updated_at.localeCompare(a.updated_at));
+  return { ok: true as const, items };
+});
+
+export const getSiteEditorialQueueFn = createServerFn({ method: "GET" })
+  .handler(async () => readEditorialQueue());
+
 const readDraft = createServerOnlyFn(async (resource: SiteEditorialResource) => {
   const actor = await getActiveEditorialActor();
   if (!actor) return { ok: false as const, code: "unauthenticated" as const };
