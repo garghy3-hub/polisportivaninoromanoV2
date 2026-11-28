@@ -1,8 +1,13 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { getCurrentEditorialUserFn } from '../lib/server/editorial-auth'
 import { AdminNav } from '../components/AdminNav'
 
 export const Route = createFileRoute('/admin')({
   headers: () => ({ 'Cache-Control': 'private, no-store' }),
+  beforeLoad: async () => {
+    const user = await getCurrentEditorialUserFn()
+    if (!user) throw redirect({ to: '/admin/login' })
+  },
   component: AdminOverview,
 })
 
