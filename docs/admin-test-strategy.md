@@ -45,6 +45,8 @@ This plan is a prerequisite for implementing authenticated editorial mutations. 
 - Vitest is installed and `npm run test` runs the unit suite.
 - CI runs unit tests before build/type-check.
 - Pure permission and workflow transition rules are tested.
+- Team workflow request validation covers supported actions, required rejection notes, strict ISO timestamps, UUIDs and unknown-key rejection.
+- Calendar draft/workflow validation covers event payload consistency, score rules, timestamps, workflow actions and rejection notes.
 - Content, query and News draft validation have unit coverage.
 - `editorial-session.test.ts` covers the fail-closed resolution of a server-loaded session record, expiry, revocation, unknown roles and permission checks.
 - `news-editorial-service.test.ts` covers service permission gates, category/field validation, expected-version checks, repository delegation, malformed payloads and safe failure mapping.
@@ -66,4 +68,4 @@ The News service tests explicitly verify that repository failure details are not
 
 ## Current status
 
-The repository has a Vitest unit suite and CI runs tests before build/type-check. It still has no authenticated server API, production session verification or persistence. Existing admin routes remain non-persisting prototypes.
+The branch contains Supabase SSR authentication integration, server-side editorial actions and database-backed workflow RPCs for News, teams and calendar. The session/role boundary and action guards are implemented in code, and unit tests cover selected pure validation and service behavior. However, no real editorial Auth accounts have completed end-to-end testing, so production authentication, role enforcement across actual requests, database transaction behavior and public rendering remain operationally unverified. The coverage listed above is not a substitute for isolated database integration tests or authenticated browser/API tests. Pages/site editorial migration is not present in the remote migration ledger snapshot; its public publish path is intentionally blocked. Media remains browser-local until remote Storage is implemented.
