@@ -1,6 +1,6 @@
 # Admin test strategy
 
-This plan is a prerequisite for implementing authenticated editorial mutations. It is not a substitute for tests or server-side enforcement.
+This plan defines the verification gates for the authenticated editorial workflows already present in the branch. It is not a substitute for tests or server-side enforcement.
 
 ## Test layers
 
@@ -11,7 +11,7 @@ This plan is a prerequisite for implementing authenticated editorial mutations. 
 - Content validators: valid records, missing required fields, malformed URLs, invalid dates/scores, duplicate IDs/slugs, unsafe media metadata and inaccessible states.
 - Query rules: public queries exclude hidden, draft, archived and cancelled items where applicable.
 
-### 2. Server boundary tests (before any editing screen is exposed)
+### 2. Server boundary tests (required before production release of authenticated editing workflows)
 - Anonymous requests cannot access editorial reads or mutations.
 - A session with expired, revoked or invalid signature is denied.
 - Role and actor identity are derived from the verified session, never request-body values.
@@ -51,7 +51,7 @@ This plan is a prerequisite for implementing authenticated editorial mutations. 
 - `editorial-session.test.ts` covers the fail-closed resolution of a server-loaded session record, expiry, revocation, unknown roles and permission checks.
 - `news-editorial-service.test.ts` covers service permission gates, category/field validation, expected-version checks, repository delegation, malformed payloads and safe failure mapping.
 
-The session helper is not an authentication implementation: it does not verify cookies, signatures, passwords, session storage or the source of the supplied record. Its input must come from a future trusted server-side authentication adapter.
+The `editorial-session.test.ts` suite tests role and expiry decisions after a session record has been loaded; it does not itself exercise Supabase cookie parsing, token verification, Auth user lookup or the database role query. Those responsibilities belong to the implemented Supabase SSR authentication and server-side role-resolution path, which still require authenticated integration tests against a non-production project.
 
 The read-side contract in `docs/news-repository-read-contract.md` also defines required future tests for pagination, preview read-only behavior, public projection filtering, audit access restrictions and deterministic history.
 
