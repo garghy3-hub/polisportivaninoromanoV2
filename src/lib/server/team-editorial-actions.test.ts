@@ -67,10 +67,22 @@ describe("team editorial workflow request validation", () => {
     expectedUpdatedAt: "2026-11-28T17:00:00.000Z",
   };
 
-  it("accepts valid actions and requires a rejection note", () => {
-    expect(isValidTeamWorkflowRequest(command)).toBe(true);
-    expect(isValidTeamWorkflowRequest({ ...command, action: "approve" })).toBe(true);
+  it("accepts every supported action and requires a rejection note", () => {
+    for (const action of ["submit", "approve", "publish", "unpublish"]) {
+      expect(isValidTeamWorkflowRequest({ ...command, action })).toBe(true);
+    }
     expect(isValidTeamWorkflowRequest({ ...command, action: "reject", note: "Correggere la rosa" })).toBe(true);
+  });
+
+  it("accepts valid year-zero leap-day timestamps and timezone offsets", () => {
+    expect(isValidTeamWorkflowRequest({
+      ...command,
+      expectedUpdatedAt: "0000-02-29T12:00:00Z",
+    })).toBe(true);
+    expect(isValidTeamWorkflowRequest({
+      ...command,
+      expectedUpdatedAt: "2026-11-28T12:00:00+14:00",
+    })).toBe(true);
   });
 
   it("rejects malformed identifiers, timestamps, notes and extra fields", () => {
@@ -80,6 +92,8 @@ describe("team editorial workflow request validation", () => {
     expect(isValidTeamWorkflowRequest({ ...command, action: "reject" })).toBe(false);
     expect(isValidTeamWorkflowRequest({ ...command, action: "reject", note: " " })).toBe(false);
     expect(isValidTeamWorkflowRequest({ ...command, action: "reject", note: "x".repeat(1001) })).toBe(false);
+    expect(isValidTeamWorkflowRequest({ ...command, action: "delete" })).toBe(false);
+    expect(isValidTeamWorkflowRequest({ ...command, action: "submit", note: "unexpected" })).toBe(false);
     expect(isValidTeamWorkflowRequest({ ...command, unexpected: true })).toBe(false);
     expect(isValidTeamWorkflowRequest(null)).toBe(false);
   });
