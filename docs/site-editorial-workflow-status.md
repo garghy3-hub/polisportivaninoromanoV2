@@ -29,3 +29,12 @@ Aggiornato al 27 novembre 2026. Questo documento distingue il codice presente ne
 
 ## Stato release
 PR #1 resta Draft. Nessuna migrazione di questo blocco è stata applicata; nessun merge o deploy è stato eseguito.
+
+
+## Aggiornamento — 28 novembre 2026
+
+- Il commit `e12e6f7` ha esteso i test unitari del validator del workflow squadre; GitHub Actions run **#1364** ha completato con successo installazione dipendenze, test unitari e build/type-check.
+- Il successivo commit documentale `27735d5` ha aggiornato il registro database/migrazioni. Per questo commit GitHub non ha restituito una nuova workflow run né uno status check: non va quindi descritto come CI verificata sul nuovo head.
+- La migrazione `20261127224500_site_editorial_workflow.sql` resta nel branch ma non compare nel registro remoto letto nel checkpoint del 28 novembre. Non è stata applicata.
+- Il progetto Supabase risulta attualmente `INACTIVE`; nessuna verifica o modifica database è stata eseguita dopo la pausa.
+- Rimangono validi i gate di questo documento: proiezione pubblica server-side, account editoriali reali, test integrati SQL/autenticati e verifica cross-device. La pubblicazione resta intenzionalmente bloccata dalla RPC finché la proiezione pubblica non è pronta.
