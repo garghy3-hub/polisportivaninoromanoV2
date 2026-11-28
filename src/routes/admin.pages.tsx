@@ -80,7 +80,7 @@ function PagesWorkbench() {
       setEditorialStatus(result.editorialStatus)
       const serverContent = result.payload ?? result.publishedContent
       if (serverContent && typeof serverContent === 'object' && !Array.isArray(serverContent)) {
-        const restored = serverContent as SiteSettings
+        const restored = serverContent as unknown as SiteSettings
         if (validateSiteSettings(restored).length === 0) {
           setSettings(restored)
           setSaveMessage(result.payload ? 'Bozza condivisa caricata dal server.' : 'Contenuto pubblicato caricato come base per una nuova bozza.')
