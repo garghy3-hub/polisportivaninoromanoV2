@@ -33,7 +33,7 @@ function isStrictTimestamp(value: unknown): value is string {
 const draftKeys = ["startsAt", "homeTeam", "awayTeam", "eventType", "roundLabel", "seasonLabel",
   "venue", "competition", "status", "homeScore", "awayScore", "notes"] as const;
 
-function isValidDraftPayload(value: unknown): value is Record<(typeof draftKeys)[number], unknown> {
+export function isValidDraftPayload(value: unknown): value is Record<(typeof draftKeys)[number], unknown> {
   if (!isRecord(value) || !hasExactKeys(value, draftKeys)) return false;
   const strings = ["homeTeam", "awayTeam", "eventType", "roundLabel", "seasonLabel",
     "venue", "competition", "status", "notes"] as const;
@@ -70,7 +70,7 @@ function isValidDraftRequest(value: unknown): value is {
   return value.eventId === null ? value.expectedUpdatedAt === null : value.expectedUpdatedAt !== null;
 }
 
-function isValidWorkflowRequest(value: unknown): value is {
+export function isValidWorkflowRequest(value: unknown): value is {
   action: CalendarAction; eventId: string; expectedUpdatedAt: string; note: string;
 } {
   if (!isRecord(value) || !hasExactKeys(value, ["action", "eventId", "expectedUpdatedAt", "note"])) return false;
