@@ -18,15 +18,15 @@ function hasExactKeys(value: Record<string, unknown>, expected: readonly string[
 }
 
 export function isValidSiteEditorialTimestamp(value: unknown): value is string {
-  if (typeof value !== "string" || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,9})?(?:Z|[+-]\\d{2}:\\d{2})$/.test(value)) return false;
-  const match = /^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})/.exec(value);
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)) return false;
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/.exec(value);
   if (!match) return false;
   const [, y, m, d, h, min, s] = match;
   const date = new Date(0);
   date.setUTCFullYear(Number(y), Number(m) - 1, Number(d));
   date.setUTCHours(0, 0, 0, 0);
   if (date.getUTCFullYear() !== Number(y) || date.getUTCMonth() !== Number(m) - 1 || date.getUTCDate() !== Number(d) || Number(h) > 23 || Number(min) > 59 || Number(s) > 59) return false;
-  const zone = /([+-])(\\d{2}):(\\d{2})$/.exec(value);
+  const zone = /([+-])(\d{2}):(\d{2})$/.exec(value);
   if (zone && (Number(zone[2]) > 14 || Number(zone[3]) > 59 || (Number(zone[2]) === 14 && Number(zone[3]) !== 0))) return false;
   return Number.isFinite(Date.parse(value));
 }
