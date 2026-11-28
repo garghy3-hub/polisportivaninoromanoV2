@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isValidTeamDraftPayload } from "../team-draft-validation";
+import { isValidTeamDraftPayload, isValidTeamSaveRequest } from "../team-draft-validation";
 
 const valid = {
   name: "Prima squadra",
@@ -43,3 +43,4 @@ describe("team draft payload validation", () => {
     expect(isValidTeamDraftPayload({ ...valid, staff: [{ name: "Tecnico", role: "" }] })).toBe(false);
   });
 });
+\n\ndescribe("team save request timestamp validation", () => {\n  const request = { teamId: "123e4567-e89b-12d3-a456-426614174000", expectedUpdatedAt: "2026-11-28T17:00:00.000Z", payload: valid };\n  it("accepts a valid optimistic concurrency request", () => {\n    expect(isValidTeamSaveRequest(request)).toBe(true);\n  });\n  it("rejects malformed, impossible and timezone-invalid timestamps", () => {\n    expect(isValidTeamSaveRequest({ ...request, expectedUpdatedAt: "2026-02-31T12:00:00Z" })).toBe(false);\n    expect(isValidTeamSaveRequest({ ...request, expectedUpdatedAt: "2026-11-28T12:00:00+15:00" })).toBe(false);\n    expect(isValidTeamSaveRequest({ ...request, expectedUpdatedAt: "yesterday" })).toBe(false);\n    expect(isValidTeamSaveRequest({ ...request, expectedUpdatedAt: null })).toBe(false);\n  });\n});\n
