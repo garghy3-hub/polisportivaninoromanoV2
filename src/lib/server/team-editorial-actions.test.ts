@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { isValidTeamDraftPayload, isValidTeamSaveRequest } from "../team-draft-validation";
+import { isValidTeamWorkflowRequest } from "./team-workflow-actions";
 
 const valid = {
   name: "Prima squadra",
@@ -55,5 +56,31 @@ describe("team save request timestamp validation", () => {
     expect(isValidTeamSaveRequest({ ...request, expectedUpdatedAt: "2026-11-28T12:00:00+15:00" })).toBe(false);
     expect(isValidTeamSaveRequest({ ...request, expectedUpdatedAt: "yesterday" })).toBe(false);
     expect(isValidTeamSaveRequest({ ...request, expectedUpdatedAt: null })).toBe(false);
+  });
+});
+
+
+describe("team editorial workflow request validation", () => {
+  const command = {
+    action: "submit",
+    teamId: "123e4567-e89b-12d3-a456-426614174000",
+    expectedUpdatedAt: "2026-11-28T17:00:00.000Z",
+  };
+
+  it("accepts valid actions and requires a rejection note", () => {
+    expect(isValidTeamWorkflowRequest(command)).toBe(true);
+    expect(isValidTeamWorkflowRequest({ ...command, action: "approve" })).toBe(true);
+    expect(isValidTeamWorkflowRequest({ ...command, action: "reject", note: "Correggere la rosa" })).toBe(true);
+  });
+
+  it("rejects malformed identifiers, timestamps, notes and extra fields", () => {
+    expect(isValidTeamWorkflowRequest({ ...command, teamId: "not-a-uuid" })).toBe(false);
+    expect(isValidTeamWorkflowRequest({ ...command, expectedUpdatedAt: "2026-02-31T12:00:00Z" })).toBe(false);
+    expect(isValidTeamWorkflowRequest({ ...command, expectedUpdatedAt: "2026-11-28T12:00:00+15:00" })).toBe(false);
+    expect(isValidTeamWorkflowRequest({ ...command, action: "reject" })).toBe(false);
+    expect(isValidTeamWorkflowRequest({ ...command, action: "reject", note: " " })).toBe(false);
+    expect(isValidTeamWorkflowRequest({ ...command, action: "reject", note: "x".repeat(1001) })).toBe(false);
+    expect(isValidTeamWorkflowRequest({ ...command, unexpected: true })).toBe(false);
+    expect(isValidTeamWorkflowRequest(null)).toBe(false);
   });
 });
