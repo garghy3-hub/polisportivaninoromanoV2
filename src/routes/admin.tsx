@@ -4,7 +4,9 @@ import { AdminNav } from '../components/AdminNav'
 
 export const Route = createFileRoute('/admin')({
   headers: () => ({ 'Cache-Control': 'private, no-store' }),
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
+    // The login route shares this route prefix; allow it to render for anonymous users.
+    if (location.pathname === '/admin/login') return
     const user = await getCurrentEditorialUserFn()
     if (!user) throw redirect({ to: '/admin/login' })
   },
