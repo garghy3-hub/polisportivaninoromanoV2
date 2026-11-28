@@ -20,7 +20,9 @@ function isStrictTimestamp(value: unknown): value is string {
   const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/.exec(value);
   if (!match) return false;
   const [, year, month, day, hour, minute, second] = match;
-  const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+  const date = new Date(0);
+  date.setUTCFullYear(Number(year), Number(month) - 1, Number(day));
+  date.setUTCHours(0, 0, 0, 0);
   if (date.getUTCFullYear() !== Number(year) || date.getUTCMonth() !== Number(month) - 1
     || date.getUTCDate() !== Number(day) || Number(hour) > 23 || Number(minute) > 59
     || Number(second) > 59) return false;
