@@ -26,6 +26,7 @@ const command = {
 describe("calendar editorial request validation", () => {
   it("accepts valid draft content", () => {
     expect(isValidDraftPayload(draft)).toBe(true);
+    expect(isValidDraftPayload({ ...draft, startsAt: "0000-02-29T12:00:00Z" })).toBe(true);
     expect(isValidDraftPayload({ ...draft, status: "completed", homeScore: 3, awayScore: 1 })).toBe(true);
   });
 
