@@ -89,9 +89,6 @@ begin
   exception when others then
     return pg_catalog.jsonb_build_object('ok',false,'code','invalid_date');
   end;
-  exception when others then
-    return pg_catalog.jsonb_build_object('ok',false,'code','invalid_date');
-  end;
 
   if pg_catalog.btrim(p_payload->>'seasonLabel')<>'' then
     select s.id into v_season_id from public.seasons s where s.label=pg_catalog.btrim(p_payload->>'seasonLabel');
