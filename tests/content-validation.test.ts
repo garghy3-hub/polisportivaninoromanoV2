@@ -1,0 +1,124 @@
+import { describe, expect, it } from "vitest";
+import { validateArticle, validateEvent, validateContentCollections, validateMediaAsset, validateSiteSettings, validateClubProfile } from "../src/lib/content-validation";
+import { siteSettings } from "../src/lib/site-data";
+import { clubProfile } from "../src/lib/club-data";
+import type { NewsArticle, MatchEvent, MediaAsset, Team } from "../src/lib/content-types";
+
+const article: NewsArticle = {
+  id: "article-1", slug: "test-news", title: "Test", body: "Body",
+  category: "official", status: "published",
+  createdAt: "2026-01-01T10:00:00Z", updatedAt: "2026-01-01T10:00:00Z",
+  publishedAt: "2026-01-01T10:00:00Z",
+};
+const event: MatchEvent = {
+  id: "event-1", dateTime: "2026-01-02T18:00:00Z", homeTeam: "Home", awayTeam: "Away", status: "completed", homeScore: 3, awayScore: 1, outcome: "win",
+};
+const media: MediaAsset = {
+  id: "media-1", storageKey: "media/asset.jpg", fileName: "asset.jpg", mimeType: "image/jpeg",
+  sizeBytes: 1200, publicUrl: "https://example.com/asset.jpg", altText: "Descrizione",
+  uploadedAt: "2026-01-01T10:00:00Z", uploadedBy: "editor-1",
+};
+
+describe("editorial content validation", () => {
+  it("accepts valid article, event and media records", () => {
+    expect(validateArticle(article)).toEqual([]);
+    expect(validateEvent(event)).toEqual([]);
+    expect(validateMediaAsset(media)).toEqual([]);
+  });
+
+  it("requires normalized URL-safe slugs for articles and teams", () => {
+    expect(validateArticle({ ...article, slug: "Titolo articolo" }).some(issue => issue.includes("Article slug must contain"))).toBe(true);
+    expect(validateArticle({ ...article, slug: "titolo--articolo" }).some(issue => issue.includes("Article slug must contain"))).toBe(true);
+    const team: Team = { id: "team-1", name: "Prima squadra", slug: "prima-squadra", category: "senior" };
+    expect(validateContentCollections({ teams: [{ ...team, slug: "Prima Squadra" }] }).some(issue => issue.includes("Team slug must contain"))).toBe(true);
+    expect(validateContentCollections({ teams: [{ ...team, slug: "prima--squadra" }] }).some(issue => issue.includes("Team slug must contain"))).toBe(true);
+  });
+
+  it("rejects published articles without publication dates and unsafe image links", () => {
+    expect(validateArticle({ ...article, publishedAt: undefined }).some(issue => issue.includes("publishedAt"))).toBe(true);
+    expect(validateArticle({ ...article, coverImageUrl: "javascript:alert(1)", coverImageAlt: "x" }).length).toBeGreaterThan(0);
+  });
+
+  it("rejects event score/outcome inconsistencies", () => {
+    expect(validateEvent({ ...event, outcome: "loss" }).some(issue => issue.includes("outcome"))).toBe(true);
+    expect(validateEvent({ ...event, homeScore: -1 }).length).toBeGreaterThan(0);
+    expect(validateEvent({ ...event, status: "scheduled", homeScore: undefined, awayScore: undefined, outcome: "win" }).some(issue => issue.includes("only be set for completed"))).toBe(true);
+  });
+
+  it("requires scores only for completed events and rejects scores for other statuses", () => {
+    expect(validateEvent({ ...event, status: "scheduled", homeScore: undefined, awayScore: undefined, outcome: undefined })).toEqual([]);
+    expect(validateEvent({ ...event, status: "scheduled" }).some(issue => issue.includes("only be set for completed"))).toBe(true);
+    expect(validateEvent({ ...event, status: "completed", homeScore: undefined, awayScore: undefined, outcome: undefined }).some(issue => issue.includes("require non-negative integer scores"))).toBe(true);
+  });
+
+  it("detects duplicate IDs and slugs in collections", () => {
+    const duplicate = { ...article, id: "ARTICLE-1", slug: "TEST-news" };
+    expect(validateContentCollections({ articles: [article, duplicate] }).some(issue => issue.includes("Duplicate article"))).toBe(true);
+  });
+
+  it("requires media alt text, valid URL and positive file size", () => {
+    expect(validateMediaAsset({ ...media, altText: "" }).length).toBeGreaterThan(0);
+    expect(validateMediaAsset({ ...media, publicUrl: "javascript:alert(1)" }).length).toBeGreaterThan(0);
+    expect(validateMediaAsset({ ...media, sizeBytes: 0 }).length).toBeGreaterThan(0);
+  });
+
+  it("accepts the configured club profile", () => {
+    expect(validateClubProfile(clubProfile)).toEqual([]);
+  });
+
+  it("rejects unsafe social destinations and invalid partner image metadata", () => {
+    expect(validateClubProfile({
+      name: "Club",
+      socialLinks: [{ label: "Social", value: "club", href: "javascript:alert(1)" }],
+      partners: [{ id: "partner-1", name: "Partner", relationship: "partner", logoUrl: "https://example.com/logo.png", visible: true, order: 0 }],
+    }).some(issue => issue.includes("Social link 1: destination must use HTTPS"))).toBe(true);
+    expect(validateClubProfile({
+      name: "Club",
+      partners: [{ id: "partner-1", name: "Partner", relationship: "partner", logoUrl: "https://example.com/logo.png", visible: true, order: 0 }],
+    }).some(issue => issue.includes("logo URL and alternative text"))).toBe(true);
+  });
+
+  it("accepts the configured site settings", () => {
+    expect(validateSiteSettings(siteSettings)).toEqual([]);
+  });
+
+  it("rejects protocol-relative brand logos and unsupported theme presets", () => {
+    const unsafeLogo = {
+      ...siteSettings,
+      brand: { ...siteSettings.brand, logoUrl: "//external.example/logo.png" },
+    };
+    expect(validateSiteSettings(unsafeLogo).some(issue => issue.includes("Brand logo URL"))).toBe(true);
+
+    const unsupportedTheme = {
+      ...siteSettings,
+      brand: { ...siteSettings.brand, themePreset: "custom" as "rossoblu-classic" },
+    };
+    expect(validateSiteSettings(unsupportedTheme).some(issue => issue.includes("theme preset"))).toBe(true);
+  });
+
+  it("rejects unsafe homepage links and duplicate ordered section IDs", () => {
+    const invalid = {
+      ...siteSettings,
+      home: {
+        ...siteSettings.home,
+        primaryActionHref: "javascript:alert(1)",
+        features: [siteSettings.home.features[0], { ...siteSettings.home.features[1], id: siteSettings.home.features[0].id }],
+      },
+    };
+    const issues = validateSiteSettings(invalid);
+    expect(issues.some(issue => issue.includes("Unsafe or invalid public link"))).toBe(true);
+    expect(issues.some(issue => issue.includes("Duplicate homepage feature id"))).toBe(true);
+  });
+
+  it("accepts only supported image formats and caps uploads at 10 MiB", () => {
+    expect(validateMediaAsset({ ...media, mimeType: "image/svg+xml" }).some(issue => issue.includes("MIME"))).toBe(true);
+    expect(validateMediaAsset({ ...media, sizeBytes: 10 * 1024 * 1024 + 1 }).some(issue => issue.includes("10 MiB"))).toBe(true);
+    expect(validateMediaAsset({ ...media, sizeBytes: 10 * 1024 * 1024 })).toEqual([]);
+  });
+
+  it("rejects unsafe storage keys and file names", () => {
+    expect(validateMediaAsset({ ...media, storageKey: "../private/asset.jpg" }).some(issue => issue.includes("storage key"))).toBe(true);
+    expect(validateMediaAsset({ ...media, storageKey: "media\\\\asset.jpg" }).some(issue => issue.includes("storage key"))).toBe(true);
+    expect(validateMediaAsset({ ...media, fileName: "../asset.jpg" }).some(issue => issue.includes("file name"))).toBe(true);
+  });
+});

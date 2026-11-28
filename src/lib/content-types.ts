@@ -1,0 +1,412 @@
+/**
+ * Shared content contracts for the V2 website.
+ * Keep editorial data separate from UI components and database adapters.
+ * No live club information is fabricated here.
+ */
+
+export type ContentStatus = "draft" | "published" | "archived";
+
+export interface EditorialMetadata {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt?: string;
+  status: ContentStatus;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt?: string;
+  author?: string;
+  coverImageUrl?: string;
+  coverImageAlt?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  socialImageUrl?: string;
+  socialImageAlt?: string;
+  tags?: string[];
+}
+
+export const NEWS_CATEGORIES = [
+  "official",
+  "match-report",
+  "interview",
+  "youth",
+  "club-life",
+] as const;
+
+export type NewsCategory = (typeof NEWS_CATEGORIES)[number];
+
+export interface NewsArticle extends EditorialMetadata {
+  category: NewsCategory;
+  body: string;
+}
+
+export type TeamCategory = "senior" | "youth";
+
+export interface Team {
+  id: string;
+  name: string;
+  slug: string;
+  category: TeamCategory;
+  season?: string;
+  description?: string;
+  logoUrl?: string;
+  logoAlt?: string;
+  roster?: Player[];
+  staff?: TeamStaff[];
+  visible?: boolean;
+  order?: number;
+}
+
+export interface Player {
+  id: string;
+  name: string;
+  jerseyNumber?: number;
+  role?: string;
+  biography?: string;
+  photoUrl?: string;
+  photoAlt?: string;
+  visible?: boolean;
+  order?: number;
+}
+
+export interface TeamStaff {
+  id: string;
+  name: string;
+  role: string;
+  biography?: string;
+  photoUrl?: string;
+  photoAlt?: string;
+  visible?: boolean;
+  order?: number;
+}
+
+export type EventStatus = "scheduled" | "postponed" | "cancelled" | "completed";
+export type MatchOutcome = "win" | "loss" | "draw";
+
+export interface MatchEvent {
+  id: string;
+  season?: string;
+  type?: string;
+  round?: string;
+  dateTime: string;
+  homeTeam: string;
+  awayTeam: string;
+  venue?: string;
+  competition?: string;
+  status: EventStatus;
+  homeScore?: number;
+  awayScore?: number;
+  outcome?: MatchOutcome;
+  notes?: string;
+  visible?: boolean;
+  order?: number;
+}
+
+export interface ClubContact {
+  label: string;
+  value: string;
+  href?: string;
+}
+
+export interface ClubPerson {
+  id: string;
+  name: string;
+  role: string;
+  biography?: string;
+  photoUrl?: string;
+  photoAlt?: string;
+  visible: boolean;
+  order: number;
+}
+
+export interface ClubPartner {
+  id: string;
+  name: string;
+  relationship: "sponsor" | "partner";
+  description?: string;
+  logoUrl?: string;
+  logoAlt?: string;
+  websiteUrl?: string;
+  visible: boolean;
+  order: number;
+}
+
+export interface ClubProfile {
+  name: string;
+  shortName?: string;
+  description?: string;
+  history?: string;
+  mission?: string;
+  address?: string;
+  contacts?: ClubContact[];
+  socialLinks?: ClubContact[];
+  people?: ClubPerson[];
+  partners?: ClubPartner[];
+}
+
+/** Safe display helper: draft and archived items are never surfaced publicly. */
+export function isPublished<T extends EditorialMetadata>(
+  item: T,
+): item is T & { status: "published" } {
+  return item.status === "published";
+}
+
+export interface NavigationItem {
+  id: string;
+  label: string;
+  href: string;
+  visible: boolean;
+  order: number;
+}
+
+export interface HomeFeature {
+  id: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  visible: boolean;
+  order: number;
+}
+
+export interface HomePageContent {
+  heroEyebrow: string;
+  heroTitle: string;
+  heroAccent: string;
+  heroDescription: string;
+  primaryActionLabel: string;
+  primaryActionHref: string;
+  secondaryActionLabel: string;
+  secondaryActionHref: string;
+  visualEyebrow: string;
+  visualTitle: string;
+  visualDescription: string;
+  visualImageUrl?: string;
+  visualImageAlt: string;
+  visualTopLabel: string;
+  visualTag: string;
+  visualMonogram: string;
+  visualCounter: string;
+  heroSocialProof: string;
+  brandColorsLabel: string;
+  brandColorsDescriptor: string;
+  artworkTitle: string;
+  artworkDescription: string;
+  features: HomeFeature[];
+  projectEyebrow: string;
+  projectTitle: string;
+  projectDescription: string;
+  projectActionLabel: string;
+  projectActionHref: string;
+  closingEyebrow: string;
+  closingTitle: string;
+  closingDescription: string;
+  closingPrimaryLabel: string;
+  closingPrimaryHref: string;
+  closingSecondaryLabel: string;
+  closingSecondaryHref: string;
+}
+
+export interface StandardPageContent {
+  backLabel: string;
+  eyebrow: string;
+  title: string;
+  accent: string;
+  description: string;
+  seoTitle: string;
+  seoDescription: string;
+  canonicalUrl?: string;
+  socialImageUrl?: string;
+  socialImageAlt?: string;
+}
+
+export interface NewsTopic {
+  id: string;
+  title: string;
+  label: string;
+  description: string;
+  visible: boolean;
+  order: number;
+}
+
+export interface NewsPageContent extends StandardPageContent {
+  emptyEyebrow: string;
+  emptyTitle: string;
+  emptyDescription: string;
+  articleBackLabel: string;
+  publishedLabel: string;
+  notFoundTitle: string;
+  notFoundDescription: string;
+  topics: NewsTopic[];
+  categoryLabels: Record<NewsCategory, string>;
+}
+
+export interface TeamPageCategory {
+  id: string;
+  title: string;
+  eyebrow: string;
+  emptyDescription: string;
+  category: Team["category"];
+  visible: boolean;
+  order: number;
+}
+
+export interface TeamsPageContent extends StandardPageContent {
+  categories: TeamPageCategory[];
+  asideTitle: string;
+  asideDescription: string;
+  asideActionLabel: string;
+  asideActionHref: string;
+  rosterCountLabel: string;
+  teamDescriptionLabel: string;
+  rosterTitle: string;
+  staffTitle: string;
+  jerseyNumberLabel: string;
+}
+
+export interface CalendarPageContent extends StandardPageContent {
+  eventTypes: string[];
+  eventStatusLabels: Record<EventStatus, string>;
+  outcomeLabels: Record<MatchOutcome, string>;
+  seasonLabel: string;
+  competitionLabel: string;
+  venueLabel: string;
+  roundLabel: string;
+  notesLabel: string;
+  upcomingTitle: string;
+  upcomingEmpty: string;
+  resultsTitle: string;
+  resultsEmpty: string;
+}
+
+export interface SocietyPillar {
+  id: string;
+  title: string;
+  description: string;
+  visible: boolean;
+  order: number;
+}
+
+export interface SocietyPageContent extends StandardPageContent {
+  pillars: SocietyPillar[];
+  asideTitle: string;
+  asideDescription: string;
+  historyTitle: string;
+  missionTitle: string;
+  addressTitle: string;
+  contactsTitle: string;
+  socialLinksTitle: string;
+  peopleTitle: string;
+  sponsorsLabel: string;
+  partnersLabel: string;
+}
+
+export interface FooterContent {
+  copyright: string;
+  projectLabel: string;
+}
+
+export interface SiteMetadata {
+  /** Document language, date-format locale and Open Graph locale are editorial site settings. */
+  language: string;
+  locale: string;
+  openGraphLocale: string;
+  title: string;
+  description: string;
+  ogTitle: string;
+  ogDescription: string;
+  canonicalUrl?: string;
+  ogImageUrl?: string;
+  ogImageAlt?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+}
+
+export type BrandThemePreset = "rossoblu-classic" | "rossoblu-dark";
+
+export interface BrandSettings {
+  monogram: string;
+  name: string;
+  descriptor: string;
+  ariaLabel: string;
+  logoUrl?: string;
+  logoAlt: string;
+  themePreset: BrandThemePreset;
+}
+
+export interface InterfaceCopy {
+  skipToContent: string;
+  navigationLabel: string;
+  openMenu: string;
+  closeMenu: string;
+  publishedArticlesLabel: string;
+  newsTopicsLabel: string;
+  teamSectionsLabel: string;
+  calendarTypesLabel: string;
+  societyInformationLabel: string;
+}
+
+export interface SiteSettings {
+  interface: InterfaceCopy;
+  brand: BrandSettings;
+  site: SiteMetadata;
+  navigation: NavigationItem[];
+  home: HomePageContent;
+  news: NewsPageContent;
+  teams: TeamsPageContent;
+  calendar: CalendarPageContent;
+  society: SocietyPageContent;
+  footer: FooterContent;
+}
+
+export type EditorialRole = "reader" | "editor" | "publisher" | "administrator";
+export type RevisionStatus =
+  | "draft"
+  | "in-review"
+  | "approved"
+  | "published"
+  | "rejected"
+  | "archived";
+
+/** Safe metadata for managed media; binary files belong in object storage. */
+export interface MediaAsset {
+  id: string;
+  storageKey: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  publicUrl?: string;
+  altText: string;
+  caption?: string;
+  uploadedAt: string;
+  uploadedBy: string;
+}
+
+/** Revision envelope for draft, review, approval and publication workflows. */
+export interface EditorialRevision<T> {
+  id: string;
+  entityType: "article" | "team" | "event" | "club-profile" | "site-settings" | "media";
+  entityId: string;
+  status: RevisionStatus;
+  content: T;
+  createdAt: string;
+  createdBy: string;
+  updatedAt: string;
+  updatedBy: string;
+  reviewerId?: string;
+  reviewedAt?: string;
+  reviewNote?: string;
+  publishedAt?: string;
+}
+
+/** Append-only audit metadata; the server must author and protect these fields. */
+export interface EditorialAuditEntry {
+  id: string;
+  actorId: string;
+  actorRole: EditorialRole;
+  action: "create" | "update" | "submit" | "approve" | "reject" | "publish" | "unpublish" | "archive" | "restore" | "delete";
+  entityType: EditorialRevision<unknown>["entityType"];
+  entityId: string;
+  revisionId?: string;
+  occurredAt: string;
+  summary: string;
+}

@@ -1,0 +1,70 @@
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { localContentService } from '../lib/content-service'
+import { getPageHead } from '../lib/page-seo'
+import { newsPublicListFn } from '../lib/server/news-read-actions'
+import { toPublicNewsArticlePage } from '../lib/news-public-list-view'
+
+export const Route = createFileRoute('/news')({
+  loader: async () => {
+    const result = await newsPublicListFn({ data: { pageSize: 20 } })
+    if (result.ok) {
+      const page = toPublicNewsArticlePage(result.value)
+      return { articles: page?.items ?? [], unavailable: page === null, localFallback: false }
+    }
+    if (result.code === 'not-configured') {
+      return { articles: localContentService.news(), unavailable: false, localFallback: true }
+    }
+    return { articles: [], unavailable: true, localFallback: false }
+  },
+  head: () => getPageHead(localContentService.settings().news),
+  component: NewsPage,
+})
+
+function NewsPage() {
+  const newsData = Route.useLoaderData()
+  const published = newsData.articles
+  const settings = localContentService.settings()
+  const content = settings.news
+  const topics = content.topics.filter((topic) => topic.visible).slice().sort((a, b) => a.order - b.order)
+  return (
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-[#090d18] px-5 py-12 text-white sm:px-8">
+      <div className="mx-auto max-w-7xl">
+        <Link to="/" className="text-sm font-semibold text-red-300 transition hover:text-white">{content.backLabel}</Link>
+        <header className="mt-16 max-w-3xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-red-300">{content.eyebrow}</p>
+          <h1 className="mt-4 text-5xl font-black tracking-tight sm:text-7xl">{content.title}<br /><span className="text-[#e53949]">{content.accent}</span></h1>
+          <p className="mt-8 text-lg leading-8 text-slate-300">{content.description}</p>
+        </header>
+        {newsData.unavailable ? (
+          <section className="mt-14 rounded-3xl border border-amber-300/25 bg-amber-300/5 p-7" role="status">
+            <h2 className="text-xl font-bold text-amber-100">Notizie momentaneamente non disponibili</h2>
+            <p className="mt-3 leading-7 text-slate-300">Non è stato possibile recuperare l'archivio pubblicato. Riprova più tardi.</p>
+          </section>
+        ) : published.length === 0 ? (
+          <section className="mt-14 rounded-3xl border border-red-400/20 bg-gradient-to-br from-red-500/10 to-white/[0.02] p-7 sm:p-10" aria-live="polite">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-red-300">{content.emptyEyebrow}</span>
+            <h2 className="mt-4 text-2xl font-bold sm:text-3xl">{content.emptyTitle}</h2>
+            <p className="mt-4 max-w-2xl leading-7 text-slate-400">{content.emptyDescription}</p>
+          </section>
+        ) : (
+          <section className="mt-12 grid gap-5 md:grid-cols-2" aria-label={localContentService.settings().interface.publishedArticlesLabel}>
+            {published.map((article) => <article key={article.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+              <p className="text-xs font-semibold uppercase tracking-widest text-red-300">{content.categoryLabels[article.category]}</p>
+              <h2 className="mt-3 text-xl font-bold"><Link to="/news/$slug" params={{ slug: article.slug }} className="transition hover:text-red-200">{article.title}</Link></h2>
+              {article.excerpt && <p className="mt-3 leading-7 text-slate-400">{article.excerpt}</p>}
+              {article.publishedAt && <p className="mt-4 text-xs text-slate-500">{new Date(article.publishedAt).toLocaleDateString(settings.site.locale)}</p>}
+            </article>)}
+          </section>
+        )}
+        {newsData.localFallback && <p className="mt-8 text-xs text-slate-500">Archivio dimostrativo locale: il collegamento al database pubblico non è ancora configurato.</p>}
+        {topics.length > 0 && <section className="mt-12 grid gap-5 md:grid-cols-3" aria-label={localContentService.settings().interface.newsTopicsLabel}>
+          {topics.map((topic) => <article key={topic.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+            <span className="text-xs font-semibold uppercase tracking-widest text-red-300">{topic.label}</span>
+            <h2 className="mt-4 text-xl font-bold">{topic.title}</h2>
+            <p className="mt-3 leading-7 text-slate-400">{topic.description}</p>
+          </article>)}
+        </section>}
+      </div>
+    </main>
+  )
+}

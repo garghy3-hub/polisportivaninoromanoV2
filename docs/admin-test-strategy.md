@@ -1,0 +1,71 @@
+# Admin test strategy
+
+This plan defines the verification gates for the authenticated editorial workflows already present in the branch. It is not a substitute for tests or server-side enforcement.
+
+## Test layers
+
+### 1. Pure unit tests
+- Permission matrix: each permission against Reader, Editor, Publisher and Administrator.
+- Invalid/unknown role and permission values deny access.
+- Revision transitions: every listed transition and representative unlisted transitions; same-state transitions denied.
+- Content validators: valid records, missing required fields, malformed URLs, invalid dates/scores, duplicate IDs/slugs, unsafe media metadata and inaccessible states.
+- Query rules: public queries exclude hidden, draft, archived and cancelled items where applicable.
+
+### 2. Server boundary tests (required before production release of authenticated editing workflows)
+- Anonymous requests cannot access editorial reads or mutations.
+- A session with expired, revoked or invalid signature is denied.
+- Role and actor identity are derived from the verified session, never request-body values.
+- Each mutation checks permissions at the server boundary, including direct requests bypassing UI.
+- Editors cannot review/publish; publishers cannot administer roles/settings; only administrators can perform privileged role/settings actions.
+- CSRF and rate-limit behavior are tested for applicable session/auth routes.
+- Resource ownership/scope is enforced.
+
+### 3. Workflow and transactional tests
+- Draft create/update, submit, approve/reject, publish, unpublish, archive and restore follow the documented state machine.
+- Revision and audit writes commit together or roll back together.
+- Concurrent updates cannot silently overwrite a newer revision (optimistic concurrency/version check).
+- Last-admin protection is atomic and tested under concurrent role-change requests.
+- Audit events are immutable from application-facing user operations.
+
+### 4. Public rendering and preview
+- Public endpoints return published content only.
+- Preview is revision-scoped, expires, and cannot be reused by an anonymous or unauthorized user.
+- Preview uses the public rendering components and validates content identically.
+- Verify every editable inventory item changes the intended rendered surface without source-code changes.
+- Check responsive behavior, keyboard focus, screen-reader labels, alt text and empty/error states.
+
+### 5. Release and operational checks
+- CI runs unit, server-boundary, workflow, validation and build/type-check jobs.
+- No credentials or privileged server secrets are present in client bundles.
+- Backup restore, rollback and audit-retention procedures are exercised.
+- Production deployment remains a separate approved action.
+
+## Implemented unit coverage
+
+- Vitest is installed and `npm run test` runs the unit suite.
+- CI runs unit tests before build/type-check.
+- Pure permission and workflow transition rules are tested.
+- Team workflow request validation covers supported actions, required rejection notes, strict ISO timestamps, UUIDs and unknown-key rejection.
+- Calendar draft/workflow validation covers event payload consistency, score rules, timestamps, workflow actions and rejection notes.
+- Content, query and News draft validation have unit coverage.
+- `editorial-session.test.ts` covers the fail-closed resolution of a server-loaded session record, expiry, revocation, unknown roles and permission checks.
+- `news-editorial-service.test.ts` covers service permission gates, category/field validation, expected-version checks, repository delegation, malformed payloads and safe failure mapping.
+
+The `editorial-session.test.ts` suite tests role and expiry decisions after a session record has been loaded; it does not itself exercise Supabase cookie parsing, token verification, Auth user lookup or the database role query. Those responsibilities belong to the implemented Supabase SSR authentication and server-side role-resolution path, which still require authenticated integration tests against a non-production project.
+
+The read-side contract in `docs/news-repository-read-contract.md` also defines required future tests for pagination, preview read-only behavior, public projection filtering, audit access restrictions and deterministic history.
+
+## Repository adapter failure tests
+
+The News service tests explicitly verify that repository failure details are not returned to callers, unexpected thrown exceptions are normalized, and unrecognized failure codes fail closed to a stable internal error response. These tests are service-level safeguards; adapter transaction integrity and production boundary behavior remain unverified.
+
+## Remaining CI and security work
+
+1. Keep unit tests and build/type-check as required CI gates.
+2. Add isolated database integration tests for transaction rollback, audit atomicity, optimistic concurrency and public projection filtering.
+3. Add authenticated end-to-end tests using real Reader, Editor, Publisher and Administrator accounts against a non-production Supabase environment.
+4. Verify denied direct requests, CSRF, rate limits, session revocation and role spoofing at the actual server request boundary.
+
+## Current status
+
+The branch contains Supabase SSR authentication integration, server-side editorial actions and database-backed workflow RPCs for News, teams and calendar. The session/role boundary and action guards are implemented in code, and unit tests cover selected pure validation and service behavior. However, no real editorial Auth accounts have completed end-to-end testing, so production authentication, role enforcement across actual requests, database transaction behavior and public rendering remain operationally unverified. The coverage listed above is not a substitute for isolated database integration tests or authenticated browser/API tests. Pages/site editorial migration is not present in the remote migration ledger snapshot; its public publish path is intentionally blocked. Media remains browser-local until remote Storage is implemented.

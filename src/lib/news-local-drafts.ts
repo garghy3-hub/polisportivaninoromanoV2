@@ -1,0 +1,7 @@
+import type { NewsDraftInput } from './news-draft-validation'
+const STORAGE_KEY = 'nino-romano-v2-news-draft'
+export interface LocalDraftEnvelope { version: 1; savedAt: string; content: NewsDraftInput }
+export interface DraftStorage { getItem(key:string):string|null; setItem(key:string,value:string):void; removeItem(key:string):void }
+export function saveLocalNewsDraft(storage:DraftStorage,content:NewsDraftInput,savedAt=new Date().toISOString()):boolean { try { storage.setItem(STORAGE_KEY,JSON.stringify({version:1,savedAt,content}));return true } catch{return false} }
+export function loadLocalNewsDraft(storage:DraftStorage):LocalDraftEnvelope|null { try { const raw=storage.getItem(STORAGE_KEY);if(!raw)return null;const value:unknown=JSON.parse(raw);if(!value||typeof value!=='object'||Array.isArray(value))return null;const e=value as Record<string,unknown>;if(e.version!==1||typeof e.savedAt!=='string'||!Number.isFinite(Date.parse(e.savedAt)))return null;if(!e.content||typeof e.content!=='object'||Array.isArray(e.content))return null;const c=e.content as Record<string,unknown>;const fields:(keyof NewsDraftInput)[]=['title','slug','category','excerpt','body','seoTitle','seoDescription','imageUrl','imageAlt'];if(Object.keys(c).length!==fields.length||!fields.every(k=>typeof c[k]==='string'))return null;return {version:1,savedAt:e.savedAt,content:c as unknown as NewsDraftInput} }catch{return null} }
+export function clearLocalNewsDraft(storage:DraftStorage):boolean {try{storage.removeItem(STORAGE_KEY);return true}catch{return false}}
