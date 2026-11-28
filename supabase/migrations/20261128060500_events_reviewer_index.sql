@@ -1,1 +1,2 @@
--- Support reviewer lookups and avoid an unindexed FK on editorial events.\ncreate index if not exists events_reviewer_id_idx on public.events (reviewer_id);\n
+-- Support reviewer lookups and avoid an unindexed FK on editorial events.
+create index if not exists events_reviewer_id_idx on public.events (reviewer_id);
