@@ -29,7 +29,7 @@ function isStrictIsoTimestamp(value: unknown): value is string {
  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return false;
  if (zone !== "Z") {
    const offset = /[+-](\d{2}):(\d{2})$/.exec(zone);
-   if (!offset || Number(offset[1]) > 14 || Number(offset[2]) > 59\n     || (Number(offset[1]) === 14 && Number(offset[2]) !== 0)) return false;
+   if (!offset || Number(offset[1]) > 14 || Number(offset[2]) > 59 || (Number(offset[1]) === 14 && Number(offset[2]) !== 0)) return false;
  }
  return Number.isFinite(Date.parse(value));
 }
