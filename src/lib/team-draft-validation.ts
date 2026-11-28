@@ -8,7 +8,20 @@ export interface TeamDraftPayload {
   staff: Array<{ name: string; role: string }>;
 }
 
-const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;\n\nfunction isStrictTimestamp(value: unknown): value is string {\n  if (typeof value !== "string" || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,9})?(?:Z|[+-]\\d{2}:\\d{2})$/.test(value)) return false;\n  const match = /^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})/.exec(value);\n  if (!match) return false;\n  const [, y, m, d, h, min, s] = match;\n  const date = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d)));\n  if (date.getUTCFullYear() !== Number(y) || date.getUTCMonth() !== Number(m) - 1 || date.getUTCDate() !== Number(d)\n    || Number(h) > 23 || Number(min) > 59 || Number(s) > 59) return false;\n  const zone = /([+-])(\\d{2}):(\\d{2})$/.exec(value);\n  if (zone && (Number(zone[2]) > 14 || Number(zone[3]) > 59 || (Number(zone[2]) === 14 && Number(zone[3]) !== 0))) return false;\n  return Number.isFinite(Date.parse(value));\n}
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function isStrictTimestamp(value: unknown): value is string {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)) return false;
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/.exec(value);
+  if (!match) return false;
+  const [, y, m, d, h, min, s] = match;
+  const date = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d)));
+  if (date.getUTCFullYear() !== Number(y) || date.getUTCMonth() !== Number(m) - 1 || date.getUTCDate() !== Number(d)
+    || Number(h) > 23 || Number(min) > 59 || Number(s) > 59) return false;
+  const zone = /([+-])(\d{2}):(\d{2})$/.exec(value);
+  if (zone && (Number(zone[2]) > 14 || Number(zone[3]) > 59 || (Number(zone[2]) === 14 && Number(zone[3]) !== 0))) return false;
+  return Number.isFinite(Date.parse(value));
+}
 
 export function isValidTeamDraftPayload(value: unknown): value is TeamDraftPayload {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
