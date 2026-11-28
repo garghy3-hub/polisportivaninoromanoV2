@@ -17,10 +17,18 @@ function hasExactKeys(value: Record<string, unknown>, expected: readonly string[
   return keys.length === allowed.length && keys.every((key, index) => key === allowed[index]);
 }
 
-function isTimestamp(value: unknown): value is string {
-  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)) return false;
-  const parsed = Date.parse(value);
-  return Number.isFinite(parsed);
+export function isValidSiteEditorialTimestamp(value: unknown): value is string {
+  if (typeof value !== "string" || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,9})?(?:Z|[+-]\\d{2}:\\d{2})$/.test(value)) return false;
+  const match = /^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})/.exec(value);
+  if (!match) return false;
+  const [, y, m, d, h, min, s] = match;
+  const date = new Date(0);
+  date.setUTCFullYear(Number(y), Number(m) - 1, Number(d));
+  date.setUTCHours(0, 0, 0, 0);
+  if (date.getUTCFullYear() !== Number(y) || date.getUTCMonth() !== Number(m) - 1 || date.getUTCDate() !== Number(d) || Number(h) > 23 || Number(min) > 59 || Number(s) > 59) return false;
+  const zone = /([+-])(\\d{2}):(\\d{2})$/.exec(value);
+  if (zone && (Number(zone[2]) > 14 || Number(zone[3]) > 59 || (Number(zone[2]) === 14 && Number(zone[3]) !== 0))) return false;
+  return Number.isFinite(Date.parse(value));
 }
 
 function isResource(value: unknown): value is SiteEditorialResource {
@@ -89,7 +97,7 @@ export const saveSiteEditorialDraftFn = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     if (!isRecord(data) || !hasExactKeys(data, ["resource", "expectedUpdatedAt", "payload"])
       || !isResource(data.resource)
-      || !(data.expectedUpdatedAt === null || isTimestamp(data.expectedUpdatedAt))
+      || !(data.expectedUpdatedAt === null || isValidSiteEditorialTimestamp(data.expectedUpdatedAt))
       || !validatePayload(data.resource, data.payload)) {
       return { ok: false as const, code: "invalid" as const };
     }
@@ -157,7 +165,7 @@ export const siteEditorialWorkflowFn = createServerFn({ method: "POST" })
     if (!isRecord(data) || !hasExactKeys(data, ["resource", "action", "expectedUpdatedAt", "note"])
       || !isResource(data.resource)
       || !["submit", "approve", "reject", "publish", "unpublish"].includes(data.action as string)
-      || !isTimestamp(data.expectedUpdatedAt)
+      || !isValidSiteEditorialTimestamp(data.expectedUpdatedAt)
       || typeof data.note !== "string" || data.note.length > 1000
       || (data.action === "reject" ? data.note.trim().length === 0 : data.note !== "")) {
       return { ok: false as const, code: "invalid" as const };
