@@ -62,9 +62,9 @@ The News service tests explicitly verify that repository failure details are not
 ## Remaining CI and security work
 
 1. Keep unit tests and build/type-check as required CI gates.
-2. When server services exist, add boundary and transaction integration tests using an isolated test environment.
-3. Add end-to-end editorial/public rendering tests only after authentication and persistence are implemented.
-4. Verify denied direct API requests, CSRF, rate limits, session revocation and role spoofing at the actual server request boundary.
+2. Add isolated database integration tests for transaction rollback, audit atomicity, optimistic concurrency and public projection filtering.
+3. Add authenticated end-to-end tests using real Reader, Editor, Publisher and Administrator accounts against a non-production Supabase environment.
+4. Verify denied direct requests, CSRF, rate limits, session revocation and role spoofing at the actual server request boundary.
 
 ## Current status
 
